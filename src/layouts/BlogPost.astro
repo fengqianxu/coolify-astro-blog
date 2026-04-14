@@ -1,62 +1,89 @@
 ---
-import Layout from './Layout.astro';
+/**
+ * @layout BlogPost
+ * @description 文章详情页布局。
+ *
+ * 包含：封面图、元数据头（标题/标签/日期）、Markdown 正文、返回链接。
+ * 阅读进度条由父 Layout 的全局脚本驱动，无需在此处理。
+ */
 
-interface Props {
-  title:        string;
-  description:  string;
-  pubDate:      Date;
-  updatedDate?: Date;
-  heroImage?:   string;
-  tags:         string[];
-  category:     string;
-}
+import Layout from './Layout.astro';
+import type { PostMeta } from '../types';
+
+// 只需 PostMeta 的子集，不含 draft/featured
+type Props = Omit<PostMeta, 'draft' | 'featured'>;
 
 const { title, description, pubDate, updatedDate, heroImage, tags, category } = Astro.props;
 
-const dateStr    = pubDate.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
-const updatedStr = updatedDate?.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+const dateStr = pubDate.toLocaleDateString('zh-CN', {
+  year: 'numeric', month: 'long', day: 'numeric',
+});
+const updatedStr = updatedDate?.toLocaleDateString('zh-CN', {
+  year: 'numeric', month: 'long', day: 'numeric',
+});
 ---
 
 <Layout title={title} description={description} ogImage={heroImage}>
-  <article class="relative z-10 max-w-3xl mx-auto px-6 pb-20">
+  <article class="relative z-10 max-w-3xl mx-auto px-6 pb-24">
 
+    <!-- 封面图 -->
     {heroImage && (
-      <div class="rounded-3xl overflow-hidden mb-8 aspect-video shadow-md">
-        <img src={heroImage} alt={title} class="w-full h-full object-cover" />
+      <div class="rounded-3xl overflow-hidden mb-8 aspect-video shadow-card">
+        <img
+          src={heroImage}
+          alt={`${title} 封面图`}
+          class="w-full h-full object-cover"
+          loading="eager"
+        />
       </div>
     )}
 
+    <!-- 元数据头 -->
     <header class="mb-8">
-      <div class="flex items-center gap-2 mb-4 flex-wrap">
-        <span class="rounded-full px-3 py-0.5 text-xs font-medium
-                     bg-sakura-100 text-sakura-600 border border-sakura-200">{category}</span>
-        {tags.map(tag => <span class="tag-pill">{tag}</span>)}
+      <div class="flex flex-wrap items-center gap-2 mb-4">
+        <span class="rounded-full px-2.5 py-0.5 text-xs font-medium
+                     bg-sakura-500/15 text-sakura-300 border border-sakura-700/40">
+          {category}
+        </span>
+        {tags.map((tag) => (
+          <a href={`/tags/${encodeURIComponent(tag)}`} class="tag-pill">{tag}</a>
+        ))}
       </div>
 
-      <h1 class="font-heading text-3xl sm:text-4xl font-bold text-purple-950 leading-tight mb-4">
+      <h1 class="font-heading text-3xl sm:text-4xl font-bold text-lavender-100
+                 leading-tight mb-4">
         {title}
       </h1>
 
-      <div class="flex items-center gap-4 text-sm text-purple-400">
-        <time>{dateStr}</time>
-        {updatedStr && <span>· 更新于 {updatedStr}</span>}
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-lavender-500">
+        <time datetime={pubDate.toISOString()}>{dateStr}</time>
+        {updatedStr && (
+          <span class="text-lavender-600">· 更新于 {updatedStr}</span>
+        )}
       </div>
     </header>
 
-    <!-- Article body -->
-    <div class="glass-card p-8 sm:p-10 prose prose-kawaii max-w-none
+    <!-- Markdown 正文（prose-twilight 来自 tailwind.config.mjs typography 扩展） -->
+    <div class="glass-card p-8 sm:p-10
+                prose prose-twilight max-w-none
                 prose-headings:font-heading
-                prose-a:no-underline prose-a:text-sakura-500 hover:prose-a:text-sakura-600
+                prose-a:no-underline prose-a:text-sakura-400 hover:prose-a:text-sakura-300
                 prose-code:before:content-none prose-code:after:content-none
-                prose-pre:rounded-2xl prose-pre:border prose-pre:border-sakura-100 prose-pre:shadow-sm
-                prose-blockquote:border-l-sakura-400 prose-blockquote:bg-sakura-50/60 prose-blockquote:rounded-r-xl prose-blockquote:py-1
-                prose-img:rounded-2xl prose-img:shadow-md">
+                prose-pre:rounded-2xl prose-pre:border prose-pre:border-white/8
+                prose-blockquote:bg-sakura-500/5 prose-blockquote:rounded-r-xl prose-blockquote:py-1
+                prose-img:rounded-2xl prose-img:shadow-card">
       <slot />
     </div>
 
-    <div class="mt-10 pt-6 border-t border-sakura-100">
-      <a href="/blog" class="inline-flex items-center gap-2 text-sm text-purple-500 hover:text-sakura-500 transition-colors">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+    <!-- 返回链接 -->
+    <div class="mt-10 pt-6 border-t border-white/6">
+      <a
+        href="/blog"
+        class="inline-flex items-center gap-2 text-sm text-lavender-500
+               hover:text-sakura-400 transition-colors duration-200"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+             viewBox="0 0 24 24" aria-hidden="true">
           <path d="m15 18-6-6 6-6"/>
         </svg>
         返回文章列表

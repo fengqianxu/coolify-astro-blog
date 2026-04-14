@@ -1,64 +1,70 @@
 ---
+/**
+ * @component NavBar
+ * @description 固定顶部导航栏。
+ *
+ * 行为：
+ *  - heroVideo=true 时，初始为半透明暗底（nav-over-video）覆盖在视频上，
+ *    文字始终白色且清晰可见。
+ *  - 滚过视口 80% 后切换为深色磨砂玻璃（nav-solid）。
+ *  - heroVideo=false 时，始终使用 nav-solid 样式，顶部留 --nav-height 间距。
+ *
+ * 搜索：点击 🔍 按钮或按 Ctrl/Cmd + K 打开搜索弹窗（#search-modal）。
+ */
+
+import { SITE, NAV_LINKS } from '../config/site';
+
 interface Props {
+  /** 是否处于全屏视频首屏模式 */
   heroVideo?: boolean;
 }
 const { heroVideo = false } = Astro.props;
-
-const navLinks = [
-  { href: '/',      label: '首页' },
-  { href: '/blog',  label: '文章' },
-  { href: '/tags',  label: '标签' },
-  { href: '/about', label: '关于' },
-];
 
 const current = Astro.url.pathname;
 ---
 
 <header
   id="site-header"
-  data-hero={heroVideo ? 'true' : 'false'}
-  class:list={[
-    'fixed top-0 inset-x-0 z-40 transition-all duration-500',
-    heroVideo ? 'hero-transparent' : '',
-  ]}
+  data-hero={heroVideo}
+  class="fixed top-0 inset-x-0 z-40"
+  style="transition: none;"
 >
   <div class="flex justify-center px-4 pt-3">
     <nav
-      id="nav-inner"
+      id="nav-pill"
       class:list={[
-        'w-full max-w-4xl rounded-2xl px-6 py-3 flex items-center justify-between gap-4 transition-all duration-500',
-        heroVideo ? 'bg-transparent border-transparent shadow-none' : 'nav-blur',
+        'w-full max-w-4xl rounded-2xl px-6 py-3',
+        'flex items-center justify-between gap-4',
+        'transition-[background,border-color,box-shadow] duration-400',
+        heroVideo ? 'nav-over-video' : 'nav-solid',
       ]}
     >
-      <!-- Logo -->
-      <a href="/" class="flex items-center gap-2 group">
-        <span class="text-2xl select-none animate-bounce-gentle inline-block">🌸</span>
-        <span
-          id="logo-text"
-          class:list={[
-            'font-heading font-semibold text-lg transition-all duration-500',
-            heroVideo ? 'text-white drop-shadow-md' : 'text-gradient',
-          ]}
-        >AniLog</span>
+      <!-- ── Logo ──────────────────────────────────── -->
+      <a href="/" class="flex items-center gap-2 shrink-0">
+        <span class="text-xl select-none animate-bounce-gentle inline-block" aria-hidden="true">🌸</span>
+        <span id="nav-logo" class="font-heading font-semibold text-lg transition-all duration-400 text-gradient">
+          {SITE.name}
+        </span>
       </a>
 
-      <!-- Desktop links -->
-      <ul class="hidden sm:flex items-center gap-1">
-        {navLinks.map(({ href, label }) => {
-          const active = href === '/' ? current === href : current.startsWith(href);
+      <!-- ── Desktop links ─────────────────────────── -->
+      <ul class="hidden sm:flex items-center gap-1" role="menubar">
+        {NAV_LINKS.map(({ href, label }) => {
+          const isActive = href === '/'
+            ? current === href
+            : current.startsWith(href);
           return (
-            <li>
+            <li role="none">
               <a
                 href={href}
+                role="menuitem"
+                aria-current={isActive ? 'page' : undefined}
                 class:list={[
-                  'nav-link px-4 py-1.5 rounded-xl text-sm font-medium transition-all duration-200',
-                  active && !heroVideo
-                    ? 'bg-sakura-100 text-sakura-600 border border-sakura-300/60 shadow-sm'
-                    : active && heroVideo
-                      ? 'bg-white/20 text-white border border-white/30 backdrop-blur-sm'
-                      : heroVideo
-                        ? 'text-white/80 hover:text-white hover:bg-white/15'
-                        : 'text-purple-700 hover:text-sakura-600 hover:bg-sakura-50',
+                  'nav-link px-4 py-1.5 rounded-xl text-sm font-medium',
+                  'transition-all duration-200',
+                  isActive
+                    ? 'bg-sakura-500/20 text-sakura-300 border border-sakura-500/40'
+                    : 'text-lavender-300 hover:text-white hover:bg-white/8',
                 ]}
               >
                 {label}
@@ -68,33 +74,34 @@ const current = Astro.url.pathname;
         })}
       </ul>
 
-      <!-- Right controls -->
-      <div class="flex items-center gap-2">
+      <!-- ── Controls ──────────────────────────────── -->
+      <div class="flex items-center gap-1 shrink-0">
+        <!-- 搜索按钮 -->
         <button
-          id="search-btn"
-          aria-label="搜索"
-          class:list={[
-            'p-2 rounded-xl transition-all duration-200',
-            heroVideo
-              ? 'text-white/70 hover:text-white hover:bg-white/15'
-              : 'text-purple-400 hover:text-sakura-500 hover:bg-sakura-50',
-          ]}
+          id="search-open-btn"
+          type="button"
+          aria-label="搜索文章（Ctrl+K）"
+          class="p-2 rounded-xl text-lavender-400 hover:text-sakura-400
+                 hover:bg-sakura-500/10 transition-all duration-200 cursor-pointer"
         >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+               viewBox="0 0 24 24" aria-hidden="true">
             <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
           </svg>
         </button>
+
+        <!-- 移动端菜单按钮 -->
         <button
-          id="menu-btn"
-          aria-label="菜单"
-          class:list={[
-            'sm:hidden p-2 rounded-xl transition-all',
-            heroVideo
-              ? 'text-white/70 hover:text-white hover:bg-white/15'
-              : 'text-purple-400 hover:text-sakura-500 hover:bg-sakura-50',
-          ]}
+          id="mobile-menu-btn"
+          type="button"
+          aria-label="打开菜单"
+          aria-expanded="false"
+          aria-controls="mobile-menu"
+          class="sm:hidden p-2 rounded-xl text-lavender-400 hover:text-white
+                 hover:bg-white/8 transition-all duration-200 cursor-pointer"
         >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+               viewBox="0 0 24 24" aria-hidden="true">
             <path d="M4 6h16M4 12h16M4 18h16"/>
           </svg>
         </button>
@@ -102,15 +109,19 @@ const current = Astro.url.pathname;
     </nav>
   </div>
 
-  <!-- Mobile menu -->
+  <!-- ── 移动端下拉菜单 ─────────────────────────────── -->
   <div
     id="mobile-menu"
-    class="mx-4 mt-1 nav-blur rounded-2xl px-4 py-3 hidden sm:hidden"
+    role="menu"
+    hidden
+    class="mx-4 mt-1 nav-solid rounded-2xl px-4 py-3"
   >
-    {navLinks.map(({ href, label }) => (
+    {NAV_LINKS.map(({ href, label }) => (
       <a
         href={href}
-        class="block px-3 py-2.5 rounded-xl text-sm text-purple-700 hover:text-sakura-600 hover:bg-sakura-50 transition-all"
+        role="menuitem"
+        class="block px-3 py-2.5 rounded-xl text-sm text-lavender-300
+               hover:text-white hover:bg-white/8 transition-all duration-200"
       >
         {label}
       </a>
@@ -119,56 +130,58 @@ const current = Astro.url.pathname;
 </header>
 
 <script>
+  // ── 滚动感知：在视频首屏与正文之间切换导航栏样式 ─────────────────
   const header  = document.getElementById('site-header')!;
-  const navInner = document.getElementById('nav-inner')!;
-  const logoText = document.getElementById('logo-text')!;
-  const isHero   = header.dataset.hero === 'true';
+  const navPill = document.getElementById('nav-pill')!;
+  const isHero  = header.dataset.hero === 'true';
 
   if (isHero) {
-    // Switch nav style once user scrolls past 80 % of viewport height
-    const threshold = window.innerHeight * 0.8;
+    const SCROLL_THRESHOLD = window.innerHeight * 0.8;
 
-    function updateNav() {
-      const scrolled = window.scrollY > threshold;
-
-      // nav pill background
+    function applyNavState(scrolled: boolean) {
       if (scrolled) {
-        navInner.classList.add('nav-blur', 'mt-0');
-        navInner.classList.remove('bg-transparent', 'border-transparent', 'shadow-none');
+        navPill.classList.replace('nav-over-video', 'nav-solid');
       } else {
-        navInner.classList.remove('nav-blur');
-        navInner.classList.add('bg-transparent', 'border-transparent', 'shadow-none');
+        navPill.classList.replace('nav-solid', 'nav-over-video');
       }
-
-      // Logo gradient vs white
-      if (scrolled) {
-        logoText.classList.remove('text-white', 'drop-shadow-md');
-        logoText.classList.add('text-gradient');
-      } else {
-        logoText.classList.add('text-white', 'drop-shadow-md');
-        logoText.classList.remove('text-gradient');
-      }
-
-      // Nav links colour
-      document.querySelectorAll<HTMLElement>('.nav-link').forEach(link => {
-        if (scrolled) {
-          link.classList.remove('text-white/80', 'hover:text-white', 'hover:bg-white/15',
-                                'bg-white/20', 'border-white/30', 'backdrop-blur-sm');
-          link.classList.add('text-purple-700', 'hover:text-sakura-600', 'hover:bg-sakura-50');
-        } else {
-          link.classList.remove('text-purple-700', 'hover:text-sakura-600', 'hover:bg-sakura-50',
-                                'bg-sakura-100', 'text-sakura-600', 'border-sakura-300/60', 'shadow-sm');
-          link.classList.add('text-white/80', 'hover:text-white', 'hover:bg-white/15');
-        }
-      });
     }
 
-    window.addEventListener('scroll', updateNav, { passive: true });
-    updateNav(); // run once on load
+    // 立即执行一次，避免初始闪烁
+    applyNavState(window.scrollY > SCROLL_THRESHOLD);
+    // 滚动时更新（passive 保证不阻塞渲染）
+    window.addEventListener('scroll', () => {
+      applyNavState(window.scrollY > SCROLL_THRESHOLD);
+    }, { passive: true });
   }
 
-  // Mobile toggle
-  const btn  = document.getElementById('menu-btn');
-  const menu = document.getElementById('mobile-menu');
-  btn?.addEventListener('click', () => menu?.classList.toggle('hidden'));
+  // ── 移动端菜单开关 ────────────────────────────────────────────────
+  const menuBtn  = document.getElementById('mobile-menu-btn')!;
+  const mobileMenu = document.getElementById('mobile-menu')!;
+
+  menuBtn.addEventListener('click', () => {
+    const isOpen = !mobileMenu.hidden;
+    mobileMenu.hidden = isOpen;
+    menuBtn.setAttribute('aria-expanded', String(!isOpen));
+    menuBtn.setAttribute('aria-label', isOpen ? '打开菜单' : '关闭菜单');
+  });
+
+  // ── 搜索快捷键 & 按钮 ────────────────────────────────────────────
+  const searchBtn   = document.getElementById('search-open-btn')!;
+  const searchModal = document.getElementById('search-modal');
+
+  function openSearch() {
+    if (!searchModal) return;
+    searchModal.removeAttribute('hidden');
+    searchModal.querySelector<HTMLInputElement>('#search-input')?.focus();
+  }
+
+  searchBtn.addEventListener('click', openSearch);
+
+  document.addEventListener('keydown', (e) => {
+    // Ctrl+K 或 Cmd+K 打开搜索
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      openSearch();
+    }
+  });
 </script>

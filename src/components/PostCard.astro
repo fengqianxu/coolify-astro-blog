@@ -1,14 +1,22 @@
 ---
-interface Props {
-  slug:        string;
-  title:       string;
-  description: string;
-  pubDate:     Date;
-  tags:        string[];
-  category:    string;
-  heroImage?:  string;
-  featured?:   boolean;
-}
+/**
+ * @component PostCard
+ * @description 文章预览卡片，用于首页网格和博客列表页。
+ *
+ * @prop slug       文章唯一路径段
+ * @prop title      文章标题
+ * @prop description 摘要
+ * @prop pubDate    发布日期
+ * @prop tags       标签数组（最多展示 3 个）
+ * @prop category   分类名称
+ * @prop heroImage  封面图路径（可选，缺省时显示分类渐变占位）
+ * @prop featured   是否置顶/精选（占双列宽）
+ */
+
+import type { PostSummary } from '../types';
+import { CATEGORY_EMOJI, CATEGORY_GRADIENT } from '../config/site';
+
+type Props = PostSummary;
 
 const { slug, title, description, pubDate, tags, category, heroImage, featured } = Astro.props;
 
@@ -16,65 +24,74 @@ const dateStr = pubDate.toLocaleDateString('zh-CN', {
   year: 'numeric', month: 'long', day: 'numeric',
 });
 
-const categoryEmoji: Record<string, string> = {
-  '技术': '⚙️', '二次元': '🌸', '随笔': '✏️', '游戏': '🎮', '音乐': '🎵',
-};
-const emoji = categoryEmoji[category] ?? '✨';
-
-// Soft gradient per category
-const cardGradients: Record<string, string> = {
-  '技术':   'from-lavender-50  to-lavender-100',
-  '二次元': 'from-sakura-50    to-peach-50',
-  '随笔':   'from-cream-50     to-mint-50',
-};
-const gradClass = cardGradients[category] ?? 'from-surface-50 to-surface-200';
+const emoji    = CATEGORY_EMOJI[category]    ?? '✨';
+const gradient = CATEGORY_GRADIENT[category] ?? 'from-void-800/80 to-void-700/60';
 ---
 
-<article class:list={[
-  'glass-card overflow-hidden group relative',
-  featured ? 'sm:col-span-2' : '',
-]}>
-  <!-- Cover -->
-  <div class:list={[
-    'relative overflow-hidden aspect-video bg-gradient-to-br',
-    gradClass,
-  ]}>
-    {heroImage ? (
-      <img
-        src={heroImage}
-        alt={title}
-        loading="lazy"
-        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-      />
-    ) : (
-      <div class="absolute inset-0 flex items-center justify-center">
-        <span class="text-5xl opacity-40 select-none group-hover:scale-110 transition-transform duration-300">
-          {emoji}
-        </span>
-      </div>
-    )}
-    <!-- Category badge -->
-    <span class="absolute top-3 left-3 rounded-full px-3 py-0.5 text-xs font-medium
-                 bg-white/80 backdrop-blur text-sakura-600 border border-sakura-200 shadow-sm">
+<article
+  class:list={[
+    'glass-card overflow-hidden group relative',
+    'transition-transform duration-300 hover:-translate-y-1',
+    featured ? 'sm:col-span-2' : '',
+  ]}
+>
+  <!-- ── 封面区域 ─────────────────────────────────────── -->
+  <div class:list={['relative aspect-video overflow-hidden bg-gradient-to-br', gradient]}>
+    {heroImage
+      ? (
+        <img
+          src={heroImage}
+          alt={`${title} 封面图`}
+          loading="lazy"
+          decoding="async"
+          class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+      )
+      : (
+        <div class="absolute inset-0 flex items-center justify-center">
+          <span
+            class="text-5xl opacity-30 select-none transition-transform duration-300 group-hover:scale-110"
+            aria-hidden="true"
+          >
+            {emoji}
+          </span>
+        </div>
+      )
+    }
+
+    <!-- 分类徽章 -->
+    <span class="absolute top-3 left-3 rounded-full px-2.5 py-0.5 text-xs font-medium
+                 bg-void-900/70 backdrop-blur-sm text-sakura-300 border border-sakura-700/40">
       {category}
     </span>
   </div>
 
-  <!-- Content -->
-  <div class="p-5 flex flex-col gap-3">
-    <h2 class="font-heading font-semibold text-lg text-purple-950 line-clamp-2
-               group-hover:text-sakura-600 transition-colors duration-200">
+  <!-- ── 文字区域 ─────────────────────────────────────── -->
+  <div class="p-5 flex flex-col gap-2.5">
+    <h2 class="font-heading font-semibold text-base text-lavender-100 line-clamp-2
+               group-hover:text-sakura-300 transition-colors duration-200 leading-snug">
+      <!--
+        after:absolute after:inset-0 让整个卡片区域都是链接的点击热区，
+        同时 <a> 的文字仍是无障碍的可读标题。
+      -->
       <a href={`/blog/${slug}`} class="after:absolute after:inset-0">
         {title}
       </a>
     </h2>
 
-    <p class="text-purple-700/70 text-sm line-clamp-2 leading-relaxed">{description}</p>
+    <p class="text-lavender-400 text-sm line-clamp-2 leading-relaxed">{description}</p>
 
-    <div class="flex items-center justify-between mt-auto pt-2 border-t border-sakura-100">
-      <time class="text-xs text-purple-400">{dateStr}</time>
-      <div class="flex flex-wrap gap-1">
-        {tags.slice(0, 3).map(tag => (
+    <div class="flex items-center justify-between mt-auto pt-2.5 border-t border-white/6">
+      <time
+        datetime={pubDate.toISOString()}
+        class="text-xs text-lavender-600"
+      >
+        {dateStr}
+      </time>
+
+      <!-- 最多展示 3 个标签 -->
+      <div class="flex flex-wrap gap-1" aria-label="文章标签">
+        {tags.slice(0, 3).map((tag) => (
           <span class="tag-pill">{tag}</span>
         ))}
       </div>

@@ -1,100 +1,150 @@
+/**
+ * @file global.css
+ * @description 全局基础样式。分三层：
+ *   1. @base   — HTML 元素重置与 CSS 变量
+ *   2. @components — 可复用的 Tailwind 组合类
+ *   3. @utilities — 辅助工具类
+ *
+ * 主题：Twilight Sakura（暗紫樱花）
+ * 背景：deep void #13111c  |  强调：sakura #f472b6 + lavender #c084fc
+ */
+
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Serif+JP:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ── Base ─────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────
+   1. BASE
+   ───────────────────────────────────────────────────── */
 @layer base {
   :root {
-    --color-primary:   #f4457e;
-    --color-secondary: #8b5cf6;
-    --color-accent:    #34d399;
-    --color-bg:        #fffaf5;
-    --color-surface:   #ffffff;
-    --color-border:    rgba(244,69,126,0.12);
+    /* 设计令牌：CSS 变量，供 JS 读取滚动进度等动态值 */
     --reading-progress: 0%;
+
+    /* 导航高度，其他元素需要偏移时统一读取 */
+    --nav-height: 4rem;
   }
 
-  html { scroll-behavior: smooth; }
+  html {
+    scroll-behavior: smooth;
+    /* 防止背景色在快速滚动时露白 */
+    background-color: #13111c;
+  }
 
   body {
-    @apply bg-surface-100 text-purple-950 font-body antialiased;
-    /* Soft warm gradient base */
+    @apply bg-void-900 text-lavender-200 font-body antialiased;
+
+    /* 微妙的径向光晕，加强与 Saber 视频的暗紫氛围联系 */
     background-image:
-      radial-gradient(ellipse 90% 60% at 20% -5%,  rgba(244,69,126,0.08)  0%, transparent 55%),
-      radial-gradient(ellipse 70% 50% at 85%  10%,  rgba(139,92,246,0.07)  0%, transparent 55%),
-      radial-gradient(ellipse 60% 40% at 50% 100%,  rgba(52,211,153,0.06)  0%, transparent 55%);
+      radial-gradient(ellipse 80% 50% at 20% -5%,  rgba(244,114,182,0.07) 0%, transparent 55%),
+      radial-gradient(ellipse 60% 40% at 85%  10%,  rgba(192,132,252,0.06) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 40% at 50% 100%,  rgba(129,140,248,0.05) 0%, transparent 55%);
   }
 
-  /* Scrollbar */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: #fff0f6; }
+  /* 自定义滚动条 */
+  ::-webkit-scrollbar       { width: 5px; }
+  ::-webkit-scrollbar-track { background: #0d0b14; }
   ::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #f4457e, #a78bfa);
+    background: linear-gradient(180deg, #f472b6, #c084fc);
     border-radius: 3px;
   }
 
+  /* 文本选中 */
   ::selection {
-    background: rgba(244,69,126,0.2);
-    color: #2d1f52;
+    background: rgba(244,114,182,0.25);
+    color: #ede9fe;
+  }
+
+  /* 焦点环 —— 无障碍必须，但设计成品牌色而非浏览器默认蓝 */
+  :focus-visible {
+    outline: 2px solid #f472b6;
+    outline-offset: 3px;
+    border-radius: 4px;
   }
 }
 
-/* ── Components ───────────────────────────────────── */
+/* ─────────────────────────────────────────────────────
+   2. COMPONENTS
+   ───────────────────────────────────────────────────── */
 @layer components {
 
-  /* Frosted glass card — light version */
+  /* ── 玻璃态卡片 ────────────────────────────────────── */
   .glass-card {
-    @apply rounded-2xl border bg-white/80 backdrop-blur-md;
-    border-color: rgba(244,69,126,0.12);
-    box-shadow: 0 2px 16px rgba(180,90,140,0.08), 0 1px 4px rgba(180,90,140,0.05);
-    transition: box-shadow 0.25s ease, transform 0.25s ease;
+    @apply rounded-2xl border;
+    background: linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+    border-color: rgba(255,255,255,0.08);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.07);
+    backdrop-filter: blur(16px);
+    transition: box-shadow 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
   }
   .glass-card:hover {
-    box-shadow: 0 8px 32px rgba(180,90,140,0.16), 0 2px 8px rgba(180,90,140,0.08);
+    border-color: rgba(244,114,182,0.25);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.10),
+                0 0 20px rgba(244,114,182,0.08);
   }
 
-  /* Gradient text */
+  /* ── 品牌渐变文字 ──────────────────────────────────── */
   .text-gradient {
-    @apply bg-gradient-sakura bg-clip-text text-transparent;
+    @apply bg-gradient-brand bg-clip-text text-transparent;
   }
 
-  /* Tag pill — pastel */
+  /* ── 标签胶囊 ──────────────────────────────────────── */
   .tag-pill {
-    @apply inline-flex items-center gap-1 rounded-full px-3 py-0.5 text-xs font-medium
-           border border-sakura-300/60 bg-sakura-50 text-sakura-600
-           hover:bg-sakura-100 hover:border-sakura-400
-           transition-all duration-200 cursor-pointer;
+    @apply inline-flex items-center gap-1 rounded-full px-3 py-0.5
+           text-xs font-medium cursor-pointer select-none
+           border border-sakura-700/40 bg-sakura-500/10 text-sakura-300
+           hover:bg-sakura-500/20 hover:border-sakura-500/50
+           transition-all duration-200;
   }
 
-  /* Reading progress bar */
+  /* ── 阅读进度条 ────────────────────────────────────── */
   .reading-progress {
-    @apply fixed top-0 left-0 h-[3px] z-50;
+    @apply fixed top-0 left-0 h-[3px] z-50 pointer-events-none;
     width: var(--reading-progress);
-    background: linear-gradient(90deg, #f4457e, #8b5cf6, #34d399);
+    background: linear-gradient(90deg, #f472b6, #c084fc, #818cf8);
     transition: width 0.1s linear;
   }
 
-  /* Nav — frosted on warm white */
-  .nav-blur {
-    backdrop-filter: blur(20px) saturate(160%);
-    -webkit-backdrop-filter: blur(20px) saturate(160%);
-    background: rgba(255,250,245,0.85);
-    border: 1px solid rgba(244,69,126,0.12);
-    box-shadow: 0 2px 20px rgba(244,69,126,0.08);
+  /* ── 导航栏（两种状态由 JS 切换） ──────────────────── */
+
+  /* 视频上方 —— 半透明暗底，文字始终可读 */
+  .nav-over-video {
+    background: rgba(13, 11, 20, 0.40);
+    backdrop-filter: blur(12px) saturate(140%);
+    -webkit-backdrop-filter: blur(12px) saturate(140%);
+    border: 1px solid rgba(255,255,255,0.10);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.30);
   }
 
-  /* Decorative blob */
-  .blob {
-    @apply absolute rounded-full pointer-events-none select-none blur-3xl opacity-60;
+  /* 正文上方 —— 较深的磨砂玻璃 */
+  .nav-solid {
+    background: rgba(19, 17, 28, 0.88);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 2px 16px rgba(0,0,0,0.40);
+  }
+
+  /* ── 章节分隔线装饰 ────────────────────────────────── */
+  .section-heading {
+    @apply flex items-center gap-3 mb-6;
+  }
+  .section-heading::before {
+    content: '';
+    @apply block w-1 h-6 rounded-full bg-gradient-brand shrink-0;
   }
 }
 
-/* ── Utilities ─────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────
+   3. UTILITIES
+   ───────────────────────────────────────────────────── */
 @layer utilities {
-  .animate-delay-100 { animation-delay: 100ms; }
-  .animate-delay-200 { animation-delay: 200ms; }
-  .animate-delay-300 { animation-delay: 300ms; }
-  .animate-delay-500 { animation-delay: 500ms; }
+  /* 动画延迟辅助（配合 Tailwind animate-* 使用） */
+  .delay-100 { animation-delay: 100ms; }
+  .delay-200 { animation-delay: 200ms; }
+  .delay-300 { animation-delay: 300ms; }
+  .delay-400 { animation-delay: 400ms; }
+  .delay-500 { animation-delay: 500ms; }
 }

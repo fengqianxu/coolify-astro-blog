@@ -1,55 +1,71 @@
 ---
-interface Props {
-  allTags:     string[];
-  tagCounts:   Record<string, number>;
-  recentPosts: { slug: string; title: string; pubDate: Date }[];
-  categories:  Record<string, number>;
-}
+/**
+ * @component Sidebar
+ * @description 侧边栏，包含个人卡片、分类列表、近期文章、标签云。
+ *              接收聚合数据由父页面（首页/列表页）计算后传入，避免重复查询。
+ */
+
+import type { SidebarData } from '../types';
+import { SITE } from '../config/site';
+
+type Props = SidebarData;
 
 const { allTags, tagCounts, recentPosts, categories } = Astro.props;
+
+/** 标签字号：根据出现次数线性插值（10px ~ 14px） */
+function tagFontSize(count: number): string {
+  return `${Math.max(10, Math.min(14, 10 + count * 1.5))}px`;
+}
 ---
 
-<aside class="space-y-5 lg:w-72 shrink-0">
+<aside class="space-y-5 lg:w-72 shrink-0" aria-label="侧边栏">
 
-  <!-- Profile card -->
+  <!-- ── 个人卡片 ──────────────────────────────────────── -->
   <div class="glass-card p-6 flex flex-col items-center text-center gap-3">
+
+    <!-- 头像（带发光环） -->
     <div class="relative">
-      <div class="w-20 h-20 rounded-full bg-gradient-kawaii p-0.5 animate-float">
+      <div class="w-20 h-20 rounded-full p-0.5 bg-gradient-brand animate-float shadow-glow-pink">
         <img
-          src="/avatar.png"
-          alt="博主头像"
+          src={SITE.avatar}
+          alt={`${SITE.author} 的头像`}
           class="w-full h-full rounded-full object-cover"
+          loading="eager"
         />
       </div>
-      <span class="absolute bottom-0.5 right-0.5 w-4 h-4 bg-mint-400 border-2 border-white rounded-full shadow-sm"></span>
+      <!-- 在线状态点 -->
+      <span
+        class="absolute bottom-0.5 right-0.5 w-3.5 h-3.5 bg-mint-400
+               border-2 border-void-800 rounded-full"
+        aria-label="在线"
+      ></span>
     </div>
+
+    <!-- 名字 + 简介 -->
     <div>
-      <h3 class="font-heading font-semibold text-purple-950">博主</h3>
-      <p class="text-xs text-purple-400 mt-0.5">二次元 · 技术 · 生活</p>
+      <h3 class="font-heading font-semibold text-lavender-100">{SITE.author}</h3>
+      <p class="text-xs text-lavender-500 mt-0.5">二次元 · 技术 · 生活</p>
     </div>
-    <p class="text-xs text-purple-600/70 leading-relaxed">
-      热爱动漫、代码和咖啡的前端开发者。在这里记录技术成长与生活感悟。
-    </p>
-    <div class="flex gap-4 text-center w-full border-t border-sakura-100 pt-3">
-      <div class="flex-1">
-        <div class="font-semibold text-sakura-500 text-sm">{Object.values(tagCounts).reduce((a, b) => a + b, 0)}</div>
-        <div class="text-xs text-purple-400">文章</div>
-      </div>
-      <div class="flex-1">
-        <div class="font-semibold text-lavender-500 text-sm">{allTags.length}</div>
-        <div class="text-xs text-purple-400">标签</div>
-      </div>
-      <div class="flex-1">
-        <div class="font-semibold text-mint-500 text-sm">{Object.keys(categories).length}</div>
-        <div class="text-xs text-purple-400">分类</div>
-      </div>
+    <p class="text-xs text-lavender-400 leading-relaxed">{SITE.bio}</p>
+
+    <!-- 统计行 -->
+    <div class="flex gap-4 text-center w-full border-t border-white/6 pt-3">
+      {[
+        { value: Object.values(tagCounts).reduce((a, b) => a + b, 0), label: '文章' },
+        { value: allTags.length,               label: '标签' },
+        { value: Object.keys(categories).length, label: '分类' },
+      ].map(({ value, label }) => (
+        <div class="flex-1">
+          <div class="font-semibold text-sakura-400 text-sm">{value}</div>
+          <div class="text-xs text-lavender-600">{label}</div>
+        </div>
+      ))}
     </div>
   </div>
 
-  <!-- Categories -->
+  <!-- ── 分类列表 ──────────────────────────────────────── -->
   <div class="glass-card p-5">
-    <h4 class="font-heading font-semibold text-sm text-purple-800 mb-3 flex items-center gap-2">
-      <span class="w-1 h-4 rounded-full bg-gradient-kawaii inline-block"></span>
+    <h4 class="section-heading font-heading text-sm font-semibold text-lavender-200">
       分类
     </h4>
     <ul class="space-y-1">
@@ -57,31 +73,37 @@ const { allTags, tagCounts, recentPosts, categories } = Astro.props;
         <li>
           <a
             href={`/blog?category=${encodeURIComponent(cat)}`}
-            class="flex items-center justify-between px-3 py-1.5 rounded-xl text-sm text-purple-700
-                   hover:text-sakura-600 hover:bg-sakura-50 transition-all duration-200"
+            class="flex items-center justify-between px-3 py-1.5 rounded-xl text-sm
+                   text-lavender-400 hover:text-lavender-100 hover:bg-white/5
+                   transition-all duration-200"
           >
             <span>{cat}</span>
-            <span class="text-xs bg-sakura-100 text-sakura-500 rounded-full px-2 py-0.5 font-medium">{count}</span>
+            <span class="text-xs bg-sakura-500/15 text-sakura-400 rounded-full px-2 py-0.5">
+              {count}
+            </span>
           </a>
         </li>
       ))}
     </ul>
   </div>
 
-  <!-- Recent posts -->
+  <!-- ── 最近发布 ──────────────────────────────────────── -->
   <div class="glass-card p-5">
-    <h4 class="font-heading font-semibold text-sm text-purple-800 mb-3 flex items-center gap-2">
-      <span class="w-1 h-4 rounded-full bg-gradient-kawaii inline-block"></span>
+    <h4 class="section-heading font-heading text-sm font-semibold text-lavender-200">
       最近发布
     </h4>
     <ul class="space-y-3">
-      {recentPosts.map(post => (
+      {recentPosts.map((post) => (
         <li>
           <a href={`/blog/${post.slug}`} class="group flex flex-col gap-0.5">
-            <span class="text-sm text-purple-800 group-hover:text-sakura-600 transition-colors line-clamp-1 font-medium">
+            <span class="text-sm text-lavender-300 group-hover:text-sakura-300
+                         transition-colors line-clamp-1 font-medium">
               {post.title}
             </span>
-            <time class="text-xs text-purple-400">
+            <time
+              datetime={post.pubDate.toISOString()}
+              class="text-xs text-lavender-600"
+            >
               {post.pubDate.toLocaleDateString('zh-CN', { month: 'long', day: 'numeric' })}
             </time>
           </a>
@@ -90,21 +112,20 @@ const { allTags, tagCounts, recentPosts, categories } = Astro.props;
     </ul>
   </div>
 
-  <!-- Tag cloud -->
+  <!-- ── 标签云 ────────────────────────────────────────── -->
   <div class="glass-card p-5">
-    <h4 class="font-heading font-semibold text-sm text-purple-800 mb-3 flex items-center gap-2">
-      <span class="w-1 h-4 rounded-full bg-gradient-kawaii inline-block"></span>
+    <h4 class="section-heading font-heading text-sm font-semibold text-lavender-200">
       标签云
     </h4>
     <div class="flex flex-wrap gap-2">
-      {allTags.map(tag => (
+      {allTags.map((tag) => (
         <a
           href={`/tags/${encodeURIComponent(tag)}`}
           class="tag-pill"
-          style={`font-size: ${Math.max(10, Math.min(14, 10 + (tagCounts[tag] ?? 1) * 1.5))}px`}
+          style={`font-size: ${tagFontSize(tagCounts[tag] ?? 1)}`}
         >
           {tag}
-          <span class="text-sakura-400/70">{tagCounts[tag]}</span>
+          <span class="text-sakura-600/70">{tagCounts[tag]}</span>
         </a>
       ))}
     </div>

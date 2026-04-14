@@ -1,21 +1,32 @@
 ---
+/**
+ * @component Footer
+ * @description 全站页脚。内容从 site.ts 读取，不硬编码。
+ */
+import { SITE } from '../config/site';
+
 const year = new Date().getFullYear();
 ---
 
-<footer class="relative z-10 mt-16 border-t border-sakura-100">
-  <div class="max-w-5xl mx-auto px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-purple-400">
+<footer class="relative z-10 mt-16 border-t border-white/6">
+  <div class="max-w-5xl mx-auto px-6 py-10
+              flex flex-col sm:flex-row items-center justify-between
+              gap-4 text-sm text-lavender-600">
+
     <div class="flex items-center gap-2">
-      <span class="text-xl">🌸</span>
-      <span>© {year} <span class="text-gradient font-semibold">AniLog</span></span>
+      <span aria-hidden="true">🌸</span>
+      <span>© {year} <span class="text-gradient font-semibold">{SITE.name}</span></span>
     </div>
-    <div class="flex items-center gap-1 text-purple-400">
+
+    <div class="flex items-center gap-1">
       <span>Made with</span>
-      <span class="text-sakura-400 mx-1 text-base">♥</span>
+      <span class="text-sakura-500 mx-0.5" aria-label="love">♥</span>
       <span>Astro + Tailwind</span>
     </div>
-    <div class="flex gap-4">
-      <a href="/rss.xml"            class="hover:text-sakura-500 transition-colors">RSS</a>
-      <a href="/sitemap-index.xml"  class="hover:text-sakura-500 transition-colors">Sitemap</a>
-    </div>
+
+    <nav aria-label="页脚链接" class="flex gap-4">
+      <a href="/rss.xml"           class="hover:text-sakura-400 transition-colors">RSS</a>
+      <a href="/sitemap-index.xml" class="hover:text-sakura-400 transition-colors">Sitemap</a>
+    </nav>
   </div>
 </footer>

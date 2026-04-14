@@ -1,52 +1,81 @@
 ---
+/**
+ * @layout Layout
+ * @description 全站基础布局。每个页面都应包裹在此组件中。
+ *
+ * 职责：
+ *  - 注入全局 CSS、字体、meta 标签
+ *  - 渲染固定导航栏（NavBar）
+ *  - 渲染粒子背景（StarField）
+ *  - 渲染全局搜索弹窗（SearchModal）
+ *  - 管理阅读进度条
+ *
+ * @prop title       页面标题（不含站名后缀）
+ * @prop description 页面描述（默认读取 SITE.description）
+ * @prop ogImage     OG 图片路径
+ * @prop heroVideo   true = 页面顶部有全屏视频，隐藏顶部间距且导航栏初始透明
+ */
+
 import '../styles/global.css';
-import NavBar from '../components/NavBar.astro';
-import Footer from '../components/Footer.astro';
-import StarField from '../components/StarField.astro';
+import { SITE } from '../config/site';
+import NavBar      from '../components/NavBar.astro';
+import Footer      from '../components/Footer.astro';
+import StarField   from '../components/StarField.astro';
+import SearchModal from '../components/SearchModal.astro';
 
 interface Props {
   title:        string;
   description?: string;
   ogImage?:     string;
-  heroVideo?:   boolean; // true → no top spacer, nav starts transparent
+  heroVideo?:   boolean;
 }
 
 const {
   title,
-  description = '一个热爱二次元的博主，分享技术与生活',
+  description = SITE.description,
   ogImage     = '/og-default.png',
   heroVideo   = false,
 } = Astro.props;
 
-const siteName = 'AniLog';
-const fullTitle = title === siteName ? title : `${title} · ${siteName}`;
+// 页面 <title>：首页直接使用站名，其他页面加后缀
+const fullTitle = title === SITE.name ? SITE.name : `${title} · ${SITE.name}`;
 ---
 
 <!doctype html>
-<html lang="zh-CN">
+<html lang={SITE.locale} class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
-    <meta property="og:title" content={fullTitle} />
+    <!-- Open Graph -->
+    <meta property="og:title"       content={fullTitle} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={ogImage} />
-    <meta name="theme-color" content="#f4457e" />
+    <meta property="og:image"       content={ogImage} />
+    <meta property="og:type"        content="website" />
+    <!-- PWA / Browser Chrome -->
+    <meta name="theme-color" content={SITE.themeColor} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{fullTitle}</title>
   </head>
-  <body class="min-h-dvh flex flex-col">
-    <!-- Reading progress bar -->
-    <div class="reading-progress" id="reading-progress"></div>
 
-    <!-- Ambient petal particles -->
+  <body class="min-h-dvh flex flex-col">
+    <!-- 阅读进度条（仅文章页有意义，其他页不可见） -->
+    <div class="reading-progress" id="reading-progress" aria-hidden="true"></div>
+
+    <!-- 粒子背景（花瓣 + 闪光） -->
     <StarField />
 
-    <!-- Pass heroVideo flag to NavBar via data attribute -->
+    <!-- 全局搜索弹窗（挂载一次） -->
+    <SearchModal />
+
+    <!-- 固定导航栏 -->
     <NavBar heroVideo={heroVideo} />
 
-    <!-- On non-hero pages, push content below the fixed nav -->
-    {!heroVideo && <div class="h-20"></div>}
+    <!--
+      非视频首屏：推开导航栏高度（var(--nav-height)）
+      视频首屏：HeroVideo 自身占满视口，不需要额外间距
+    -->
+    {!heroVideo && <div class="h-16" aria-hidden="true"></div>}
 
     <main class="flex-1">
       <slot />
@@ -55,13 +84,16 @@ const fullTitle = title === siteName ? title : `${title} · ${siteName}`;
     <Footer />
 
     <script>
-      const bar = document.getElementById('reading-progress');
-      if (bar) {
-        document.addEventListener('scroll', () => {
+      // 阅读进度条：基于文档总可滚动高度计算百分比
+      const progressBar = document.getElementById('reading-progress');
+      if (progressBar) {
+        const updateProgress = () => {
           const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-          const pct = scrollTop / (scrollHeight - clientHeight);
-          bar.style.setProperty('--reading-progress', `${Math.min(pct * 100, 100)}%`);
-        }, { passive: true });
+          const scrollable = scrollHeight - clientHeight;
+          const pct = scrollable > 0 ? (scrollTop / scrollable) * 100 : 0;
+          progressBar.style.setProperty('--reading-progress', `${Math.min(pct, 100)}%`);
+        };
+        window.addEventListener('scroll', updateProgress, { passive: true });
       }
     </script>
   </body>
