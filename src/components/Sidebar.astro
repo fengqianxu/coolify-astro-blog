@@ -15,9 +15,11 @@ const { allTags, tagCounts, recentPosts, categories } = Astro.props;
   <div class="glass-card p-6 flex flex-col items-center text-center gap-3">
     <div class="relative">
       <div class="w-20 h-20 rounded-full bg-gradient-kawaii p-0.5 animate-float">
-        <div class="w-full h-full rounded-full bg-white flex items-center justify-center text-3xl shadow-inner">
-          🌸
-        </div>
+        <img
+          src="/avatar.png"
+          alt="博主头像"
+          class="w-full h-full rounded-full object-cover"
+        />
       </div>
       <span class="absolute bottom-0.5 right-0.5 w-4 h-4 bg-mint-400 border-2 border-white rounded-full shadow-sm"></span>
     </div>

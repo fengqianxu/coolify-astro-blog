@@ -5,15 +5,17 @@ import Footer from '../components/Footer.astro';
 import StarField from '../components/StarField.astro';
 
 interface Props {
-  title: string;
+  title:        string;
   description?: string;
-  ogImage?: string;
+  ogImage?:     string;
+  heroVideo?:   boolean; // true → no top spacer, nav starts transparent
 }
 
 const {
   title,
   description = '一个热爱二次元的博主，分享技术与生活',
-  ogImage = '/og-default.png',
+  ogImage     = '/og-default.png',
+  heroVideo   = false,
 } = Astro.props;
 
 const siteName = 'AniLog';
@@ -29,7 +31,7 @@ const fullTitle = title === siteName ? title : `${title} · ${siteName}`;
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImage} />
-    <meta name="theme-color" content="#ec4899" />
+    <meta name="theme-color" content="#f4457e" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{fullTitle}</title>
   </head>
@@ -37,10 +39,14 @@ const fullTitle = title === siteName ? title : `${title} · ${siteName}`;
     <!-- Reading progress bar -->
     <div class="reading-progress" id="reading-progress"></div>
 
-    <!-- Starfield background -->
+    <!-- Ambient petal particles -->
     <StarField />
 
-    <NavBar />
+    <!-- Pass heroVideo flag to NavBar via data attribute -->
+    <NavBar heroVideo={heroVideo} />
+
+    <!-- On non-hero pages, push content below the fixed nav -->
+    {!heroVideo && <div class="h-20"></div>}
 
     <main class="flex-1">
       <slot />
@@ -49,7 +55,6 @@ const fullTitle = title === siteName ? title : `${title} · ${siteName}`;
     <Footer />
 
     <script>
-      // Reading progress
       const bar = document.getElementById('reading-progress');
       if (bar) {
         document.addEventListener('scroll', () => {

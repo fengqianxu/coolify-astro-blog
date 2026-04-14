@@ -1,73 +1,111 @@
 ---
+interface Props {
+  heroVideo?: boolean;
+}
+const { heroVideo = false } = Astro.props;
+
 const navLinks = [
-  { href: '/',        label: '首页' },
-  { href: '/blog',    label: '文章' },
-  { href: '/tags',    label: '标签' },
-  { href: '/about',   label: '关于' },
+  { href: '/',      label: '首页' },
+  { href: '/blog',  label: '文章' },
+  { href: '/tags',  label: '标签' },
+  { href: '/about', label: '关于' },
 ];
 
 const current = Astro.url.pathname;
 ---
 
-<header class="fixed top-3 inset-x-0 z-40 flex justify-center px-4">
-  <nav class="nav-blur w-full max-w-4xl rounded-2xl px-6 py-3 flex items-center justify-between gap-4">
+<header
+  id="site-header"
+  data-hero={heroVideo ? 'true' : 'false'}
+  class:list={[
+    'fixed top-0 inset-x-0 z-40 transition-all duration-500',
+    heroVideo ? 'hero-transparent' : '',
+  ]}
+>
+  <div class="flex justify-center px-4 pt-3">
+    <nav
+      id="nav-inner"
+      class:list={[
+        'w-full max-w-4xl rounded-2xl px-6 py-3 flex items-center justify-between gap-4 transition-all duration-500',
+        heroVideo ? 'bg-transparent border-transparent shadow-none' : 'nav-blur',
+      ]}
+    >
+      <!-- Logo -->
+      <a href="/" class="flex items-center gap-2 group">
+        <span class="text-2xl select-none animate-bounce-gentle inline-block">🌸</span>
+        <span
+          id="logo-text"
+          class:list={[
+            'font-heading font-semibold text-lg transition-all duration-500',
+            heroVideo ? 'text-white drop-shadow-md' : 'text-gradient',
+          ]}
+        >AniLog</span>
+      </a>
 
-    <!-- Logo -->
-    <a href="/" class="flex items-center gap-2 group">
-      <span class="text-2xl select-none animate-bounce-gentle inline-block">🌸</span>
-      <span class="font-heading font-semibold text-lg text-gradient">AniLog</span>
-    </a>
+      <!-- Desktop links -->
+      <ul class="hidden sm:flex items-center gap-1">
+        {navLinks.map(({ href, label }) => {
+          const active = href === '/' ? current === href : current.startsWith(href);
+          return (
+            <li>
+              <a
+                href={href}
+                class:list={[
+                  'nav-link px-4 py-1.5 rounded-xl text-sm font-medium transition-all duration-200',
+                  active && !heroVideo
+                    ? 'bg-sakura-100 text-sakura-600 border border-sakura-300/60 shadow-sm'
+                    : active && heroVideo
+                      ? 'bg-white/20 text-white border border-white/30 backdrop-blur-sm'
+                      : heroVideo
+                        ? 'text-white/80 hover:text-white hover:bg-white/15'
+                        : 'text-purple-700 hover:text-sakura-600 hover:bg-sakura-50',
+                ]}
+              >
+                {label}
+              </a>
+            </li>
+          );
+        })}
+      </ul>
 
-    <!-- Desktop links -->
-    <ul class="hidden sm:flex items-center gap-1">
-      {navLinks.map(({ href, label }) => {
-        const active = href === '/' ? current === href : current.startsWith(href);
-        return (
-          <li>
-            <a
-              href={href}
-              class:list={[
-                'px-4 py-1.5 rounded-xl text-sm font-medium transition-all duration-200',
-                active
-                  ? 'bg-sakura-100 text-sakura-600 border border-sakura-300/60 shadow-sm'
-                  : 'text-purple-700 hover:text-sakura-600 hover:bg-sakura-50',
-              ]}
-            >
-              {label}
-            </a>
-          </li>
-        );
-      })}
-    </ul>
-
-    <!-- Search + mobile toggle -->
-    <div class="flex items-center gap-2">
-      <button
-        id="search-btn"
-        aria-label="搜索"
-        class="p-2 rounded-xl text-purple-400 hover:text-sakura-500 hover:bg-sakura-50 transition-all duration-200"
-      >
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-        </svg>
-      </button>
-
-      <button
-        id="menu-btn"
-        aria-label="菜单"
-        class="sm:hidden p-2 rounded-xl text-purple-400 hover:text-sakura-500 hover:bg-sakura-50 transition-all"
-      >
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path d="M4 6h16M4 12h16M4 18h16"/>
-        </svg>
-      </button>
-    </div>
-  </nav>
+      <!-- Right controls -->
+      <div class="flex items-center gap-2">
+        <button
+          id="search-btn"
+          aria-label="搜索"
+          class:list={[
+            'p-2 rounded-xl transition-all duration-200',
+            heroVideo
+              ? 'text-white/70 hover:text-white hover:bg-white/15'
+              : 'text-purple-400 hover:text-sakura-500 hover:bg-sakura-50',
+          ]}
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+        </button>
+        <button
+          id="menu-btn"
+          aria-label="菜单"
+          class:list={[
+            'sm:hidden p-2 rounded-xl transition-all',
+            heroVideo
+              ? 'text-white/70 hover:text-white hover:bg-white/15'
+              : 'text-purple-400 hover:text-sakura-500 hover:bg-sakura-50',
+          ]}
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+      </div>
+    </nav>
+  </div>
 
   <!-- Mobile menu -->
   <div
     id="mobile-menu"
-    class="absolute top-full mt-2 inset-x-4 nav-blur rounded-2xl px-4 py-3 hidden sm:hidden"
+    class="mx-4 mt-1 nav-blur rounded-2xl px-4 py-3 hidden sm:hidden"
   >
     {navLinks.map(({ href, label }) => (
       <a
@@ -80,9 +118,56 @@ const current = Astro.url.pathname;
   </div>
 </header>
 
-<div class="h-20"></div>
-
 <script>
+  const header  = document.getElementById('site-header')!;
+  const navInner = document.getElementById('nav-inner')!;
+  const logoText = document.getElementById('logo-text')!;
+  const isHero   = header.dataset.hero === 'true';
+
+  if (isHero) {
+    // Switch nav style once user scrolls past 80 % of viewport height
+    const threshold = window.innerHeight * 0.8;
+
+    function updateNav() {
+      const scrolled = window.scrollY > threshold;
+
+      // nav pill background
+      if (scrolled) {
+        navInner.classList.add('nav-blur', 'mt-0');
+        navInner.classList.remove('bg-transparent', 'border-transparent', 'shadow-none');
+      } else {
+        navInner.classList.remove('nav-blur');
+        navInner.classList.add('bg-transparent', 'border-transparent', 'shadow-none');
+      }
+
+      // Logo gradient vs white
+      if (scrolled) {
+        logoText.classList.remove('text-white', 'drop-shadow-md');
+        logoText.classList.add('text-gradient');
+      } else {
+        logoText.classList.add('text-white', 'drop-shadow-md');
+        logoText.classList.remove('text-gradient');
+      }
+
+      // Nav links colour
+      document.querySelectorAll<HTMLElement>('.nav-link').forEach(link => {
+        if (scrolled) {
+          link.classList.remove('text-white/80', 'hover:text-white', 'hover:bg-white/15',
+                                'bg-white/20', 'border-white/30', 'backdrop-blur-sm');
+          link.classList.add('text-purple-700', 'hover:text-sakura-600', 'hover:bg-sakura-50');
+        } else {
+          link.classList.remove('text-purple-700', 'hover:text-sakura-600', 'hover:bg-sakura-50',
+                                'bg-sakura-100', 'text-sakura-600', 'border-sakura-300/60', 'shadow-sm');
+          link.classList.add('text-white/80', 'hover:text-white', 'hover:bg-white/15');
+        }
+      });
+    }
+
+    window.addEventListener('scroll', updateNav, { passive: true });
+    updateNav(); // run once on load
+  }
+
+  // Mobile toggle
   const btn  = document.getElementById('menu-btn');
   const menu = document.getElementById('mobile-menu');
   btn?.addEventListener('click', () => menu?.classList.toggle('hidden'));
