@@ -1,0 +1,63 @@
+---
+import '../styles/global.css';
+import NavBar from '../components/NavBar.astro';
+import Footer from '../components/Footer.astro';
+import StarField from '../components/StarField.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+}
+
+const {
+  title,
+  description = '一个热爱二次元的博主，分享技术与生活',
+  ogImage = '/og-default.png',
+} = Astro.props;
+
+const siteName = 'AniLog';
+const fullTitle = title === siteName ? title : `${title} · ${siteName}`;
+---
+
+<!doctype html>
+<html lang="zh-CN" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="theme-color" content="#ec4899" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{fullTitle}</title>
+  </head>
+  <body class="min-h-dvh flex flex-col">
+    <!-- Reading progress bar -->
+    <div class="reading-progress" id="reading-progress"></div>
+
+    <!-- Starfield background -->
+    <StarField />
+
+    <NavBar />
+
+    <main class="flex-1">
+      <slot />
+    </main>
+
+    <Footer />
+
+    <script>
+      // Reading progress
+      const bar = document.getElementById('reading-progress');
+      if (bar) {
+        document.addEventListener('scroll', () => {
+          const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+          const pct = scrollTop / (scrollHeight - clientHeight);
+          bar.style.setProperty('--reading-progress', `${Math.min(pct * 100, 100)}%`);
+        }, { passive: true });
+      }
+    </script>
+  </body>
+</html>

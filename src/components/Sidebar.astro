@@ -1,0 +1,111 @@
+---
+interface Props {
+  allTags:       string[];
+  tagCounts:     Record<string, number>;
+  recentPosts:   { slug: string; title: string; pubDate: Date }[];
+  categories:    Record<string, number>;
+}
+
+const { allTags, tagCounts, recentPosts, categories } = Astro.props;
+---
+
+<aside class="space-y-6 lg:w-72 shrink-0">
+
+  <!-- Profile card -->
+  <div class="glass-card p-6 flex flex-col items-center text-center gap-3">
+    <div class="relative">
+      <div class="w-20 h-20 rounded-full bg-gradient-sakura p-0.5 animate-float">
+        <div class="w-full h-full rounded-full bg-void-800 flex items-center justify-center text-3xl">
+          🌸
+        </div>
+      </div>
+      <span class="absolute bottom-0 right-0 w-5 h-5 bg-emerald-400 border-2 border-void-800 rounded-full"></span>
+    </div>
+    <div>
+      <h3 class="font-heading font-semibold text-white">博主</h3>
+      <p class="text-xs text-slate-400 mt-0.5">二次元 · 技术 · 生活</p>
+    </div>
+    <p class="text-xs text-slate-400 leading-relaxed">
+      热爱动漫、代码和咖啡的前端开发者。在这里记录技术成长与生活感悟。
+    </p>
+    <div class="flex gap-4 text-center w-full border-t border-white/[0.06] pt-3">
+      <div class="flex-1">
+        <div class="font-semibold text-white text-sm">{Object.values(tagCounts).reduce((a, b) => a + b, 0)}</div>
+        <div class="text-xs text-slate-500">文章</div>
+      </div>
+      <div class="flex-1">
+        <div class="font-semibold text-white text-sm">{allTags.length}</div>
+        <div class="text-xs text-slate-500">标签</div>
+      </div>
+      <div class="flex-1">
+        <div class="font-semibold text-white text-sm">{Object.keys(categories).length}</div>
+        <div class="text-xs text-slate-500">分类</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Categories -->
+  <div class="glass-card p-5">
+    <h4 class="font-heading font-semibold text-sm text-slate-300 mb-3 flex items-center gap-2">
+      <span class="w-1 h-4 rounded-full bg-gradient-sakura inline-block"></span>
+      分类
+    </h4>
+    <ul class="space-y-1.5">
+      {Object.entries(categories).map(([cat, count]) => (
+        <li>
+          <a
+            href={`/blog?category=${encodeURIComponent(cat)}`}
+            class="flex items-center justify-between px-3 py-1.5 rounded-lg text-sm text-slate-400
+                   hover:text-white hover:bg-white/[0.05] transition-all duration-200"
+          >
+            <span>{cat}</span>
+            <span class="text-xs bg-sakura-500/15 text-sakura-400 rounded-full px-2 py-0.5">{count}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <!-- Recent posts -->
+  <div class="glass-card p-5">
+    <h4 class="font-heading font-semibold text-sm text-slate-300 mb-3 flex items-center gap-2">
+      <span class="w-1 h-4 rounded-full bg-gradient-sakura inline-block"></span>
+      最近发布
+    </h4>
+    <ul class="space-y-3">
+      {recentPosts.map(post => (
+        <li>
+          <a href={`/blog/${post.slug}`} class="group flex flex-col gap-0.5">
+            <span class="text-sm text-slate-300 group-hover:text-sakura-300 transition-colors line-clamp-1">
+              {post.title}
+            </span>
+            <time class="text-xs text-slate-500">
+              {post.pubDate.toLocaleDateString('zh-CN', { month: 'long', day: 'numeric' })}
+            </time>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <!-- Tag cloud -->
+  <div class="glass-card p-5">
+    <h4 class="font-heading font-semibold text-sm text-slate-300 mb-3 flex items-center gap-2">
+      <span class="w-1 h-4 rounded-full bg-gradient-sakura inline-block"></span>
+      标签云
+    </h4>
+    <div class="flex flex-wrap gap-2">
+      {allTags.map(tag => (
+        <a
+          href={`/tags/${encodeURIComponent(tag)}`}
+          class="tag-pill"
+          style={`font-size: ${Math.max(10, Math.min(14, 10 + (tagCounts[tag] ?? 1) * 1.5))}px`}
+        >
+          {tag}
+          <span class="text-sakura-500/60">{tagCounts[tag]}</span>
+        </a>
+      ))}
+    </div>
+  </div>
+
+</aside>

@@ -1,0 +1,66 @@
+---
+interface Props {
+  slug:        string;
+  title:       string;
+  description: string;
+  pubDate:     Date;
+  tags:        string[];
+  category:    string;
+  heroImage?:  string;
+  featured?:   boolean;
+}
+
+const { slug, title, description, pubDate, tags, category, heroImage, featured } = Astro.props;
+
+const dateStr = pubDate.toLocaleDateString('zh-CN', {
+  year: 'numeric', month: 'long', day: 'numeric',
+});
+---
+
+<article class:list={[
+  'glass-card neon-border overflow-hidden group transition-all duration-300 hover:-translate-y-1',
+  featured ? 'sm:col-span-2' : '',
+]}>
+  <!-- Cover image or gradient placeholder -->
+  <div class="relative overflow-hidden aspect-video bg-gradient-to-br from-void-700 via-sakura-500/10 to-cosmic-900/50">
+    {heroImage ? (
+      <img
+        src={heroImage}
+        alt={title}
+        loading="lazy"
+        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+      />
+    ) : (
+      <div class="absolute inset-0 flex items-center justify-center">
+        <span class="text-5xl opacity-30 select-none group-hover:scale-110 transition-transform duration-300">
+          {category === '技术' ? '⚙️' : category === '二次元' ? '🌸' : '✨'}
+        </span>
+      </div>
+    )}
+    <!-- Category badge -->
+    <span class="absolute top-3 left-3 rounded-full px-3 py-0.5 text-xs font-medium
+                 bg-void-900/70 backdrop-blur text-sakura-300 border border-sakura-500/30">
+      {category}
+    </span>
+  </div>
+
+  <!-- Content -->
+  <div class="p-5 flex flex-col gap-3">
+    <h2 class="font-heading font-semibold text-lg text-white line-clamp-2 group-hover:text-sakura-300 transition-colors">
+      <a href={`/blog/${slug}`} class="after:absolute after:inset-0">
+        {title}
+      </a>
+    </h2>
+
+    <p class="text-slate-400 text-sm line-clamp-2 leading-relaxed">{description}</p>
+
+    <div class="flex items-center justify-between mt-auto pt-2 border-t border-white/[0.05]">
+      <time class="text-xs text-slate-500">{dateStr}</time>
+      <div class="flex flex-wrap gap-1">
+        {tags.slice(0, 3).map(tag => (
+          <span class="tag-pill">{tag}</span>
+        ))}
+      </div>
+    </div>
+  </div>
+</article>

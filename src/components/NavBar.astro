@@ -1,0 +1,91 @@
+---
+const navLinks = [
+  { href: '/',        label: '首页' },
+  { href: '/blog',    label: '文章' },
+  { href: '/tags',    label: '标签' },
+  { href: '/about',   label: '关于' },
+];
+
+const current = Astro.url.pathname;
+---
+
+<header class="fixed top-3 inset-x-0 z-40 flex justify-center px-4">
+  <nav class="nav-blur w-full max-w-4xl rounded-2xl px-6 py-3 flex items-center justify-between gap-4">
+
+    <!-- Logo -->
+    <a href="/" class="flex items-center gap-2 group">
+      <span class="text-2xl select-none">🌸</span>
+      <span class="font-heading font-semibold text-lg text-gradient">AniLog</span>
+    </a>
+
+    <!-- Desktop links -->
+    <ul class="hidden sm:flex items-center gap-1">
+      {navLinks.map(({ href, label }) => {
+        const active = href === '/' ? current === href : current.startsWith(href);
+        return (
+          <li>
+            <a
+              href={href}
+              class:list={[
+                'px-4 py-1.5 rounded-xl text-sm font-medium transition-all duration-200',
+                active
+                  ? 'bg-sakura-500/20 text-sakura-300 border border-sakura-500/30'
+                  : 'text-slate-400 hover:text-white hover:bg-white/[0.06]',
+              ]}
+            >
+              {label}
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+
+    <!-- Search + theme toggle -->
+    <div class="flex items-center gap-2">
+      <button
+        id="search-btn"
+        aria-label="搜索"
+        class="p-2 rounded-xl text-slate-400 hover:text-sakura-400 hover:bg-sakura-500/10 transition-all duration-200"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+      </button>
+
+      <!-- Mobile hamburger -->
+      <button
+        id="menu-btn"
+        aria-label="菜单"
+        class="sm:hidden p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/[0.06] transition-all"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div
+    id="mobile-menu"
+    class="absolute top-full mt-2 inset-x-4 nav-blur rounded-2xl px-4 py-3 hidden sm:hidden"
+  >
+    {navLinks.map(({ href, label }) => (
+      <a
+        href={href}
+        class="block px-3 py-2.5 rounded-xl text-sm text-slate-300 hover:text-white hover:bg-white/[0.06] transition-all"
+      >
+        {label}
+      </a>
+    ))}
+  </div>
+</header>
+
+<!-- Spacer so content doesn't hide under the fixed nav -->
+<div class="h-20"></div>
+
+<script>
+  const btn  = document.getElementById('menu-btn');
+  const menu = document.getElementById('mobile-menu');
+  btn?.addEventListener('click', () => menu?.classList.toggle('hidden'));
+</script>

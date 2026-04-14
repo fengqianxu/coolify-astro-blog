@@ -1,0 +1,33 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+const allPosts = await getCollection('posts', p => !p.data.draft);
+const tagCounts: Record<string, number> = {};
+for (const post of allPosts) {
+  for (const tag of post.data.tags) {
+    tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
+  }
+}
+const allTags = Object.keys(tagCounts).sort((a, b) => tagCounts[b]! - tagCounts[a]!);
+---
+
+<Layout title="标签" description="所有标签">
+  <div class="relative z-10 max-w-3xl mx-auto px-6 pb-20">
+    <h1 class="font-heading text-3xl font-bold text-gradient mb-2">标签</h1>
+    <p class="text-slate-400 text-sm mb-8">共 {allTags.length} 个标签</p>
+
+    <div class="glass-card p-6 flex flex-wrap gap-3">
+      {allTags.map(tag => (
+        <a
+          href={`/tags/${encodeURIComponent(tag)}`}
+          class="tag-pill text-sm"
+          style={`font-size: ${Math.max(12, Math.min(18, 12 + (tagCounts[tag] ?? 1) * 2))}px`}
+        >
+          {tag}
+          <span class="ml-1 text-sakura-500/60">{tagCounts[tag]}</span>
+        </a>
+      ))}
+    </div>
+  </div>
+</Layout>

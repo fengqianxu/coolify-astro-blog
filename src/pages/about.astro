@@ -1,0 +1,36 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="关于" description="关于博主">
+  <div class="relative z-10 max-w-2xl mx-auto px-6 pb-20">
+    <div class="glass-card p-8 sm:p-12">
+      <div class="flex flex-col items-center mb-8">
+        <div class="w-24 h-24 rounded-full bg-gradient-sakura p-0.5 mb-4 animate-float">
+          <div class="w-full h-full rounded-full bg-void-800 flex items-center justify-center text-4xl">
+            🌸
+          </div>
+        </div>
+        <h1 class="font-heading text-2xl font-bold text-gradient">博主</h1>
+        <p class="text-slate-400 mt-1">二次元 · 前端 · 咖啡爱好者</p>
+      </div>
+
+      <div class="prose prose-anime prose-invert max-w-none prose-headings:font-heading">
+        <h2>你好！</h2>
+        <p>
+          欢迎来到 AniLog，这是一个关于技术、动漫与生活的小小角落。
+          在这里我会分享前端开发心得、动漫观感以及日常随笔。
+        </p>
+        <h2>兴趣爱好</h2>
+        <ul>
+          <li>🎌 追番 · 看漫画</li>
+          <li>💻 前端开发 · 开源项目</li>
+          <li>☕ 手冲咖啡</li>
+          <li>🎮 独立游戏</li>
+        </ul>
+        <h2>技术栈</h2>
+        <p>TypeScript · Astro · React · Tailwind CSS · Rust（在学）</p>
+      </div>
+    </div>
+  </div>
+</Layout>
