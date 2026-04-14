@@ -15,14 +15,30 @@ const { slug, title, description, pubDate, tags, category, heroImage, featured }
 const dateStr = pubDate.toLocaleDateString('zh-CN', {
   year: 'numeric', month: 'long', day: 'numeric',
 });
+
+const categoryEmoji: Record<string, string> = {
+  '技术': '⚙️', '二次元': '🌸', '随笔': '✏️', '游戏': '🎮', '音乐': '🎵',
+};
+const emoji = categoryEmoji[category] ?? '✨';
+
+// Soft gradient per category
+const cardGradients: Record<string, string> = {
+  '技术':   'from-lavender-50  to-lavender-100',
+  '二次元': 'from-sakura-50    to-peach-50',
+  '随笔':   'from-cream-50     to-mint-50',
+};
+const gradClass = cardGradients[category] ?? 'from-surface-50 to-surface-200';
 ---
 
 <article class:list={[
-  'glass-card neon-border overflow-hidden group transition-all duration-300 hover:-translate-y-1',
+  'glass-card overflow-hidden group relative',
   featured ? 'sm:col-span-2' : '',
 ]}>
-  <!-- Cover image or gradient placeholder -->
-  <div class="relative overflow-hidden aspect-video bg-gradient-to-br from-void-700 via-sakura-500/10 to-cosmic-900/50">
+  <!-- Cover -->
+  <div class:list={[
+    'relative overflow-hidden aspect-video bg-gradient-to-br',
+    gradClass,
+  ]}>
     {heroImage ? (
       <img
         src={heroImage}
@@ -32,30 +48,31 @@ const dateStr = pubDate.toLocaleDateString('zh-CN', {
       />
     ) : (
       <div class="absolute inset-0 flex items-center justify-center">
-        <span class="text-5xl opacity-30 select-none group-hover:scale-110 transition-transform duration-300">
-          {category === '技术' ? '⚙️' : category === '二次元' ? '🌸' : '✨'}
+        <span class="text-5xl opacity-40 select-none group-hover:scale-110 transition-transform duration-300">
+          {emoji}
         </span>
       </div>
     )}
     <!-- Category badge -->
     <span class="absolute top-3 left-3 rounded-full px-3 py-0.5 text-xs font-medium
-                 bg-void-900/70 backdrop-blur text-sakura-300 border border-sakura-500/30">
+                 bg-white/80 backdrop-blur text-sakura-600 border border-sakura-200 shadow-sm">
       {category}
     </span>
   </div>
 
   <!-- Content -->
   <div class="p-5 flex flex-col gap-3">
-    <h2 class="font-heading font-semibold text-lg text-white line-clamp-2 group-hover:text-sakura-300 transition-colors">
+    <h2 class="font-heading font-semibold text-lg text-purple-950 line-clamp-2
+               group-hover:text-sakura-600 transition-colors duration-200">
       <a href={`/blog/${slug}`} class="after:absolute after:inset-0">
         {title}
       </a>
     </h2>
 
-    <p class="text-slate-400 text-sm line-clamp-2 leading-relaxed">{description}</p>
+    <p class="text-purple-700/70 text-sm line-clamp-2 leading-relaxed">{description}</p>
 
-    <div class="flex items-center justify-between mt-auto pt-2 border-t border-white/[0.05]">
-      <time class="text-xs text-slate-500">{dateStr}</time>
+    <div class="flex items-center justify-between mt-auto pt-2 border-t border-sakura-100">
+      <time class="text-xs text-purple-400">{dateStr}</time>
       <div class="flex flex-wrap gap-1">
         {tags.slice(0, 3).map(tag => (
           <span class="tag-pill">{tag}</span>

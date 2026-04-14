@@ -2,20 +2,20 @@
 const year = new Date().getFullYear();
 ---
 
-<footer class="relative z-10 mt-20 border-t border-white/[0.06]">
-  <div class="max-w-5xl mx-auto px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500">
+<footer class="relative z-10 mt-16 border-t border-sakura-100">
+  <div class="max-w-5xl mx-auto px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-purple-400">
     <div class="flex items-center gap-2">
       <span class="text-xl">🌸</span>
-      <span>© {year} <span class="text-gradient font-medium">AniLog</span></span>
+      <span>© {year} <span class="text-gradient font-semibold">AniLog</span></span>
     </div>
-    <div class="flex items-center gap-1">
+    <div class="flex items-center gap-1 text-purple-400">
       <span>Made with</span>
-      <span class="text-sakura-400 mx-1">♥</span>
-      <span>by Astro + Tailwind</span>
+      <span class="text-sakura-400 mx-1 text-base">♥</span>
+      <span>Astro + Tailwind</span>
     </div>
     <div class="flex gap-4">
-      <a href="/rss.xml"  class="hover:text-sakura-400 transition-colors">RSS</a>
-      <a href="/sitemap-index.xml" class="hover:text-sakura-400 transition-colors">Sitemap</a>
+      <a href="/rss.xml"            class="hover:text-sakura-500 transition-colors">RSS</a>
+      <a href="/sitemap-index.xml"  class="hover:text-sakura-500 transition-colors">Sitemap</a>
     </div>
   </div>
 </footer>

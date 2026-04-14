@@ -7,10 +7,8 @@ import Sidebar from '../components/Sidebar.astro';
 const allPosts = (await getCollection('posts', p => !p.data.draft))
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 
-const featured    = allPosts.find(p => p.data.featured);
 const recentPosts = allPosts.slice(0, 8);
 
-// Tag counts
 const tagCounts: Record<string, number> = {};
 for (const post of allPosts) {
   for (const tag of post.data.tags) {
@@ -19,7 +17,6 @@ for (const post of allPosts) {
 }
 const allTags = Object.keys(tagCounts).sort((a, b) => tagCounts[b]! - tagCounts[a]!);
 
-// Category counts
 const categories: Record<string, number> = {};
 for (const post of allPosts) {
   const cat = post.data.category;
@@ -30,45 +27,54 @@ for (const post of allPosts) {
 <Layout title="AniLog">
 
   <!-- ── Hero ─────────────────────────────────────── -->
-  <section class="relative z-10 px-6 pt-4 pb-16 max-w-5xl mx-auto text-center">
-    <div class="animate-fade-in">
+  <section class="relative z-10 px-6 pt-2 pb-14 max-w-5xl mx-auto text-center overflow-hidden">
+
+    <!-- Decorative blobs -->
+    <div class="blob w-72 h-72 -top-20 -left-20 bg-sakura-200/50"></div>
+    <div class="blob w-64 h-64 -top-10 -right-20 bg-lavender-200/40"></div>
+    <div class="blob w-56 h-56 bottom-0 left-1/2 -translate-x-1/2 bg-mint-200/30"></div>
+
+    <div class="relative animate-fade-in">
+      <!-- Badge -->
       <div class="inline-flex items-center gap-2 rounded-full px-4 py-1.5 mb-6
-                  bg-sakura-500/10 border border-sakura-500/25 text-sakura-300 text-sm">
-        <span class="animate-twinkle">✨</span>
+                  bg-white/70 border border-sakura-200 text-sakura-500 text-sm shadow-sm backdrop-blur">
+        <span class="animate-twinkle inline-block">✨</span>
         <span>欢迎来到我的小站</span>
+        <span class="animate-twinkle inline-block animate-delay-300">🌸</span>
       </div>
 
-      <h1 class="font-heading text-5xl sm:text-7xl font-bold mb-4 leading-tight">
+      <!-- Title -->
+      <h1 class="font-heading text-6xl sm:text-8xl font-bold mb-4 leading-tight tracking-tight">
         <span class="text-gradient">AniLog</span>
       </h1>
 
-      <p class="text-slate-400 text-lg sm:text-xl max-w-xl mx-auto leading-relaxed mb-8">
+      <!-- Subtitle -->
+      <p class="text-purple-600 text-lg sm:text-xl max-w-lg mx-auto leading-relaxed mb-8">
         记录技术成长，分享二次元热情<br/>
-        <span class="text-slate-500 text-base">用代码描绘属于自己的故事</span>
+        <span class="text-purple-400 text-base">用代码描绘属于自己的故事</span>
       </p>
 
+      <!-- CTA buttons -->
       <div class="flex items-center justify-center gap-4 flex-wrap">
         <a href="/blog"
-           class="px-6 py-2.5 rounded-xl font-medium text-sm text-white
-                  bg-gradient-to-r from-sakura-600 to-cosmic-600
-                  hover:shadow-sakura-glow hover:scale-105
-                  transition-all duration-300">
-          开始阅读
+           class="px-7 py-2.5 rounded-2xl font-medium text-sm text-white shadow-sakura
+                  bg-gradient-to-r from-sakura-500 to-lavender-500
+                  hover:shadow-md hover:scale-105 transition-all duration-300">
+          开始阅读 ✨
         </a>
         <a href="/about"
-           class="px-6 py-2.5 rounded-xl font-medium text-sm text-slate-300
-                  border border-white/10 hover:border-sakura-500/40 hover:text-white
+           class="px-7 py-2.5 rounded-2xl font-medium text-sm text-sakura-600
+                  border border-sakura-200 bg-white/70 backdrop-blur
+                  hover:border-sakura-300 hover:bg-sakura-50 hover:shadow-sm
                   transition-all duration-300">
-          关于我
+          关于我 🌸
         </a>
       </div>
-    </div>
 
-    <!-- Decorative orbs -->
-    <div class="pointer-events-none select-none absolute -top-10 -left-10 w-64 h-64 rounded-full
-                bg-sakura-500/10 blur-3xl" aria-hidden="true"></div>
-    <div class="pointer-events-none select-none absolute -bottom-10 -right-10 w-80 h-80 rounded-full
-                bg-cosmic-600/10 blur-3xl" aria-hidden="true"></div>
+      <!-- Floating decorative emoji -->
+      <div class="pointer-events-none select-none absolute -right-4 top-8 text-4xl opacity-30 animate-float animate-delay-200">🌺</div>
+      <div class="pointer-events-none select-none absolute -left-2 bottom-4 text-3xl opacity-25 animate-float animate-delay-500">🍡</div>
+    </div>
   </section>
 
   <!-- ── Main content ──────────────────────────────── -->
@@ -78,20 +84,20 @@ for (const post of allPosts) {
       <!-- Post grid -->
       <section class="flex-1 min-w-0">
         <div class="flex items-center gap-3 mb-6">
-          <span class="w-1 h-6 rounded-full bg-gradient-sakura"></span>
-          <h2 class="font-heading font-semibold text-slate-200">最新文章</h2>
-          <a href="/blog" class="ml-auto text-xs text-sakura-400 hover:text-sakura-300 transition-colors">
+          <span class="w-1 h-6 rounded-full bg-gradient-kawaii"></span>
+          <h2 class="font-heading font-semibold text-purple-900">最新文章</h2>
+          <a href="/blog" class="ml-auto text-xs text-sakura-500 hover:text-sakura-600 transition-colors font-medium">
             查看全部 →
           </a>
         </div>
 
         {recentPosts.length === 0 ? (
-          <div class="glass-card p-12 text-center text-slate-500">
+          <div class="glass-card p-12 text-center text-purple-400">
             <p class="text-4xl mb-3">📝</p>
             <p>还没有文章，快来发布第一篇吧！</p>
           </div>
         ) : (
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 relative">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             {recentPosts.map((post, i) => (
               <div class="animate-slide-up" style={`animation-delay:${i * 60}ms;animation-fill-mode:both`}>
                 <PostCard
