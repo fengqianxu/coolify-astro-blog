@@ -42,7 +42,7 @@ const fullTitle = title === SITE.name ? SITE.name : `${title} · ${SITE.name}`;
 ---
 
 <!doctype html>
-<html lang={SITE.locale} class="dark">
+<html lang={SITE.locale}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -56,6 +56,18 @@ const fullTitle = title === SITE.name ? SITE.name : `${title} · ${SITE.name}`;
     <meta name="theme-color" content={SITE.themeColor} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{fullTitle}</title>
+
+    <!--
+      主题恢复（防 FOUC）：必须在 <body> 渲染前同步执行。
+      默认夜间，用户偏好存于 localStorage['theme'] = 'light' | 'dark'。
+    -->
+    <script is:inline>
+      (() => {
+        const saved = localStorage.getItem('theme');
+        const isDark = saved ? saved === 'dark' : true; // 默认夜间
+        if (isDark) document.documentElement.classList.add('dark');
+      })();
+    </script>
   </head>
 
   <body class="min-h-dvh flex flex-col">

@@ -24,10 +24,13 @@ export const SITE = {
   avatar: '/avatar.png',
 
   /** 主题色（用于 <meta name="theme-color">） */
-  themeColor: '#f472b6',
+  themeColor: '#FF2D6B',
 
-  /** 主页全屏背景视频路径（相对于 public/） */
+  /** 主页全屏背景视频（暗色模式 - Saber） */
   heroVideo: '/videos/bg.mp4',
+
+  /** 主页全屏背景视频（亮色模式 - 日间版本） */
+  heroVideoLight: '/videos/bg-day.mp4',
 
   /** 网站 locale */
   locale: 'zh-CN',
@@ -52,7 +55,7 @@ export const CATEGORY_EMOJI: Record<string, string> = {
 
 /** 默认封面渐变（分类 → Tailwind gradient 类名） */
 export const CATEGORY_GRADIENT: Record<string, string> = {
-  '技术':   'from-indigo-950/80 to-violet-900/60',
-  '二次元': 'from-pink-950/80   to-fuchsia-900/60',
-  '随笔':   'from-slate-900/80  to-indigo-950/60',
+  '技术':   'from-gray-950/80   to-zinc-900/60',
+  '二次元': 'from-rose-950/80   to-pink-900/60',
+  '随笔':   'from-stone-900/80  to-zinc-950/60',
 };

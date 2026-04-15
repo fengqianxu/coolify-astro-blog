@@ -15,11 +15,11 @@
 <!-- 遮罩 + 弹窗容器 -->
 <div
   id="search-modal"
-  hidden
   role="dialog"
   aria-modal="true"
+  aria-hidden="true"
   aria-label="搜索文章"
-  class="fixed inset-0 z-50 flex items-start justify-center pt-[10vh] px-4"
+  class="hidden fixed inset-0 z-50 flex items-start justify-center pt-[10vh] px-4"
 >
   <!-- 半透明遮罩 -->
   <div
@@ -115,20 +115,24 @@
 
   // ── Open / close ───────────────────────────────────────────────────
   function openModal() {
-    modal.removeAttribute('hidden');
+    modal.classList.remove('hidden');
+    modal.setAttribute('aria-hidden', 'false');
     input.value = '';
     renderResults([]);
     hint.hidden = false;
     selectedIdx = -1;
     ensureIndex();
-    // Defer focus so animation plays first
     requestAnimationFrame(() => input.focus());
   }
 
   function closeModal() {
-    modal.setAttribute('hidden', '');
+    modal.classList.add('hidden');
+    modal.setAttribute('aria-hidden', 'true');
     input.value = '';
   }
+
+  // 监听 NavBar 派发的自定义事件（避免跨组件直接耦合）
+  document.addEventListener('search:open', openModal);
 
   closeBtn.addEventListener('click', closeModal);
   backdrop.addEventListener('click', closeModal);
@@ -154,15 +158,18 @@
     hint.hidden = true;
     selectedIdx = -1;
 
-    // 清空旧结果（保留 hint 节点）
-    [...resultList.querySelectorAll('[role="option"]')].forEach((el) => el.remove());
+    // 清空旧结果：role="option" 的搜索结果项 + search-empty 的空状态提示
+    resultList.querySelectorAll('[role="option"], .search-empty').forEach((el) => el.remove());
 
     if (results.length === 0) {
-      const li = document.createElement('li');
-      li.className = 'px-4 py-8 text-center text-sm text-lavender-500';
-      li.textContent = input.value.trim() ? '未找到相关文章' : '';
-      if (input.value.trim()) resultList.appendChild(li);
-      else hint.hidden = false;
+      if (input.value.trim()) {
+        const li = document.createElement('li');
+        li.className = 'search-empty px-4 py-8 text-center text-sm text-lavender-500';
+        li.textContent = '未找到相关文章';
+        resultList.appendChild(li);
+      } else {
+        hint.hidden = false;
+      }
       return;
     }
 

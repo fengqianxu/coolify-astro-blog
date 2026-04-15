@@ -1,0 +1,206 @@
+---
+/**
+ * @page /categories
+ * @description 分类总览 —— 借鉴 Shoka 主题的 categories 布局。
+ *
+ * 结构：
+ *  1. 顶部：分类徽章排，点击锚点跳转到对应分组
+ *  2. 每个分类一个 section，列出该分类下所有文章
+ *     每条：MM-DD · 标题（可点），按日期降序
+ */
+
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+const allPosts = (await getCollection('posts', p => !p.data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+// 按分类分组
+type Post = typeof allPosts[number];
+const grouped = new Map<string, Post[]>();
+for (const post of allPosts) {
+  const cat = post.data.category;
+  if (!grouped.has(cat)) grouped.set(cat, []);
+  grouped.get(cat)!.push(post);
+}
+
+// 按文章数降序
+const categories = [...grouped.entries()]
+  .sort((a, b) => b[1].length - a[1].length);
+
+// 分类对应的图标色阶（简单哈希到 sakura/gold/mint）
+const accentFor = (name: string) => {
+  const palette = ['sakura', 'gold', 'mint'] as const;
+  let h = 0;
+  for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return palette[h % palette.length];
+};
+
+// 锚点 id（中文分类名编码）
+const anchorFor = (name: string) => `cat-${encodeURIComponent(name)}`;
+
+// 格式化日期
+const fmtMD = (d: Date) =>
+  `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const fmtYMD = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+---
+
+<Layout title="分类" description="按分类浏览所有文章">
+  <div class="relative z-10 max-w-4xl mx-auto px-6 pb-20">
+
+    <!-- 页头 -->
+    <div class="mb-8">
+      <h1 class="font-heading text-3xl font-bold text-gradient mb-2">分类</h1>
+      <p class="text-lavender-400 text-sm">
+        共 <span class="text-sakura-500 font-semibold">{categories.length}</span> 个分类 ·
+        <span class="text-sakura-500 font-semibold">{allPosts.length}</span> 篇文章
+      </p>
+    </div>
+
+    <!-- 分类徽章一览（点击锚点） -->
+    <div class="glass-card p-5 mb-10 flex flex-wrap gap-3">
+      {categories.map(([name, posts]) => (
+        <a
+          href={`#${anchorFor(name)}`}
+          class="cat-chip"
+          data-accent={accentFor(name)}
+        >
+          <span class="cat-dot" aria-hidden="true"></span>
+          <span>{name}</span>
+          <span class="cat-count">{posts.length}</span>
+        </a>
+      ))}
+    </div>
+
+    <!-- 每个分类一组 timeline -->
+    <div class="space-y-12">
+      {categories.map(([name, posts]) => (
+        <section id={anchorFor(name)} class="scroll-mt-20">
+          <!-- 分类标题：左侧彩条 + 名称 + 计数 -->
+          <div class="section-heading mb-5">
+            <h2 class="font-heading text-xl font-bold text-lavender-100 flex items-baseline gap-2">
+              {name}
+              <span class="text-sm font-body text-lavender-400 font-normal">
+                ({posts.length})
+              </span>
+            </h2>
+          </div>
+
+          <!-- 文章列表：左侧竖线 + 每条带圆点 -->
+          <ol class="cat-timeline glass-card px-6 py-4">
+            {posts.map(post => (
+              <li class="cat-row">
+                <time
+                  class="cat-date font-mono"
+                  datetime={fmtYMD(post.data.pubDate)}
+                >
+                  {fmtMD(post.data.pubDate)}
+                </time>
+                <a href={`/blog/${post.slug}`} class="cat-title">
+                  {post.data.title}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </section>
+      ))}
+    </div>
+
+  </div>
+</Layout>
+
+<style>
+  /* ── 顶部分类徽章 ─────────────────────────── */
+  .cat-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.875rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    color: rgb(var(--c-lavender-300));
+    border: 1px solid var(--divider-color);
+    background: rgba(127, 127, 127, 0.04);
+    transition: all 0.2s ease;
+  }
+  .cat-chip:hover {
+    color: rgb(var(--c-lavender-100));
+    border-color: var(--glass-hover-border);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-card);
+  }
+  .cat-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 9999px;
+    flex-shrink: 0;
+  }
+  .cat-chip[data-accent="sakura"] .cat-dot { background: rgb(var(--c-sakura-500)); }
+  .cat-chip[data-accent="gold"]   .cat-dot { background: rgb(var(--c-gold-400));   }
+  .cat-chip[data-accent="mint"]   .cat-dot { background: rgb(var(--c-mint-400));   }
+  .cat-count {
+    font-size: 0.75rem;
+    padding: 0 0.375rem;
+    border-radius: 9999px;
+    background: rgba(var(--c-sakura-500) / 0.12);
+    color: rgb(var(--c-sakura-500));
+  }
+
+  /* ── 文章列表 ────────────────────────────── */
+  .cat-timeline {
+    list-style: none;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    position: relative;
+  }
+
+  .cat-row {
+    display: grid;
+    grid-template-columns: 5rem 1fr;
+    gap: 1rem;
+    align-items: baseline;
+    padding: 0.625rem 0;
+    position: relative;
+  }
+  .cat-row + .cat-row {
+    border-top: 1px dashed var(--divider-color);
+  }
+
+  .cat-date {
+    color: rgb(var(--c-lavender-500));
+    font-size: 0.8125rem;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+
+  .cat-title {
+    color: rgb(var(--c-lavender-200));
+    font-size: 0.9375rem;
+    text-decoration: none;
+    transition: color 0.15s ease;
+    position: relative;
+    line-height: 1.5;
+  }
+  .cat-title:hover {
+    color: rgb(var(--c-sakura-500));
+  }
+  /* hover 时左侧出现一个小圆点装饰 */
+  .cat-title::before {
+    content: '';
+    position: absolute;
+    left: -0.875rem;
+    top: 0.625rem;
+    width: 4px;
+    height: 4px;
+    border-radius: 9999px;
+    background: rgb(var(--c-sakura-500));
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  .cat-title:hover::before {
+    opacity: 1;
+    transform: translateX(0);
+  }
+</style>

@@ -1,0 +1,266 @@
+---
+/**
+ * @page /archives
+ * @description 归档 —— 借鉴 Shoka 主题的 archive 布局。
+ *
+ * 结构：
+ *  - 页头显示总篇数
+ *  - 按年份倒序分组，年份作为大 section 标题（带计数）
+ *  - 年内按月份分小段
+ *  - 每条文章：MM-DD · 分类胶囊 · 标题
+ */
+
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+const allPosts = (await getCollection('posts', p => !p.data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+type Post = typeof allPosts[number];
+
+// 按 年 → 月 两级分组
+const yearMap = new Map<number, Map<number, Post[]>>();
+for (const post of allPosts) {
+  const d = post.data.pubDate;
+  const y = d.getFullYear();
+  const m = d.getMonth() + 1;
+  if (!yearMap.has(y)) yearMap.set(y, new Map());
+  const monthMap = yearMap.get(y)!;
+  if (!monthMap.has(m)) monthMap.set(m, []);
+  monthMap.get(m)!.push(post);
+}
+
+// 年降序 + 月降序
+const years = [...yearMap.entries()]
+  .sort((a, b) => b[0] - a[0])
+  .map(([y, monthMap]) => {
+    const months = [...monthMap.entries()]
+      .sort((a, b) => b[0] - a[0])
+      .map(([m, posts]) => ({ month: m, posts }));
+    const total = months.reduce((sum, x) => sum + x.posts.length, 0);
+    return { year: y, months, total };
+  });
+
+// 打个气：根据篇数决定鼓励语
+const cheersFor = (n: number) => {
+  if (n > 210) return '产量惊人';
+  if (n > 130) return '持续输出';
+  if (n > 80)  return '渐入佳境';
+  if (n > 50)  return '小有积累';
+  if (n > 30)  return '还不错';
+  if (n > 10)  return '刚起步';
+  return '初出茅庐';
+};
+
+const fmtMD = (d: Date) =>
+  `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const fmtYMD = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+---
+
+<Layout title="归档" description="所有文章按时间归档">
+  <div class="relative z-10 max-w-4xl mx-auto px-6 pb-20">
+
+    <!-- 页头 -->
+    <div class="mb-10">
+      <h1 class="font-heading text-3xl font-bold text-gradient mb-2">归档</h1>
+      <p class="text-lavender-400 text-sm">
+        共 <span class="text-sakura-500 font-semibold">{allPosts.length}</span> 篇文章 ·
+        <span class="text-gold-400">{cheersFor(allPosts.length)}</span>，继续加油
+      </p>
+    </div>
+
+    <!-- 年份侧边锚点（桌面） -->
+    <div class="flex gap-8">
+      <aside class="hidden lg:block w-20 shrink-0 sticky top-24 self-start">
+        <ul class="space-y-3">
+          {years.map(y => (
+            <li>
+              <a href={`#y-${y.year}`} class="arch-year-anchor">
+                <span class="arch-year-num">{y.year}</span>
+                <span class="arch-year-count">{y.total}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </aside>
+
+      <!-- 主体 timeline -->
+      <div class="flex-1 min-w-0 space-y-14">
+        {years.map(({ year, months, total }) => (
+          <section id={`y-${year}`} class="scroll-mt-20">
+            <!-- 年份大标题 -->
+            <div class="arch-year-header">
+              <h2 class="font-heading text-4xl font-bold text-gradient leading-none">
+                {year}
+              </h2>
+              <div class="arch-year-meta">
+                <span class="arch-year-line"></span>
+                <span class="text-lavender-400 text-sm">{total} 篇</span>
+              </div>
+            </div>
+
+            <!-- 月份分段 -->
+            <div class="pl-2 mt-6 space-y-8">
+              {months.map(({ month, posts }) => (
+                <div>
+                  <h3 class="arch-month-title">
+                    <span class="text-sakura-500 font-mono">{String(month).padStart(2, '0')}</span>
+                    <span class="text-xs text-lavender-500 font-body">月</span>
+                    <span class="arch-month-divider"></span>
+                    <span class="text-xs text-lavender-500">{posts.length} 篇</span>
+                  </h3>
+
+                  <ol class="arch-list">
+                    {posts.map(post => (
+                      <li class="arch-row">
+                        <time
+                          class="arch-date font-mono"
+                          datetime={fmtYMD(post.data.pubDate)}
+                        >
+                          {fmtMD(post.data.pubDate)}
+                        </time>
+                        <span class="arch-cat">{post.data.category}</span>
+                        <a href={`/blog/${post.slug}`} class="arch-title">
+                          {post.data.title}
+                        </a>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
+    </div>
+
+  </div>
+</Layout>
+
+<style>
+  /* ── 左侧年份锚点 ────────────────────────── */
+  .arch-year-anchor {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.125rem;
+    padding: 0.375rem 0.5rem;
+    border-left: 2px solid transparent;
+    color: rgb(var(--c-lavender-400));
+    transition: all 0.2s ease;
+  }
+  .arch-year-anchor:hover {
+    border-left-color: rgb(var(--c-sakura-500));
+    color: rgb(var(--c-sakura-500));
+    transform: translateX(2px);
+  }
+  .arch-year-num {
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  .arch-year-count {
+    font-size: 0.6875rem;
+    color: rgb(var(--c-lavender-500));
+  }
+
+  /* ── 年份大标题 ──────────────────────────── */
+  .arch-year-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+  }
+  .arch-year-meta {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .arch-year-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      rgb(var(--c-sakura-500) / 0.5) 0%,
+      var(--divider-color) 100%
+    );
+  }
+
+  /* ── 月份小标题 ──────────────────────────── */
+  .arch-month-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9375rem;
+    margin-bottom: 0.5rem;
+  }
+  .arch-month-divider {
+    flex: 1;
+    height: 1px;
+    background: var(--divider-color);
+    margin: 0 0.25rem;
+  }
+
+  /* ── 文章条目 ────────────────────────────── */
+  .arch-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border-left: 1px solid var(--divider-color);
+    padding-left: 1.25rem;
+  }
+  .arch-row {
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    gap: 0.875rem;
+    align-items: baseline;
+    padding: 0.5rem 0;
+    position: relative;
+  }
+  /* 左侧竖线上的小圆点 */
+  .arch-row::before {
+    content: '';
+    position: absolute;
+    left: -1.3125rem;
+    top: 0.875rem;
+    width: 7px;
+    height: 7px;
+    border-radius: 9999px;
+    background: rgb(var(--c-void-700));
+    border: 2px solid var(--divider-color);
+    transition: all 0.2s ease;
+  }
+  .arch-row:hover::before {
+    background: rgb(var(--c-sakura-500));
+    border-color: rgb(var(--c-sakura-500));
+    transform: scale(1.2);
+  }
+
+  .arch-date {
+    font-size: 0.8125rem;
+    color: rgb(var(--c-lavender-500));
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+  .arch-cat {
+    font-size: 0.6875rem;
+    padding: 0.0625rem 0.5rem;
+    border-radius: 9999px;
+    background: rgba(var(--c-sakura-500) / 0.08);
+    color: rgb(var(--c-sakura-500));
+    border: 1px solid rgba(var(--c-sakura-500) / 0.18);
+    white-space: nowrap;
+  }
+  .arch-title {
+    color: rgb(var(--c-lavender-200));
+    font-size: 0.9375rem;
+    text-decoration: none;
+    transition: color 0.15s ease;
+    line-height: 1.5;
+    min-width: 0;
+  }
+  .arch-title:hover {
+    color: rgb(var(--c-sakura-500));
+  }
+</style>

@@ -37,11 +37,11 @@
 
   // ── 花瓣颜色表（RGBA 模板，VAL 替换为实际 opacity） ───────────────
   const PETAL_COLORS = [
-    'rgba(244,114,182,VAL)',  // sakura-400
-    'rgba(249,168,212,VAL)',  // sakura-300
-    'rgba(196,181,253,VAL)',  // lavender-300
-    'rgba(251,191,36,VAL)',   // gold-400（少量）
-    'rgba(167,139,250,VAL)',  // lavender-400
+    'rgba(255,45,107,VAL)',   // sakura-500 hot pink
+    'rgba(255,91,148,VAL)',   // sakura-400 pink
+    'rgba(255,145,184,VAL)',  // sakura-300 soft pink
+    'rgba(255,170,0,VAL)',    // gold-400 amber
+    'rgba(255,122,69,VAL)',   // coral（粉橙过渡色）
   ] as const;
 
   // ── Canvas 初始化 ─────────────────────────────────────────────────
@@ -105,7 +105,7 @@
       ctx.lineTo(Math.cos(b) * (s.r * 0.3), Math.sin(b) * (s.r * 0.3));
     }
     ctx.closePath();
-    ctx.fillStyle = `hsl(${340 + s.hue}, 75%, 80%)`;
+    ctx.fillStyle = `hsl(${345 + s.hue}, 90%, 75%)`;
     ctx.fill();
     ctx.restore();
   }

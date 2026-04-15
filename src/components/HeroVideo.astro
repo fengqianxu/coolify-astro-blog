@@ -4,8 +4,8 @@
  * @description 首页全屏视频开屏区。
  *
  * 结构：
- *  - 背景视频（autoplay / muted / loop）
- *  - 底部渐变遮罩（视频→页面背景色，过渡自然）
+ *  - 背景视频（autoplay / muted / loop），随主题切换资源
+ *  - 底部渐变遮罩（视频 → 页面背景色，过渡自然）
  *  - 中央叠加文字（站名 + 副标题）
  *  - 底部滚动引导箭头（可点击跳过）
  */
@@ -18,11 +18,16 @@ import { SITE } from '../config/site';
   class="relative w-full h-dvh overflow-hidden flex items-center justify-center"
   aria-label="开场动态视频"
 >
-  <!-- 背景视频 -->
+  <!--
+    背景视频：
+      data-src-dark / data-src-light 由脚本根据主题选用
+      初始 src 由内联脚本依据 localStorage 在 SSR HTML 上就地设置（避免切换闪烁）
+  -->
   <video
     id="hero-video"
     class="absolute inset-0 w-full h-full object-cover"
-    src={SITE.heroVideo}
+    data-src-dark={SITE.heroVideo}
+    data-src-light={SITE.heroVideoLight}
     autoplay
     muted
     loop
@@ -31,15 +36,15 @@ import { SITE } from '../config/site';
     aria-hidden="true"
   ></video>
 
-  <!-- 渐变遮罩：顶部微暗（提升导航可读性）→ 底部完全收入页面背景色 -->
+  <!-- 渐变遮罩：顶部微暗（提升导航可读性）→ 底部收入页面背景色（用 void-900） -->
   <div
     class="absolute inset-0 pointer-events-none"
     style="background: linear-gradient(
       to bottom,
-      rgba(13,11,20,0.35) 0%,
-      transparent        30%,
-      transparent        60%,
-      #13111c           100%
+      rgba(0,0,0,0.35) 0%,
+      transparent      30%,
+      transparent      60%,
+      rgb(var(--c-void-900)) 100%
     );"
     aria-hidden="true"
   ></div>
@@ -50,7 +55,7 @@ import { SITE } from '../config/site';
       Welcome to
     </p>
     <h1 class="font-heading text-6xl sm:text-8xl font-bold text-white
-               drop-shadow-[0_2px_20px_rgba(244,114,182,0.5)] mb-4 leading-none">
+               drop-shadow-[0_2px_20px_rgba(255,45,107,0.5)] mb-4 leading-none">
       {SITE.name}
     </h1>
     <p class="text-white/70 text-base sm:text-lg font-body tracking-wide">
@@ -70,7 +75,6 @@ import { SITE } from '../config/site';
     onclick="window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })"
   >
     <span class="text-[10px] tracking-[0.3em] uppercase font-body">Scroll</span>
-    <!-- 三层渐强的跳动箭头 -->
     {[0, 120, 240].map((delay) => (
       <svg
         class="w-4 h-4 animate-bounce"
@@ -83,3 +87,29 @@ import { SITE } from '../config/site';
     ))}
   </button>
 </section>
+
+<script>
+  // ── 根据当前主题装载正确的视频源 ────────────────────────────────
+  const video = document.getElementById('hero-video') as HTMLVideoElement | null;
+  if (video) {
+    const srcDark  = video.dataset.srcDark!;
+    const srcLight = video.dataset.srcLight!;
+
+    function applyVideo(dark: boolean) {
+      const target = dark ? srcDark : srcLight;
+      // 避免重复设置相同资源，防止 Safari 重新缓冲中断播放
+      if (video!.getAttribute('src') === target) return;
+      video!.src = target;
+      video!.load();
+      video!.play().catch(() => { /* 自动播放可能被浏览器阻止，静默忽略 */ });
+    }
+
+    // 初始装载：当前 <html> 的 .dark 状态由 Layout 的 inline 脚本在渲染前决定
+    applyVideo(document.documentElement.classList.contains('dark'));
+
+    // 响应主题切换事件
+    document.addEventListener('theme:change', ((e: CustomEvent) => {
+      applyVideo(Boolean(e.detail?.dark));
+    }) as EventListener);
+  }
+</script>

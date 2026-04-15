@@ -4,184 +4,338 @@
  * @description 固定顶部导航栏。
  *
  * 行为：
- *  - heroVideo=true 时，初始为半透明暗底（nav-over-video）覆盖在视频上，
- *    文字始终白色且清晰可见。
+ *  - heroVideo=true 时，初始透明覆盖在视频上（渐变遮罩保证文字可读）。
  *  - 滚过视口 80% 后切换为深色磨砂玻璃（nav-solid）。
- *  - heroVideo=false 时，始终使用 nav-solid 样式，顶部留 --nav-height 间距。
+ *  - heroVideo=false 时，始终使用 nav-solid 样式。
  *
- * 搜索：点击 🔍 按钮或按 Ctrl/Cmd + K 打开搜索弹窗（#search-modal）。
+ * 搜索：派发 "search:open" 自定义事件，由 SearchModal 统一处理。
+ *
+ * 图标：线性 SVG（Lucide 风格），stroke-width=1.75，w-4 h-4，
+ *       走 currentColor 从文字颜色继承，保证与主题色一致。
  */
 
-import { SITE, NAV_LINKS } from '../config/site';
+import { SITE } from '../config/site';
 
 interface Props {
-  /** 是否处于全屏视频首屏模式 */
   heroVideo?: boolean;
 }
 const { heroVideo = false } = Astro.props;
 
 const current = Astro.url.pathname;
+const isHome  = current === '/';
+const isBlog  = current.startsWith('/blog')
+             || current.startsWith('/tags')
+             || current.startsWith('/categories')
+             || current.startsWith('/archives');
+const isAbout = current.startsWith('/about');
 ---
 
 <header
   id="site-header"
   data-hero={heroVideo}
-  class="fixed top-0 inset-x-0 z-40"
-  style="transition: none;"
+  class="fixed top-0 inset-x-0 z-40 transition-transform duration-300 ease-out will-change-transform"
 >
-  <div class="flex justify-center px-4 pt-3">
-    <nav
-      id="nav-pill"
-      class:list={[
-        'w-full max-w-4xl rounded-2xl px-6 py-3',
-        'flex items-center justify-between gap-4',
-        'transition-[background,border-color,box-shadow] duration-400',
-        heroVideo ? 'nav-over-video' : 'nav-solid',
-      ]}
-    >
-      <!-- ── Logo ──────────────────────────────────── -->
-      <a href="/" class="flex items-center gap-2 shrink-0">
-        <span class="text-xl select-none animate-bounce-gentle inline-block" aria-hidden="true">🌸</span>
-        <span id="nav-logo" class="font-heading font-semibold text-lg transition-all duration-400 text-gradient">
-          {SITE.name}
-        </span>
+  <!-- ── 主导航栏 ───────────────────────────────────────── -->
+  <div
+    id="nav-bar"
+    class:list={[
+      'w-full flex items-center justify-between gap-4',
+      'px-5 sm:px-8 h-14',
+      'transition-all duration-300',
+      heroVideo ? 'nav-over-video' : 'nav-solid',
+    ]}
+  >
+
+    <!-- Logo ───────────────────────────────────────────── -->
+    <a href="/" class="flex items-center gap-2 shrink-0" aria-label={SITE.name}>
+      <span class="text-xl select-none animate-bounce-gentle inline-block" aria-hidden="true">🌸</span>
+      <span class="font-heading font-bold text-lg text-gradient">{SITE.name}</span>
+    </a>
+
+    <!-- Desktop links ──────────────────────────────────── -->
+    <nav class="hidden md:flex items-center gap-0.5" role="menubar" aria-label="主导航">
+
+      <a
+        href="/"
+        role="menuitem"
+        aria-current={isHome ? 'page' : undefined}
+        class:list={['nav-link', isHome && 'nav-link-active']}
+      >
+        <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/>
+          <path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        </svg>
+        <span>首页</span>
       </a>
 
-      <!-- ── Desktop links ─────────────────────────── -->
-      <ul class="hidden sm:flex items-center gap-1" role="menubar">
-        {NAV_LINKS.map(({ href, label }) => {
-          const isActive = href === '/'
-            ? current === href
-            : current.startsWith(href);
-          return (
-            <li role="none">
-              <a
-                href={href}
-                role="menuitem"
-                aria-current={isActive ? 'page' : undefined}
-                class:list={[
-                  'nav-link px-4 py-1.5 rounded-xl text-sm font-medium',
-                  'transition-all duration-200',
-                  isActive
-                    ? 'bg-sakura-500/20 text-sakura-300 border border-sakura-500/40'
-                    : 'text-lavender-300 hover:text-white hover:bg-white/8',
-                ]}
-              >
-                {label}
-              </a>
-            </li>
-          );
-        })}
-      </ul>
-
-      <!-- ── Controls ──────────────────────────────── -->
-      <div class="flex items-center gap-1 shrink-0">
-        <!-- 搜索按钮 -->
-        <button
-          id="search-open-btn"
-          type="button"
-          aria-label="搜索文章（Ctrl+K）"
-          class="p-2 rounded-xl text-lavender-400 hover:text-sakura-400
-                 hover:bg-sakura-500/10 transition-all duration-200 cursor-pointer"
+      <!-- 文章（含下拉） -->
+      <div class="relative group/article" role="none">
+        <a
+          href="/blog"
+          role="menuitem"
+          aria-haspopup="menu"
+          aria-current={isBlog ? 'page' : undefined}
+          class:list={['nav-link', isBlog && 'nav-link-active']}
         >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
-               viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12.67 19a2 2 0 0 0 1.416-.588l6.154-6.172a6 6 0 0 0-8.49-8.49L5.586 9.914A2 2 0 0 0 5 11.328V18a1 1 0 0 0 1 1z"/>
+            <path d="M16 8 2 22"/>
+            <path d="M17.5 15H9"/>
           </svg>
-        </button>
+          <span>文章</span>
+          <svg
+            class="w-3 h-3 opacity-50 transition-transform duration-200 group-hover/article:rotate-180"
+            fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+          ><path d="m6 9 6 6 6-6"/></svg>
+        </a>
 
-        <!-- 移动端菜单按钮 -->
-        <button
-          id="mobile-menu-btn"
-          type="button"
-          aria-label="打开菜单"
-          aria-expanded="false"
-          aria-controls="mobile-menu"
-          class="sm:hidden p-2 rounded-xl text-lavender-400 hover:text-white
-                 hover:bg-white/8 transition-all duration-200 cursor-pointer"
+        <!--
+          Dropdown：
+           - 使用 pt-2 作为"不可见桥接区"填补按钮与下拉之间的空隙，鼠标移入不会丢失 hover
+           - 关闭延时 180ms 给用户容错
+        -->
+        <div
+          class="absolute left-0 top-full w-36 pt-2
+                 opacity-0 invisible translate-y-1
+                 group-hover/article:opacity-100 group-hover/article:visible group-hover/article:translate-y-0
+                 transition-[opacity,transform,visibility] duration-200 ease-out
+                 delay-[180ms] group-hover/article:delay-0"
+          role="menu"
         >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
-               viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M4 6h16M4 12h16M4 18h16"/>
-          </svg>
-        </button>
+          <div class="glass-card py-1 text-sm overflow-hidden">
+            <a href="/categories" class="dropdown-item" role="menuitem">
+              <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>
+              </svg>
+              <span>分类</span>
+            </a>
+            <a href="/tags" class="dropdown-item" role="menuitem">
+              <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/>
+                <circle cx="7.5" cy="7.5" r="1" fill="currentColor" stroke="none"/>
+              </svg>
+              <span>标签</span>
+            </a>
+            <a href="/archives" class="dropdown-item" role="menuitem">
+              <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect width="20" height="5" x="2" y="3" rx="1"/>
+                <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/>
+                <path d="M10 12h4"/>
+              </svg>
+              <span>归档</span>
+            </a>
+          </div>
+        </div>
       </div>
+
+      <a
+        href="/about"
+        role="menuitem"
+        aria-current={isAbout ? 'page' : undefined}
+        class:list={['nav-link', isAbout && 'nav-link-active']}
+      >
+        <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span>关于</span>
+      </a>
+
     </nav>
+
+    <!-- Controls ───────────────────────────────────────── -->
+    <div class="flex items-center gap-1 shrink-0">
+      <button
+        id="search-open-btn"
+        type="button"
+        aria-label="搜索文章（Ctrl+K）"
+        class="nav-icon-btn"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+             viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+      </button>
+
+      <!-- 日/夜模式切换 -->
+      <button
+        id="theme-toggle-btn"
+        type="button"
+        aria-label="切换日间 / 夜间模式"
+        class="nav-icon-btn"
+      >
+        <!-- 夜间时显示月亮（点击切到日间）-->
+        <svg id="theme-icon-moon" class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" stroke-width="2"
+             viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/>
+        </svg>
+        <!-- 日间时显示太阳（点击切到夜间）-->
+        <svg id="theme-icon-sun" class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" stroke-width="2"
+             viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+        </svg>
+      </button>
+
+      <button
+        id="mobile-menu-btn"
+        type="button"
+        aria-label="打开菜单"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+        class="md:hidden nav-icon-btn"
+      >
+        <svg id="menu-icon-open"  class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        <svg id="menu-icon-close" class="w-4 h-4 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
   </div>
 
-  <!-- ── 移动端下拉菜单 ─────────────────────────────── -->
+  <!-- ── 移动端菜单 ────────────────────────────────────── -->
   <div
     id="mobile-menu"
     role="menu"
     hidden
-    class="mx-4 mt-1 nav-solid rounded-2xl px-4 py-3"
+    class="nav-solid border-t border-white/6 px-4 py-2"
   >
-    {NAV_LINKS.map(({ href, label }) => (
-      <a
-        href={href}
-        role="menuitem"
-        class="block px-3 py-2.5 rounded-xl text-sm text-lavender-300
-               hover:text-white hover:bg-white/8 transition-all duration-200"
-      >
-        {label}
+    <a href="/" role="menuitem" class="mobile-nav-item" aria-current={isHome ? 'page' : undefined}>
+      <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/>
+        <path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+      </svg>
+      <span>首页</span>
+    </a>
+    <a href="/blog" role="menuitem" class="mobile-nav-item" aria-current={isBlog ? 'page' : undefined}>
+      <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12.67 19a2 2 0 0 0 1.416-.588l6.154-6.172a6 6 0 0 0-8.49-8.49L5.586 9.914A2 2 0 0 0 5 11.328V18a1 1 0 0 0 1 1z"/>
+        <path d="M16 8 2 22"/>
+        <path d="M17.5 15H9"/>
+      </svg>
+      <span>文章</span>
+    </a>
+    <div class="pl-4 border-l-2 border-sakura-700/40 ml-3 my-0.5 space-y-0.5">
+      <a href="/categories" role="menuitem" class="mobile-nav-item text-xs">
+        <svg class="nav-ico-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>
+        </svg>
+        <span>分类</span>
       </a>
-    ))}
+      <a href="/tags" role="menuitem" class="mobile-nav-item text-xs">
+        <svg class="nav-ico-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/>
+          <circle cx="7.5" cy="7.5" r="1" fill="currentColor" stroke="none"/>
+        </svg>
+        <span>标签</span>
+      </a>
+      <a href="/archives" role="menuitem" class="mobile-nav-item text-xs">
+        <svg class="nav-ico-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect width="20" height="5" x="2" y="3" rx="1"/>
+          <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/>
+          <path d="M10 12h4"/>
+        </svg>
+        <span>归档</span>
+      </a>
+    </div>
+    <a href="/about" role="menuitem" class="mobile-nav-item" aria-current={isAbout ? 'page' : undefined}>
+      <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      <span>关于</span>
+    </a>
   </div>
 </header>
 
 <script>
-  // ── 滚动感知：在视频首屏与正文之间切换导航栏样式 ─────────────────
-  const header  = document.getElementById('site-header')!;
-  const navPill = document.getElementById('nav-pill')!;
-  const isHero  = header.dataset.hero === 'true';
+  // ── 滚动感知：借鉴 Shoka 主题 ──────────────────────────
+  //   1. 过阈值后切换 nav-solid（磨砂底）
+  //   2. 过阈值后，向下滚：隐藏（translateY(-100%)）；向上滚：显示
+  const header = document.getElementById('site-header')!;
+  const navBar = document.getElementById('nav-bar')!;
+  const isHero = header.dataset.hero === 'true';
 
-  if (isHero) {
-    const SCROLL_THRESHOLD = window.innerHeight * 0.8;
+  // 视频首屏：越过 80% 视口；普通页面：越过 nav 高度
+  const SCROLL_THRESHOLD = isHero ? window.innerHeight * 0.8 : 64;
 
-    function applyNavState(scrolled: boolean) {
-      if (scrolled) {
-        navPill.classList.replace('nav-over-video', 'nav-solid');
+  let lastY = window.scrollY;
+
+  function onScroll() {
+    const currentY = window.scrollY;
+    const passed = currentY > SCROLL_THRESHOLD;
+
+    // 背景样式切换（只对 hero 页生效，普通页永远是 solid）
+    if (isHero) {
+      if (passed) {
+        navBar.classList.replace('nav-over-video', 'nav-solid');
       } else {
-        navPill.classList.replace('nav-solid', 'nav-over-video');
+        navBar.classList.replace('nav-solid', 'nav-over-video');
       }
     }
 
-    // 立即执行一次，避免初始闪烁
-    applyNavState(window.scrollY > SCROLL_THRESHOLD);
-    // 滚动时更新（passive 保证不阻塞渲染）
-    window.addEventListener('scroll', () => {
-      applyNavState(window.scrollY > SCROLL_THRESHOLD);
-    }, { passive: true });
+    // 方向感知隐藏/显示
+    if (passed) {
+      const scrollingDown = currentY > lastY;
+      // 轻微抖动不切换（阈值 4px）
+      if (Math.abs(currentY - lastY) > 4) {
+        header.style.transform = scrollingDown ? 'translateY(-100%)' : 'translateY(0)';
+      }
+    } else {
+      header.style.transform = 'translateY(0)';
+    }
+
+    lastY = currentY;
   }
+
+  // 初始态
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
 
   // ── 移动端菜单开关 ────────────────────────────────────────────────
-  const menuBtn  = document.getElementById('mobile-menu-btn')!;
+  const menuBtn    = document.getElementById('mobile-menu-btn')!;
   const mobileMenu = document.getElementById('mobile-menu')!;
+  const iconOpen   = document.getElementById('menu-icon-open')!;
+  const iconClose  = document.getElementById('menu-icon-close')!;
 
   menuBtn.addEventListener('click', () => {
-    const isOpen = !mobileMenu.hidden;
-    mobileMenu.hidden = isOpen;
-    menuBtn.setAttribute('aria-expanded', String(!isOpen));
-    menuBtn.setAttribute('aria-label', isOpen ? '打开菜单' : '关闭菜单');
+    const opening = mobileMenu.hidden;
+    mobileMenu.hidden = !opening;
+    menuBtn.setAttribute('aria-expanded', String(opening));
+    menuBtn.setAttribute('aria-label', opening ? '关闭菜单' : '打开菜单');
+    iconOpen.classList.toggle('hidden', opening);
+    iconClose.classList.toggle('hidden', !opening);
   });
 
-  // ── 搜索快捷键 & 按钮 ────────────────────────────────────────────
-  const searchBtn   = document.getElementById('search-open-btn')!;
-  const searchModal = document.getElementById('search-modal');
+  // ── 搜索：派发自定义事件，SearchModal 负责处理打开逻辑 ───────────
+  const searchBtn = document.getElementById('search-open-btn')!;
 
-  function openSearch() {
-    if (!searchModal) return;
-    searchModal.removeAttribute('hidden');
-    searchModal.querySelector<HTMLInputElement>('#search-input')?.focus();
+  function dispatchOpenSearch() {
+    document.dispatchEvent(new CustomEvent('search:open'));
   }
 
-  searchBtn.addEventListener('click', openSearch);
+  searchBtn.addEventListener('click', dispatchOpenSearch);
 
   document.addEventListener('keydown', (e) => {
-    // Ctrl+K 或 Cmd+K 打开搜索
     if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
       e.preventDefault();
-      openSearch();
+      dispatchOpenSearch();
     }
+  });
+
+  // ── 主题切换：切换 .dark，持久化到 localStorage，派发 theme:change ─
+  const themeBtn = document.getElementById('theme-toggle-btn')!;
+
+  themeBtn.addEventListener('click', () => {
+    const nowDark = !document.documentElement.classList.contains('dark');
+    document.documentElement.classList.toggle('dark', nowDark);
+    localStorage.setItem('theme', nowDark ? 'dark' : 'light');
+    // 通知其他组件（如 HeroVideo）切换资源
+    document.dispatchEvent(new CustomEvent('theme:change', { detail: { dark: nowDark } }));
   });
 </script>

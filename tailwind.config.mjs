@@ -1,13 +1,19 @@
 /**
  * @file tailwind.config.mjs
- * @description Tailwind 配置 —— "暗紫樱花" 主题（Twilight Sakura）
+ * @description Tailwind 配置 —— 双主题（Neon Sakura 夜间 + Soft Sakura 日间）
  *
- * 调色盘设计原则：
- *  - 背景：深靛紫 #13111c（与 Saber 视频的暗色调一致）
- *  - 强调：樱花粉 #f472b6 + 薰衣草紫 #c084fc（呼应视频中的粉紫剑光）
- *  - 文字：淡紫白 #ede9fe（不刺眼，保持可读性）
- *  - 点缀：暖金 #fbbf24（对应 Saber 的金色眼睛）
+ * 所有颜色通过 CSS 变量定义（rgb 三元组 + <alpha-value>），
+ * 由 global.css 的 :root（日间）和 .dark（夜间）切换。
+ *
+ * 令牌语义：
+ *   sakura-*   —— 品牌主色（粉系，两种模式下略有微调）
+ *   gold-*     —— 品牌副色（金/琥珀）
+ *   lavender-* —— 文字层次（名字保留兼容旧代码；日间为深色，夜间为浅色）
+ *   void-*     —— 背景层次（日间为淡粉白，夜间为纯深黑）
+ *   mint-*     —— 成功/在线状态（两模式一致）
  */
+
+const cssVar = (v) => `rgb(var(${v}) / <alpha-value>)`;
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -15,47 +21,42 @@ export default {
   darkMode: 'class',
   theme: {
     extend: {
-      // ── Color tokens ──────────────────────────────────────
+      // ── Color tokens（全部走 CSS 变量） ────────────────────
       colors: {
-        /** 樱花粉系 */
         sakura: {
-          100: '#ffe4f0',
-          200: '#fecdd3',
-          300: '#fda4c4',
-          400: '#fb7db0',
-          500: '#f472b6',
-          600: '#ec4899',
-          700: '#db2777',
+          100: cssVar('--c-sakura-100'),
+          200: cssVar('--c-sakura-200'),
+          300: cssVar('--c-sakura-300'),
+          400: cssVar('--c-sakura-400'),
+          500: cssVar('--c-sakura-500'),
+          600: cssVar('--c-sakura-600'),
+          700: cssVar('--c-sakura-700'),
         },
-        /** 薰衣草紫系 */
         lavender: {
-          100: '#f5f3ff',
-          200: '#ede9fe',
-          300: '#ddd6fe',
-          400: '#c4b5fd',
-          500: '#c084fc',
-          600: '#a855f7',
-          700: '#9333ea',
+          100: cssVar('--c-lavender-100'),
+          200: cssVar('--c-lavender-200'),
+          300: cssVar('--c-lavender-300'),
+          400: cssVar('--c-lavender-400'),
+          500: cssVar('--c-lavender-500'),
+          600: cssVar('--c-lavender-600'),
+          700: cssVar('--c-lavender-700'),
         },
-        /** 深色背景系（页面基底） */
         void: {
-          950: '#0d0b14',
-          900: '#13111c',
-          800: '#1e1a2e',
-          700: '#251f3d',
-          600: '#2e284d',
-          500: '#3b3460',
+          950: cssVar('--c-void-950'),
+          900: cssVar('--c-void-900'),
+          800: cssVar('--c-void-800'),
+          700: cssVar('--c-void-700'),
+          600: cssVar('--c-void-600'),
+          500: cssVar('--c-void-500'),
         },
-        /** 暖金（点缀色） */
         gold: {
-          300: '#fde68a',
-          400: '#fbbf24',
-          500: '#f59e0b',
+          300: cssVar('--c-gold-300'),
+          400: cssVar('--c-gold-400'),
+          500: cssVar('--c-gold-500'),
         },
-        /** 薄荷绿（成功/在线状态） */
         mint: {
-          400: '#34d399',
-          500: '#10b981',
+          400: cssVar('--c-mint-400'),
+          500: cssVar('--c-mint-500'),
         },
       },
 
@@ -66,26 +67,20 @@ export default {
         mono:    ['"JetBrains Mono"', 'monospace'],
       },
 
-      // ── Gradients ──────────────────────────────────────────
+      // ── Gradients（使用 CSS 变量，模式自适应） ───────────────
       backgroundImage: {
-        /** 品牌渐变：粉→紫，用于 Logo / 标题 / 强调装饰 */
-        'gradient-brand':  'linear-gradient(135deg, #f472b6 0%, #c084fc 50%, #818cf8 100%)',
-        /** 英雄区卡片底部渐变（视频→正文过渡） */
-        'gradient-fade':   'linear-gradient(180deg, transparent 0%, #13111c 100%)',
-        /** 卡片内层微光 */
-        'gradient-card':   'linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)',
+        'gradient-brand': 'linear-gradient(135deg, var(--brand-g1) 0%, var(--brand-g2) 50%, var(--brand-g3) 100%)',
+        'gradient-fade':  'linear-gradient(180deg, transparent 0%, rgb(var(--c-void-900)) 100%)',
+        'gradient-card':  'linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)',
       },
 
       // ── Shadows ────────────────────────────────────────────
       boxShadow: {
-        /** 悬浮卡片发光效果 */
-        'glow-pink':   '0 0 20px rgba(244,114,182,0.30), 0 0 60px rgba(244,114,182,0.10)',
-        'glow-purple': '0 0 20px rgba(192,132,252,0.25), 0 0 60px rgba(192,132,252,0.08)',
-        /** 卡片阴影 */
-        'card':        '0 4px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.07)',
-        'card-hover':  '0 8px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.10)',
-        /** 导航栏阴影 */
-        'nav':         '0 2px 16px rgba(0,0,0,0.4)',
+        'glow-pink':  'var(--shadow-glow-pink)',
+        'glow-amber': 'var(--shadow-glow-amber)',
+        'card':       'var(--shadow-card)',
+        'card-hover': 'var(--shadow-card-hover)',
+        'nav':        '0 2px 16px rgba(0,0,0,0.4)',
       },
 
       // ── Animations ─────────────────────────────────────────
@@ -95,7 +90,6 @@ export default {
         'slide-up':      'slideUp 0.45s ease-out both',
         'fade-in':       'fadeIn 0.6s ease-out both',
         'bounce-gentle': 'bounceGentle 3s ease-in-out infinite',
-        /** 搜索模달 进场 */
         'scale-in':      'scaleIn 0.2s ease-out both',
       },
       keyframes: {
@@ -125,23 +119,23 @@ export default {
         },
       },
 
-      // ── Prose (Markdown 文章正文) ───────────────────────────
+      // ── Prose（Markdown 正文）—— 变量化以支持两模式 ───────
       typography: () => ({
         twilight: {
           css: {
-            '--tw-prose-body':           '#c4b5fd',
-            '--tw-prose-headings':       '#ede9fe',
-            '--tw-prose-links':          '#f472b6',
-            '--tw-prose-bold':           '#ede9fe',
-            '--tw-prose-code':           '#f472b6',
-            '--tw-prose-pre-bg':         '#1e1a2e',
-            '--tw-prose-quotes':         '#a78bfa',
-            '--tw-prose-quote-borders':  '#f472b6',
-            '--tw-prose-hr':             'rgba(255,255,255,0.08)',
-            '--tw-prose-bullets':        '#c084fc',
-            '--tw-prose-counters':       '#c084fc',
-            '--tw-prose-th-borders':     'rgba(255,255,255,0.1)',
-            '--tw-prose-td-borders':     'rgba(255,255,255,0.06)',
+            '--tw-prose-body':           'rgb(var(--c-lavender-300))',
+            '--tw-prose-headings':       'rgb(var(--c-lavender-100))',
+            '--tw-prose-links':          'rgb(var(--c-sakura-500))',
+            '--tw-prose-bold':           'rgb(var(--c-lavender-100))',
+            '--tw-prose-code':           'rgb(var(--c-sakura-500))',
+            '--tw-prose-pre-bg':         'rgb(var(--c-void-800))',
+            '--tw-prose-quotes':         'rgb(var(--c-lavender-400))',
+            '--tw-prose-quote-borders':  'rgb(var(--c-sakura-500))',
+            '--tw-prose-hr':             'var(--divider-color)',
+            '--tw-prose-bullets':        'rgb(var(--c-gold-400))',
+            '--tw-prose-counters':       'rgb(var(--c-gold-400))',
+            '--tw-prose-th-borders':     'var(--divider-color)',
+            '--tw-prose-td-borders':     'var(--divider-color)',
           },
         },
       }),

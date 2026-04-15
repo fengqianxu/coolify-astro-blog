@@ -6,3 +6,7 @@ dist/
 !.env.example
 *.log
 .DS_Store
+
+# 本地素材 / 参考资料，不入仓
+assets/
+博客源代码参考/
