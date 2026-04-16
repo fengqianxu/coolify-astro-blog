@@ -10,6 +10,7 @@ import HeroVideo from '../components/HeroVideo.astro';
 import PostCard  from '../components/PostCard.astro';
 import Sidebar   from '../components/Sidebar.astro';
 import type { SidebarData } from '../types';
+import { catLeaf } from '../utils/category';
 
 // ── 数据聚合 ─────────────────────────────────────────────────────────
 const allPosts = (await getCollection('posts', (p) => !p.data.draft))
@@ -24,10 +25,11 @@ for (const { data } of allPosts) {
 }
 const allTags = Object.keys(tagCounts).sort((a, b) => tagCounts[b]! - tagCounts[a]!);
 
-// 分类计数
+// 分类计数（侧边栏按「叶子」聚合，最具体的那一层）
 const categories: Record<string, number> = {};
 for (const { data } of allPosts) {
-  categories[data.category] = (categories[data.category] ?? 0) + 1;
+  const leaf = catLeaf(data);
+  categories[leaf] = (categories[leaf] ?? 0) + 1;
 }
 
 const sidebarData: SidebarData = {

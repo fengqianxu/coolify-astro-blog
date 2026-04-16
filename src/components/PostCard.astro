@@ -16,6 +16,11 @@
 import type { PostSummary } from '../types';
 import { CATEGORY_EMOJI, CATEGORY_GRADIENT } from '../config/site';
 
+/**
+ * PostCard 接受的 category 是 string[]（层级路径）。
+ * - 卡片徽章只显示叶子分类（最具体那一层）
+ * - 封面占位符的 emoji/渐变按「叶子」优先、否则按「根」取，最后回落到默认
+ */
 type Props = PostSummary;
 
 const { slug, title, description, pubDate, tags, category, heroImage, featured } = Astro.props;
@@ -24,8 +29,11 @@ const dateStr = pubDate.toLocaleDateString('zh-CN', {
   year: 'numeric', month: 'long', day: 'numeric',
 });
 
-const emoji    = CATEGORY_EMOJI[category]    ?? '✨';
-const gradient = CATEGORY_GRADIENT[category] ?? 'from-void-800/80 to-void-700/60';
+const leaf = category[category.length - 1] ?? '随笔';
+const root = category[0] ?? '随笔';
+
+const emoji    = CATEGORY_EMOJI[leaf]    ?? CATEGORY_EMOJI[root]    ?? '✨';
+const gradient = CATEGORY_GRADIENT[leaf] ?? CATEGORY_GRADIENT[root] ?? 'from-void-800/80 to-void-700/60';
 ---
 
 <article
@@ -59,10 +67,10 @@ const gradient = CATEGORY_GRADIENT[category] ?? 'from-void-800/80 to-void-700/60
       )
     }
 
-    <!-- 分类徽章 -->
+    <!-- 分类徽章（只显示叶子分类） -->
     <span class="absolute top-3 left-3 rounded-full px-2.5 py-0.5 text-xs font-medium
                  bg-void-900/70 backdrop-blur-sm text-sakura-300 border border-sakura-700/40">
-      {category}
+      {leaf}
     </span>
   </div>
 

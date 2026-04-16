@@ -12,7 +12,7 @@ export interface PostMeta {
   updatedDate?: Date;
   heroImage?:   string;
   tags:         string[];
-  category:     string;
+  category:     string[];   // 层级路径，如 ["考试","申论","大作文"]
   draft:        boolean;
   featured:     boolean;
 }
@@ -24,7 +24,7 @@ export interface PostSummary {
   description: string;
   pubDate:     Date;
   tags:        string[];
-  category:    string;
+  category:    string[];   // 层级路径
   heroImage?:  string;
   featured?:   boolean;
 }
@@ -43,6 +43,6 @@ export interface SearchEntry {
   title:       string;
   description: string;
   tags:        string[];
-  category:    string;
+  category:    string[];   // 层级路径
   pubDate:     string; // ISO string（Date 不可 JSON 序列化）
 }

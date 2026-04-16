@@ -1,12 +1,15 @@
 ---
 /**
  * @page /categories
- * @description 分类总览 —— 借鉴 Shoka 主题的 categories 布局。
+ * @description 分类总览 —— 层级结构（支持 考试 → 申论 → 大作文 这类三级路径）。
  *
  * 结构：
- *  1. 顶部：分类徽章排，点击锚点跳转到对应分组
- *  2. 每个分类一个 section，列出该分类下所有文章
- *     每条：MM-DD · 标题（可点），按日期降序
+ *  1. 顶部：根分类徽章一览，点击锚点跳转到对应根节点
+ *  2. 每个根分类一个 section，内部以树形结构递归渲染子分类：
+ *     - 每层缩进（通过 CSS 变量 --depth 控制）
+ *     - 节点显示分类名 + 总篇数（含所有后代）
+ *     - 节点下方列出「直接挂在本节点的文章」（即叶子处或中间节点本身也能挂文章）
+ *  3. 文章条目：MM-DD · 标题（按日期降序）
  */
 
 import { getCollection } from 'astro:content';
@@ -15,20 +18,66 @@ import Layout from '../../layouts/Layout.astro';
 const allPosts = (await getCollection('posts', p => !p.data.draft))
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 
-// 按分类分组
 type Post = typeof allPosts[number];
-const grouped = new Map<string, Post[]>();
-for (const post of allPosts) {
-  const cat = post.data.category;
-  if (!grouped.has(cat)) grouped.set(cat, []);
-  grouped.get(cat)!.push(post);
+
+// ── 构建分类树 ─────────────────────────────────────────────────────
+interface CatNode {
+  name:     string;            // 本节点名（"申论"）
+  path:     string[];          // 从根到本节点的路径（["考试","申论"]）
+  posts:    Post[];             // 恰好挂在本节点的文章（不含子孙节点的）
+  children: Map<string, CatNode>;
+  count:    number;             // 整棵子树下的文章总数（含本节点 + 所有后代）
 }
 
-// 按文章数降序
-const categories = [...grouped.entries()]
-  .sort((a, b) => b[1].length - a[1].length);
+const makeNode = (name: string, path: string[]): CatNode => ({
+  name, path, posts: [], children: new Map(), count: 0,
+});
 
-// 分类对应的图标色阶（简单哈希到 sakura/gold/mint）
+const root: CatNode = makeNode('__root__', []);
+
+for (const post of allPosts) {
+  const path = post.data.category;
+  let cur = root;
+  for (let i = 0; i < path.length; i++) {
+    const seg = path[i]!;
+    if (!cur.children.has(seg)) {
+      cur.children.set(seg, makeNode(seg, path.slice(0, i + 1)));
+    }
+    cur = cur.children.get(seg)!;
+  }
+  cur.posts.push(post);
+}
+
+// 深度优先计算每个节点的总数
+const computeCount = (node: CatNode): number => {
+  let sum = node.posts.length;
+  for (const child of node.children.values()) sum += computeCount(child);
+  node.count = sum;
+  return sum;
+};
+computeCount(root);
+
+// 顶层（根分类）按文章总数降序
+const topLevel = [...root.children.values()].sort((a, b) => b.count - a.count);
+
+// 把节点摊平成渲染列表（每行一个节点 + 其直挂文章）
+// 深度优先遍历，子节点按 count 降序
+interface FlatRow {
+  kind: 'node';
+  node: CatNode;
+  depth: number;   // 0 = 根分类，1/2/... = 子分类
+}
+const flattenTree = (nodes: CatNode[], depth = 0): FlatRow[] => {
+  const rows: FlatRow[] = [];
+  const sorted = [...nodes].sort((a, b) => b.count - a.count);
+  for (const n of sorted) {
+    rows.push({ kind: 'node', node: n, depth });
+    rows.push(...flattenTree([...n.children.values()], depth + 1));
+  }
+  return rows;
+};
+
+// 分类徽章的配色（hash 到 sakura/gold/mint）
 const accentFor = (name: string) => {
   const palette = ['sakura', 'gold', 'mint'] as const;
   let h = 0;
@@ -36,14 +85,22 @@ const accentFor = (name: string) => {
   return palette[h % palette.length];
 };
 
-// 锚点 id（中文分类名编码）
+// 根节点锚点（只给根分类，子分类不需要单独锚）
 const anchorFor = (name: string) => `cat-${encodeURIComponent(name)}`;
 
-// 格式化日期
+// 日期格式
 const fmtMD = (d: Date) =>
   `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const fmtYMD = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+// 页头统计（总分类数 = 所有节点数）
+const countAllNodes = (node: CatNode): number => {
+  let n = node === root ? 0 : 1;
+  for (const c of node.children.values()) n += countAllNodes(c);
+  return n;
+};
+const totalCategories = countAllNodes(root);
 ---
 
 <Layout title="分类" description="按分类浏览所有文章">
@@ -53,65 +110,78 @@ const fmtYMD = (d: Date) =>
     <div class="mb-8">
       <h1 class="font-heading text-3xl font-bold text-gradient mb-2">分类</h1>
       <p class="text-lavender-400 text-sm">
-        共 <span class="text-sakura-500 font-semibold">{categories.length}</span> 个分类 ·
+        共 <span class="text-sakura-500 font-semibold">{totalCategories}</span> 个分类（含子分类） ·
         <span class="text-sakura-500 font-semibold">{allPosts.length}</span> 篇文章
       </p>
     </div>
 
-    <!-- 分类徽章一览（点击锚点） -->
+    <!-- 顶层分类徽章一览 -->
     <div class="glass-card p-5 mb-10 flex flex-wrap gap-3">
-      {categories.map(([name, posts]) => (
+      {topLevel.map((n) => (
         <a
-          href={`#${anchorFor(name)}`}
+          href={`#${anchorFor(n.name)}`}
           class="cat-chip"
-          data-accent={accentFor(name)}
+          data-accent={accentFor(n.name)}
         >
           <span class="cat-dot" aria-hidden="true"></span>
-          <span>{name}</span>
-          <span class="cat-count">{posts.length}</span>
+          <span>{n.name}</span>
+          <span class="cat-count">{n.count}</span>
         </a>
       ))}
     </div>
 
-    <!-- 每个分类一组 timeline -->
-    <div class="space-y-12">
-      {categories.map(([name, posts]) => (
-        <section id={anchorFor(name)} class="scroll-mt-20">
-          <!-- 分类标题：左侧彩条 + 名称 + 计数 -->
-          <div class="section-heading mb-5">
-            <h2 class="font-heading text-xl font-bold text-lavender-100 flex items-baseline gap-2">
-              {name}
-              <span class="text-sm font-body text-lavender-400 font-normal">
-                ({posts.length})
-              </span>
-            </h2>
-          </div>
+    <!-- 每个根分类一组 tree -->
+    <div class="space-y-14">
+      {topLevel.map((rootNode) => {
+        const rows = flattenTree([rootNode]);
+        return (
+          <section id={anchorFor(rootNode.name)} class="scroll-mt-20">
+            <div class="cat-tree glass-card px-6 py-5">
+              {rows.map(({ node, depth }) => (
+                <div class="cat-node" style={`--depth: ${depth}`}>
+                  <!-- 节点标题行 -->
+                  <div class="cat-node-head">
+                    {depth > 0 && <span class="cat-branch" aria-hidden="true"></span>}
+                    <span class="cat-node-name" data-depth={depth}>
+                      {node.name}
+                    </span>
+                    <span class="cat-node-count">{node.count}</span>
+                  </div>
 
-          <!-- 文章列表：左侧竖线 + 每条带圆点 -->
-          <ol class="cat-timeline glass-card px-6 py-4">
-            {posts.map(post => (
-              <li class="cat-row">
-                <time
-                  class="cat-date font-mono"
-                  datetime={fmtYMD(post.data.pubDate)}
-                >
-                  {fmtMD(post.data.pubDate)}
-                </time>
-                <a href={`/blog/${post.slug}`} class="cat-title">
-                  {post.data.title}
-                </a>
-              </li>
-            ))}
-          </ol>
-        </section>
-      ))}
+                  <!-- 本节点直挂的文章（若有） -->
+                  {node.posts.length > 0 && (
+                    <ol class="cat-post-list">
+                      {node.posts.map((post) => (
+                        <li class="cat-row">
+                          <time class="cat-date font-mono" datetime={fmtYMD(post.data.pubDate)}>
+                            {fmtMD(post.data.pubDate)}
+                          </time>
+                          <a href={`/blog/${post.slug}`} class="cat-title">
+                            {post.data.title}
+                          </a>
+                        </li>
+                      ))}
+                    </ol>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        );
+      })}
+
+      {topLevel.length === 0 && (
+        <div class="glass-card p-12 text-center text-lavender-500">
+          还没有文章，快去写第一篇吧～
+        </div>
+      )}
     </div>
 
   </div>
 </Layout>
 
 <style>
-  /* ── 顶部分类徽章 ─────────────────────────── */
+  /* ══ 顶部分类徽章 ══════════════════════════════════ */
   .cat-chip {
     display: inline-flex;
     align-items: center;
@@ -147,60 +217,128 @@ const fmtYMD = (d: Date) =>
     color: rgb(var(--c-sakura-500));
   }
 
-  /* ── 文章列表 ────────────────────────────── */
-  .cat-timeline {
-    list-style: none;
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+  /* ══ 分类树 ════════════════════════════════════════ */
+  .cat-tree {
     position: relative;
   }
 
-  .cat-row {
-    display: grid;
-    grid-template-columns: 5rem 1fr;
-    gap: 1rem;
-    align-items: baseline;
-    padding: 0.625rem 0;
+  .cat-node {
+    padding-left: calc(var(--depth, 0) * 1.25rem);
     position: relative;
   }
-  .cat-row + .cat-row {
-    border-top: 1px dashed var(--divider-color);
+  .cat-node + .cat-node {
+    margin-top: 0.25rem;
+  }
+
+  /* 节点标题行 */
+  .cat-node-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    position: relative;
+  }
+
+  /* 子节点前的分叉线（└─） */
+  .cat-branch {
+    position: absolute;
+    left: -0.75rem;
+    top: 0.9rem;
+    width: 0.5rem;
+    height: 1px;
+    background: var(--divider-color);
+  }
+  .cat-branch::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: -0.9rem;
+    width: 1px;
+    height: 0.9rem;
+    background: var(--divider-color);
+  }
+
+  /* 节点名：深度越深字越淡、字号越小 */
+  .cat-node-name {
+    font-family: var(--font-heading, inherit);
+    font-weight: 600;
+    color: rgb(var(--c-lavender-100));
+    font-size: 1.25rem;
+    line-height: 1.2;
+  }
+  .cat-node-name[data-depth="1"] {
+    font-size: 1rem;
+    color: rgb(var(--c-lavender-200));
+    font-weight: 500;
+  }
+  .cat-node-name[data-depth="2"] {
+    font-size: 0.9375rem;
+    color: rgb(var(--c-lavender-300));
+    font-weight: 500;
+  }
+  .cat-node-name[data-depth="3"] {
+    font-size: 0.875rem;
+    color: rgb(var(--c-lavender-400));
+    font-weight: 500;
+  }
+
+  .cat-node-count {
+    font-size: 0.6875rem;
+    padding: 0.0625rem 0.5rem;
+    border-radius: 9999px;
+    background: rgba(var(--c-sakura-500) / 0.1);
+    color: rgb(var(--c-sakura-500));
+    border: 1px solid rgba(var(--c-sakura-500) / 0.15);
+  }
+
+  /* ══ 直挂文章列表 ═══════════════════════════════════ */
+  .cat-post-list {
+    list-style: none;
+    padding: 0;
+    margin: 0.25rem 0 0.5rem 0;
+    padding-left: 1rem;
+    border-left: 1px dashed var(--divider-color);
+  }
+  .cat-row {
+    display: grid;
+    grid-template-columns: 3.5rem 1fr;
+    gap: 0.75rem;
+    align-items: baseline;
+    padding: 0.3125rem 0;
+    position: relative;
+  }
+  .cat-row::before {
+    content: '';
+    position: absolute;
+    left: -1rem;
+    top: 0.7rem;
+    width: 5px;
+    height: 5px;
+    border-radius: 9999px;
+    background: rgb(var(--c-void-700));
+    border: 1px solid var(--divider-color);
+    transition: all 0.2s ease;
+  }
+  .cat-row:hover::before {
+    background: rgb(var(--c-sakura-500));
+    border-color: rgb(var(--c-sakura-500));
+    transform: scale(1.3);
   }
 
   .cat-date {
+    font-size: 0.75rem;
     color: rgb(var(--c-lavender-500));
-    font-size: 0.8125rem;
     letter-spacing: 0.02em;
     white-space: nowrap;
   }
-
   .cat-title {
     color: rgb(var(--c-lavender-200));
-    font-size: 0.9375rem;
+    font-size: 0.9rem;
     text-decoration: none;
     transition: color 0.15s ease;
-    position: relative;
-    line-height: 1.5;
+    line-height: 1.45;
   }
   .cat-title:hover {
     color: rgb(var(--c-sakura-500));
-  }
-  /* hover 时左侧出现一个小圆点装饰 */
-  .cat-title::before {
-    content: '';
-    position: absolute;
-    left: -0.875rem;
-    top: 0.625rem;
-    width: 4px;
-    height: 4px;
-    border-radius: 9999px;
-    background: rgb(var(--c-sakura-500));
-    opacity: 0;
-    transform: translateX(-4px);
-    transition: opacity 0.2s ease, transform 0.2s ease;
-  }
-  .cat-title:hover::before {
-    opacity: 1;
-    transform: translateX(0);
   }
 </style>

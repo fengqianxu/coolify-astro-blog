@@ -59,12 +59,20 @@ const fullTitle = title === SITE.name ? SITE.name : `${title} · ${SITE.name}`;
 
     <!--
       主题恢复（防 FOUC）：必须在 <body> 渲染前同步执行。
-      默认夜间，用户偏好存于 localStorage['theme'] = 'light' | 'dark'。
+      优先级：
+        1. 用户手动切换过 → 遵守 localStorage['theme'] ('light' | 'dark')
+        2. 没设置过 → 按本地时间：06:00–18:00 亮色，其余时段暗色
     -->
     <script is:inline>
       (() => {
         const saved = localStorage.getItem('theme');
-        const isDark = saved ? saved === 'dark' : true; // 默认夜间
+        let isDark;
+        if (saved === 'dark' || saved === 'light') {
+          isDark = saved === 'dark';
+        } else {
+          const h = new Date().getHours();
+          isDark = h < 6 || h >= 18;
+        }
         if (isDark) document.documentElement.classList.add('dark');
       })();
     </script>

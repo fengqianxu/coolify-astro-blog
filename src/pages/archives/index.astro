@@ -12,6 +12,7 @@
 
 import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
+import { catLeaf, catPathStr } from '../../utils/category';
 
 const allPosts = (await getCollection('posts', p => !p.data.draft))
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
@@ -120,7 +121,7 @@ const fmtYMD = (d: Date) =>
                         >
                           {fmtMD(post.data.pubDate)}
                         </time>
-                        <span class="arch-cat">{post.data.category}</span>
+                        <span class="arch-cat" title={catPathStr(post.data)}>{catLeaf(post.data)}</span>
                         <a href={`/blog/${post.slug}`} class="arch-title">
                           {post.data.title}
                         </a>

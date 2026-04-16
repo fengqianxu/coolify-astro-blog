@@ -1,36 +1,483 @@
 ---
+/**
+ * @page /about
+ * @description 关于页 —— 站长自我介绍 + 站点动态数据。
+ *
+ * 结构：
+ *  1. Hero 卡片：头像（双层光环 + 在线点）+ 名字 + 一句话简介
+ *  2. 关于我：长段落
+ *  3. 技术栈：分组图标网格
+ *  4. 此刻：在追 / 在读 / 在做 三张小卡
+ *  5. 站点数据：从 content collection 实时统计
+ *  6. 联系：社交图标按钮
+ */
+
+import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
+import { SITE } from '../config/site';
+
+const allPosts = await getCollection('posts', p => !p.data.draft);
+
+// 实时站点数据（分类按「根」聚合，即顶级分类数）
+const tagSet = new Set<string>();
+const catSet = new Set<string>();
+let totalBodyChars = 0;
+for (const p of allPosts) {
+  for (const t of p.data.tags) tagSet.add(t);
+  if (p.data.category[0]) catSet.add(p.data.category[0]);
+  totalBodyChars += p.body.length;
+}
+
+// 建站日（用最早一篇的 pubDate 作近似，否则用今天）
+const earliest = allPosts
+  .map(p => p.data.pubDate)
+  .sort((a, b) => a.valueOf() - b.valueOf())[0] ?? new Date();
+const daysOnline = Math.max(
+  1,
+  Math.floor((Date.now() - earliest.valueOf()) / (1000 * 60 * 60 * 24))
+);
+
+// 展示用数字格式
+const kilo = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n));
+
+// —— 技术栈：分组 + 图标路径（Lucide 或简化路径） ——
+const stacks = [
+  {
+    group: '语言',
+    items: [
+      { name: 'TypeScript', accent: 'sakura' },
+      { name: 'Rust',       accent: 'gold', note: '在学' },
+      { name: 'Python',     accent: 'mint' },
+    ],
+  },
+  {
+    group: '前端',
+    items: [
+      { name: 'Astro',    accent: 'sakura' },
+      { name: 'React',    accent: 'mint' },
+      { name: 'Tailwind', accent: 'sakura' },
+      { name: 'Vite',     accent: 'gold' },
+    ],
+  },
+  {
+    group: '工具',
+    items: [
+      { name: 'Git',    accent: 'gold' },
+      { name: 'Figma',  accent: 'sakura' },
+      { name: 'Neovim', accent: 'mint' },
+    ],
+  },
+];
+
+// —— 此刻在关注的内容 ——
+const nowList = [
+  { icon: 'tv',      label: '在追',  title: '春季番巡礼',   sub: '详情见 /blog 里的追番指南' },
+  { icon: 'book',    label: '在读',  title: '《程序员修炼之道》', sub: '查漏补缺' },
+  { icon: 'game',    label: '在玩',  title: '独立游戏 Hollow Knight', sub: '白宫通关中' },
+];
+
+// —— 社交 / 联系 ——
+const socials = [
+  { name: 'GitHub', href: 'https://github.com/',             icon: 'github' },
+  { name: 'RSS',    href: '/rss.xml',                        icon: 'rss' },
+  { name: 'Email',  href: 'mailto:hello@example.com',        icon: 'mail' },
+];
 ---
 
-<Layout title="关于" description="关于博主">
-  <div class="relative z-10 max-w-2xl mx-auto px-6 pb-20">
-    <div class="glass-card p-8 sm:p-12">
-      <div class="flex flex-col items-center mb-8">
-        <div class="w-24 h-24 rounded-full bg-gradient-sakura p-0.5 mb-4 animate-float">
-          <div class="w-full h-full rounded-full bg-void-800 flex items-center justify-center text-4xl">
-            🌸
+<Layout title="关于" description={`关于 ${SITE.author} 与 ${SITE.name}`}>
+  <div class="relative z-10 max-w-3xl mx-auto px-6 pb-20 space-y-10">
+
+    <!-- ═══ 1. Hero ═══════════════════════════════════════ -->
+    <section class="about-hero glass-card overflow-hidden relative">
+      <!-- 背景装饰光斑 -->
+      <div class="about-bg-blob" aria-hidden="true"></div>
+
+      <div class="relative p-8 sm:p-12 flex flex-col sm:flex-row items-center gap-8">
+        <!-- 头像：双层光环 + 在线指示 -->
+        <div class="about-avatar-wrap shrink-0">
+          <div class="about-avatar-ring" aria-hidden="true"></div>
+          <img
+            src={SITE.avatar}
+            alt={SITE.author}
+            class="about-avatar"
+            width="128"
+            height="128"
+          />
+          <span class="about-status" aria-label="在线">
+            <span class="about-status-dot"></span>
+          </span>
+        </div>
+
+        <!-- 文本 -->
+        <div class="text-center sm:text-left min-w-0">
+          <div class="about-greet text-xs tracking-[0.3em] uppercase mb-2">
+            Hi, I am
+          </div>
+          <h1 class="font-heading text-4xl font-bold text-gradient leading-tight mb-2">
+            {SITE.author}
+          </h1>
+          <p class="text-lavender-300 text-sm leading-relaxed max-w-md">
+            {SITE.bio}
+          </p>
+
+          <!-- 标签胶囊 -->
+          <div class="mt-4 flex flex-wrap justify-center sm:justify-start gap-2">
+            <span class="about-tag">前端开发</span>
+            <span class="about-tag">二次元</span>
+            <span class="about-tag">手冲咖啡</span>
+            <span class="about-tag">独立游戏</span>
           </div>
         </div>
-        <h1 class="font-heading text-2xl font-bold text-gradient">博主</h1>
-        <p class="text-slate-400 mt-1">二次元 · 前端 · 咖啡爱好者</p>
+      </div>
+    </section>
+
+    <!-- ═══ 2. 关于我 ═════════════════════════════════════ -->
+    <section>
+      <div class="section-heading">
+        <h2 class="font-heading text-xl font-bold text-lavender-100">关于我</h2>
+      </div>
+      <div class="glass-card p-6 sm:p-8 space-y-4 text-lavender-300 leading-relaxed">
+        <p>
+          欢迎来到 <span class="text-gradient font-semibold">{SITE.name}</span>，
+          这是一个关于技术、动漫与生活的小小角落。在这里我会分享前端开发心得、
+          动漫观感以及日常随笔。
+        </p>
+        <p>
+          写博客对我来说不是为了"运营"，而是把零散的思考存起来，
+          几年后回头看能知道自己走过哪些路。如果你也因为某篇文章有所共鸣，
+          那是额外的惊喜。
+        </p>
+      </div>
+    </section>
+
+    <!-- ═══ 3. 技术栈 ═════════════════════════════════════ -->
+    <section>
+      <div class="section-heading">
+        <h2 class="font-heading text-xl font-bold text-lavender-100">技术栈</h2>
       </div>
 
-      <div class="prose prose-anime prose-invert max-w-none prose-headings:font-heading">
-        <h2>你好！</h2>
-        <p>
-          欢迎来到 AniLog，这是一个关于技术、动漫与生活的小小角落。
-          在这里我会分享前端开发心得、动漫观感以及日常随笔。
-        </p>
-        <h2>兴趣爱好</h2>
-        <ul>
-          <li>🎌 追番 · 看漫画</li>
-          <li>💻 前端开发 · 开源项目</li>
-          <li>☕ 手冲咖啡</li>
-          <li>🎮 独立游戏</li>
-        </ul>
-        <h2>技术栈</h2>
-        <p>TypeScript · Astro · React · Tailwind CSS · Rust（在学）</p>
+      <div class="space-y-5">
+        {stacks.map(group => (
+          <div>
+            <div class="text-xs text-lavender-500 tracking-[0.15em] uppercase mb-2 pl-1">
+              {group.group}
+            </div>
+            <div class="flex flex-wrap gap-2">
+              {group.items.map(item => (
+                <span class="stack-chip" data-accent={item.accent}>
+                  <span class="stack-dot"></span>
+                  <span>{item.name}</span>
+                  {item.note && <small class="stack-note">{item.note}</small>}
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
-    </div>
+    </section>
+
+    <!-- ═══ 4. 此刻 ═══════════════════════════════════════ -->
+    <section>
+      <div class="section-heading">
+        <h2 class="font-heading text-xl font-bold text-lavender-100">此刻</h2>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {nowList.map(item => (
+          <div class="glass-card p-4 hover:-translate-y-0.5 transition-transform">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="now-icon" aria-hidden="true">
+                {item.icon === 'tv' && (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="7" width="20" height="15" rx="2"/>
+                    <path d="m17 2-5 5-5-5"/>
+                  </svg>
+                )}
+                {item.icon === 'book' && (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+                  </svg>
+                )}
+                {item.icon === 'game' && (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="6" x2="10" y1="11" y2="11"/>
+                    <line x1="8" x2="8" y1="9" y2="13"/>
+                    <line x1="15" x2="15.01" y1="12" y2="12"/>
+                    <line x1="18" x2="18.01" y1="10" y2="10"/>
+                    <path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258A4 4 0 0 0 17.32 5z"/>
+                  </svg>
+                )}
+              </span>
+              <span class="text-xs text-lavender-500 tracking-wider">{item.label}</span>
+            </div>
+            <div class="text-sm text-lavender-100 font-medium leading-snug">
+              {item.title}
+            </div>
+            <div class="text-xs text-lavender-500 mt-1">
+              {item.sub}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- ═══ 5. 站点数据 ═══════════════════════════════════ -->
+    <section>
+      <div class="section-heading">
+        <h2 class="font-heading text-xl font-bold text-lavender-100">站点数据</h2>
+      </div>
+
+      <div class="glass-card p-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="stat">
+          <div class="stat-num text-gradient">{allPosts.length}</div>
+          <div class="stat-label">文章</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num text-gradient">{catSet.size}</div>
+          <div class="stat-label">分类</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num text-gradient">{tagSet.size}</div>
+          <div class="stat-label">标签</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num text-gradient">{kilo(totalBodyChars)}</div>
+          <div class="stat-label">字符</div>
+        </div>
+      </div>
+      <p class="text-xs text-lavender-500 mt-3 text-center">
+        小站已运行 {daysOnline} 天 · 最后更新 {new Date().toLocaleDateString('zh-CN')}
+      </p>
+    </section>
+
+    <!-- ═══ 6. 联系 ═══════════════════════════════════════ -->
+    <section>
+      <div class="section-heading">
+        <h2 class="font-heading text-xl font-bold text-lavender-100">联系我</h2>
+      </div>
+
+      <div class="flex flex-wrap gap-3">
+        {socials.map(s => (
+          <a
+            href={s.href}
+            class="social-btn"
+            target={s.href.startsWith('http') ? '_blank' : undefined}
+            rel={s.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+          >
+            <span class="social-ico" aria-hidden="true">
+              {s.icon === 'github' && (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/>
+                  <path d="M9 18c-4.51 2-5-2-7-2"/>
+                </svg>
+              )}
+              {s.icon === 'rss' && (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 11a9 9 0 0 1 9 9"/>
+                  <path d="M4 4a16 16 0 0 1 16 16"/>
+                  <circle cx="5" cy="19" r="1"/>
+                </svg>
+              )}
+              {s.icon === 'mail' && (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="20" height="16" x="2" y="4" rx="2"/>
+                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                </svg>
+              )}
+            </span>
+            <span>{s.name}</span>
+          </a>
+        ))}
+      </div>
+    </section>
+
   </div>
 </Layout>
+
+<style>
+  /* ══ 1. Hero ═══════════════════════════════════════ */
+  .about-hero {
+    /* 给背景光斑预留空间 */
+  }
+  .about-bg-blob {
+    position: absolute;
+    inset: -20% -30% auto auto;
+    width: 60%;
+    aspect-ratio: 1;
+    background: radial-gradient(
+      circle at center,
+      rgba(var(--c-sakura-500) / 0.15) 0%,
+      transparent 60%
+    );
+    pointer-events: none;
+    filter: blur(40px);
+  }
+
+  .about-avatar-wrap {
+    position: relative;
+    width: 128px;
+    height: 128px;
+  }
+  .about-avatar-ring {
+    position: absolute;
+    inset: -6px;
+    border-radius: 9999px;
+    background: conic-gradient(
+      from 0deg,
+      var(--brand-g1),
+      var(--brand-g3),
+      var(--brand-g1)
+    );
+    animation: spin-slow 8s linear infinite;
+    opacity: 0.7;
+    filter: blur(0.5px);
+  }
+  @keyframes spin-slow {
+    to { transform: rotate(360deg); }
+  }
+  .about-avatar {
+    position: relative;
+    width: 128px;
+    height: 128px;
+    border-radius: 9999px;
+    object-fit: cover;
+    border: 4px solid rgb(var(--c-void-900));
+  }
+  .about-status {
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
+    z-index: 2;
+    padding: 3px;
+    background: rgb(var(--c-void-900));
+    border-radius: 9999px;
+  }
+  .about-status-dot {
+    display: block;
+    width: 10px;
+    height: 10px;
+    border-radius: 9999px;
+    background: rgb(var(--c-mint-400));
+    box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7);
+    animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  @keyframes pulse-ring {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7); }
+    70%      { box-shadow: 0 0 0 6px rgba(52, 211, 153, 0); }
+  }
+
+  .about-greet {
+    color: rgb(var(--c-sakura-500));
+    font-weight: 600;
+  }
+
+  .about-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    color: rgb(var(--c-lavender-400));
+    border: 1px solid var(--divider-color);
+    background: rgba(127, 127, 127, 0.04);
+    transition: all 0.2s ease;
+  }
+  .about-tag:hover {
+    border-color: var(--glass-hover-border);
+    color: rgb(var(--c-sakura-500));
+  }
+
+  /* ══ 3. 技术栈胶囊 ═════════════════════════════════ */
+  .stack-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.8125rem;
+    color: rgb(var(--c-lavender-200));
+    border: 1px solid var(--divider-color);
+    background: rgba(127, 127, 127, 0.04);
+    transition: all 0.2s ease;
+  }
+  .stack-chip:hover {
+    transform: translateY(-1px);
+    border-color: var(--glass-hover-border);
+    box-shadow: var(--shadow-card);
+  }
+  .stack-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 9999px;
+    flex-shrink: 0;
+  }
+  .stack-chip[data-accent="sakura"] .stack-dot { background: rgb(var(--c-sakura-500)); }
+  .stack-chip[data-accent="gold"]   .stack-dot { background: rgb(var(--c-gold-400));   }
+  .stack-chip[data-accent="mint"]   .stack-dot { background: rgb(var(--c-mint-400));   }
+  .stack-note {
+    font-size: 0.625rem;
+    padding: 0.0625rem 0.375rem;
+    border-radius: 9999px;
+    background: rgba(var(--c-gold-400) / 0.15);
+    color: rgb(var(--c-gold-400));
+    margin-left: 0.1rem;
+  }
+
+  /* ══ 4. 此刻卡片 ═══════════════════════════════════ */
+  .now-icon {
+    display: inline-flex;
+    width: 20px;
+    height: 20px;
+    align-items: center;
+    justify-content: center;
+    color: rgb(var(--c-sakura-500));
+  }
+  .now-icon svg { width: 18px; height: 18px; }
+
+  /* ══ 5. 站点数据 ═══════════════════════════════════ */
+  .stat {
+    text-align: center;
+  }
+  .stat-num {
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 1.875rem;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  .stat-label {
+    font-size: 0.75rem;
+    color: rgb(var(--c-lavender-500));
+    margin-top: 0.25rem;
+    letter-spacing: 0.1em;
+  }
+
+  /* ══ 6. 社交按钮 ═══════════════════════════════════ */
+  .social-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    color: rgb(var(--c-lavender-300));
+    border: 1px solid var(--divider-color);
+    background: var(--glass-bg);
+    transition: all 0.2s ease;
+  }
+  .social-btn:hover {
+    transform: translateY(-2px);
+    color: #fff;
+    border-color: transparent;
+    background: linear-gradient(135deg, var(--brand-g1), var(--brand-g3));
+    box-shadow: var(--shadow-glow-pink);
+  }
+  .social-ico {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .social-ico svg {
+    width: 16px;
+    height: 16px;
+  }
+</style>

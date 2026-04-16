@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import PostCard from '../../components/PostCard.astro';
 import Sidebar from '../../components/Sidebar.astro';
+import { catLeaf } from '../../utils/category';
 
 const allPosts = (await getCollection('posts', p => !p.data.draft))
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
@@ -15,10 +16,11 @@ for (const post of allPosts) {
 }
 const allTags = Object.keys(tagCounts).sort((a, b) => tagCounts[b]! - tagCounts[a]!);
 
+// 侧边栏分类：按叶子聚合
 const categories: Record<string, number> = {};
 for (const post of allPosts) {
-  const cat = post.data.category;
-  categories[cat] = (categories[cat] ?? 0) + 1;
+  const leaf = catLeaf(post.data);
+  categories[leaf] = (categories[leaf] ?? 0) + 1;
 }
 ---
 

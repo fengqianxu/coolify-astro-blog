@@ -41,9 +41,15 @@ const updatedStr = updatedDate?.toLocaleDateString('zh-CN', {
     <!-- 元数据头 -->
     <header class="mb-8">
       <div class="flex flex-wrap items-center gap-2 mb-4">
-        <span class="rounded-full px-2.5 py-0.5 text-xs font-medium
+        <!-- 分类路径面包屑（考试 / 申论 / 大作文） -->
+        <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium
                      bg-sakura-500/15 text-sakura-300 border border-sakura-700/40">
-          {category}
+          {category.map((seg, i) => (
+            <>
+              {i > 0 && <span class="text-sakura-500/60">/</span>}
+              <span>{seg}</span>
+            </>
+          ))}
         </span>
         {tags.map((tag) => (
           <a href={`/tags/${encodeURIComponent(tag)}`} class="tag-pill">{tag}</a>
