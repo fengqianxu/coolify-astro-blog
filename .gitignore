@@ -10,3 +10,6 @@ dist/
 # 本地素材 / 参考资料，不入仓
 assets/
 博客源代码参考/
+
+# 注意：public/videos/ 下的小视频（< 10MB）保留入仓
+# 超大视频请放到 assets/ 或 CDN，不要直接提交到 public/
