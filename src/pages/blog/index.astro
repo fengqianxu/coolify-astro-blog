@@ -1,27 +1,12 @@
 ---
-import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import PostCard from '../../components/PostCard.astro';
 import Sidebar from '../../components/Sidebar.astro';
-import { catLeaf } from '../../utils/category';
+import { getSiteStats } from '../../utils/stats';
 
-const allPosts = (await getCollection('posts', p => !p.data.draft))
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
-
-const tagCounts: Record<string, number> = {};
-for (const post of allPosts) {
-  for (const tag of post.data.tags) {
-    tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
-  }
-}
-const allTags = Object.keys(tagCounts).sort((a, b) => tagCounts[b]! - tagCounts[a]!);
-
-// 侧边栏分类：按叶子聚合
-const categories: Record<string, number> = {};
-for (const post of allPosts) {
-  const leaf = catLeaf(post.data);
-  categories[leaf] = (categories[leaf] ?? 0) + 1;
-}
+// 统计走同一个 source，保证和 about 页、首页 sidebar 口径完全一致
+const { allPosts, totalPosts, allTags, tagCounts, categoriesByTopLevel } =
+  await getSiteStats();
 ---
 
 <Layout title="文章" description="所有文章列表">
@@ -29,7 +14,7 @@ for (const post of allPosts) {
 
     <div class="mb-8">
       <h1 class="font-heading text-3xl font-bold text-gradient mb-2">全部文章</h1>
-      <p class="text-slate-400 text-sm">共 {allPosts.length} 篇</p>
+      <p class="text-slate-400 text-sm">共 {totalPosts} 篇</p>
     </div>
 
     <div class="flex flex-col lg:flex-row gap-8">
@@ -54,10 +39,11 @@ for (const post of allPosts) {
       <Sidebar
         allTags={allTags}
         tagCounts={tagCounts}
+        totalPosts={totalPosts}
         recentPosts={allPosts.slice(0, 5).map(p => ({
           slug: p.slug, title: p.data.title, pubDate: p.data.pubDate,
         }))}
-        categories={categories}
+        categories={categoriesByTopLevel}
       />
     </div>
   </div>

@@ -12,21 +12,13 @@
  *  6. 联系：社交图标按钮
  */
 
-import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 import { SITE } from '../config/site';
+import { getSiteStats, kilo } from '../utils/stats';
 
-const allPosts = await getCollection('posts', p => !p.data.draft);
-
-// 实时站点数据（分类按「根」聚合，即顶级分类数）
-const tagSet = new Set<string>();
-const catSet = new Set<string>();
-let totalBodyChars = 0;
-for (const p of allPosts) {
-  for (const t of p.data.tags) tagSet.add(t);
-  if (p.data.category[0]) catSet.add(p.data.category[0]);
-  totalBodyChars += p.body.length;
-}
+// 站点统计：走统一 source（utils/stats.ts），和首页/blog/sidebar 口径一致
+const { allPosts, totalPosts, totalTags, totalCategories, totalBodyChars } =
+  await getSiteStats();
 
 // 建站日（用最早一篇的 pubDate 作近似，否则用今天）
 const earliest = allPosts
@@ -36,9 +28,6 @@ const daysOnline = Math.max(
   1,
   Math.floor((Date.now() - earliest.valueOf()) / (1000 * 60 * 60 * 24))
 );
-
-// 展示用数字格式
-const kilo = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n));
 
 // —— 技术栈：分组 + 图标路径（Lucide 或简化路径） ——
 const stacks = [
@@ -143,7 +132,8 @@ const socials = [
           也恰好是「何凌韬」拼音的缩写 —— 不敢自封什么英雄，只是对自己的一份期许。
         </p>
         <p>
-          日常写 Java，偶尔写点 Python；同时在准备公考（申论 + 行测），也读书、记笔记。
+          我是一名<span class="text-lavender-200 font-medium">后端开发者</span>，
+          日常主力 Java、偶尔写点 Python；同时在准备公考（申论 + 行测），也读书、记笔记。
           这里会散放后端开发心得、公考备考整理、读书随感。
           写博客对我来说不是为了"运营"，更像是
           <span class="text-sakura-400">「泥上偶然留指爪」</span>
@@ -234,15 +224,15 @@ const socials = [
 
       <div class="glass-card p-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div class="stat">
-          <div class="stat-num text-gradient">{allPosts.length}</div>
+          <div class="stat-num text-gradient">{totalPosts}</div>
           <div class="stat-label">文章</div>
         </div>
         <div class="stat">
-          <div class="stat-num text-gradient">{catSet.size}</div>
+          <div class="stat-num text-gradient">{totalCategories}</div>
           <div class="stat-label">分类</div>
         </div>
         <div class="stat">
-          <div class="stat-num text-gradient">{tagSet.size}</div>
+          <div class="stat-num text-gradient">{totalTags}</div>
           <div class="stat-label">标签</div>
         </div>
         <div class="stat">

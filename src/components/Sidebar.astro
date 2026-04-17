@@ -10,7 +10,7 @@ import { SITE } from '../config/site';
 
 type Props = SidebarData;
 
-const { allTags, tagCounts, recentPosts, categories } = Astro.props;
+const { allTags, tagCounts, recentPosts, categories, totalPosts } = Astro.props;
 
 /** 标签字号：根据出现次数线性插值（10px ~ 14px） */
 function tagFontSize(count: number): string {
@@ -51,8 +51,8 @@ function tagFontSize(count: number): string {
     <!-- 统计行 -->
     <div class="flex gap-4 text-center w-full border-t border-white/6 pt-3">
       {[
-        { value: Object.values(tagCounts).reduce((a, b) => a + b, 0), label: '文章' },
-        { value: allTags.length,               label: '标签' },
+        { value: totalPosts,                     label: '文章' },
+        { value: allTags.length,                 label: '标签' },
         { value: Object.keys(categories).length, label: '分类' },
       ].map(({ value, label }) => (
         <div class="flex-1">

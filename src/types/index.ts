@@ -34,7 +34,10 @@ export interface SidebarData {
   allTags:     string[];
   tagCounts:   Record<string, number>;
   recentPosts: Pick<PostSummary, 'slug' | 'title' | 'pubDate'>[];
+  /** 顶级分类 → 该分类下文章数（口径与 about 页"分类数"一致） */
   categories:  Record<string, number>;
+  /** 非草稿文章总数（保证侧边栏与 about 页一致，不要自己从 tagCounts 求和） */
+  totalPosts:  number;
 }
 
 /** 搜索索引条目（序列化给客户端） */

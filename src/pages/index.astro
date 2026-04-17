@@ -4,44 +4,28 @@
  * @description 全屏视频开屏 → 滚动进入最新文章网格 + 侧边栏。
  */
 
-import { getCollection } from 'astro:content';
 import Layout    from '../layouts/Layout.astro';
 import HeroVideo from '../components/HeroVideo.astro';
 import PostCard  from '../components/PostCard.astro';
 import Sidebar   from '../components/Sidebar.astro';
 import type { SidebarData } from '../types';
-import { catLeaf } from '../utils/category';
 import { SITE } from '../config/site';
+import { getSiteStats } from '../utils/stats';
 
-// ── 数据聚合 ─────────────────────────────────────────────────────────
-const allPosts = (await getCollection('posts', (p) => !p.data.draft))
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
-
-// 标签计数
-const tagCounts: Record<string, number> = {};
-for (const { data } of allPosts) {
-  for (const tag of data.tags) {
-    tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
-  }
-}
-const allTags = Object.keys(tagCounts).sort((a, b) => tagCounts[b]! - tagCounts[a]!);
-
-// 分类计数（侧边栏按「叶子」聚合，最具体的那一层）
-const categories: Record<string, number> = {};
-for (const { data } of allPosts) {
-  const leaf = catLeaf(data);
-  categories[leaf] = (categories[leaf] ?? 0) + 1;
-}
+// ── 站点统计（唯一信息源，见 utils/stats.ts） ─────────────────────
+const { allPosts, totalPosts, allTags, tagCounts, categoriesByTopLevel } =
+  await getSiteStats();
 
 const sidebarData: SidebarData = {
   allTags,
   tagCounts,
+  categories: categoriesByTopLevel,
+  totalPosts,
   recentPosts: allPosts.slice(0, 5).map((p) => ({
     slug:    p.slug,
     title:   p.data.title,
     pubDate: p.data.pubDate,
   })),
-  categories,
 };
 ---
 
