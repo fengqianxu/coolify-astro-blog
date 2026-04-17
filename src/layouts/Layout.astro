@@ -55,6 +55,12 @@ const fullTitle = title === SITE.name ? SITE.name : `${title} · ${SITE.name}`;
     <!-- PWA / Browser Chrome -->
     <meta name="theme-color" content={SITE.themeColor} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- 霞鹜文楷：温暖手写楷书风格 CDN 字体 -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont@1.7.0/style.css" />
+
     <title>{fullTitle}</title>
 
     <!--

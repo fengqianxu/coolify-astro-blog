@@ -62,8 +62,8 @@ export default {
 
       // ── Typography ─────────────────────────────────────────
       fontFamily: {
-        heading: ['"Noto Serif JP"', 'Georgia', 'serif'],
-        body:    ['"Noto Sans JP"',  'system-ui', 'sans-serif'],
+        heading: ['"LXGW WenKai"',        'Georgia', 'serif'],
+        body:    ['"LXGW WenKai Screen"',  '"LXGW WenKai"', 'system-ui', 'sans-serif'],
         mono:    ['"JetBrains Mono"', 'monospace'],
       },
 

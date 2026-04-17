@@ -245,7 +245,7 @@
 
   /* ── 导航菜单里的线性图标 ──────────────────────────── */
   .nav-ico {
-    @apply w-[18px] h-[18px] shrink-0;
+    @apply w-5 h-5 shrink-0;     /* 20px — 匹配 15px 文字 */
     /* stroke 颜色自动继承 currentColor（link 文字色） */
   }
   .nav-ico-sm {
@@ -254,10 +254,18 @@
 
   /* ── 导航链接（Shoka 风格：中心展开的下划线） ─────── */
   .nav-link {
-    @apply relative flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium
-           text-lavender-300 hover:text-lavender-100
+    @apply relative flex items-center gap-1.5 px-3 py-1.5 font-semibold
+           text-lavender-200 hover:text-lavender-100
            transition-colors duration-200;
-    letter-spacing: 0.03em;
+    font-size: 0.9375rem; /* 15px — 比 text-sm(14px) 大，中文字不会显小 */
+    letter-spacing: 0.04em;
+  }
+  /* 日间模式下文字更深，保证在浅色背景上有足够对比度 */
+  :root:not(.dark) .nav-link {
+    color: rgb(45 14 25);              /* lavender-100：最深色 */
+  }
+  :root:not(.dark) .nav-link:hover {
+    color: rgb(var(--c-sakura-600));
   }
   /* 下划线伪元素：高 3px，从中心 0 → 70% 展开 */
   .nav-link::before {
@@ -277,28 +285,44 @@
     width: 70%;
   }
   .nav-link-active {
-    color: rgb(var(--c-sakura-600)) !important;
+    color: rgb(var(--c-sakura-700)) !important;
   }
   .dark .nav-link-active {
     color: rgb(var(--c-sakura-300)) !important;
   }
+  /* 视频覆盖时 active 仍用白色 */
+  .nav-over-video .nav-link-active,
+  :root:not(.dark) .nav-over-video .nav-link-active {
+    color: #fff !important;
+    text-shadow: 0 1px 8px rgba(0,0,0,0.6), 0 0 20px rgba(0,0,0,0.3);
+  }
 
   /* ── 导航图标按钮 ──────────────────────────────────── */
   .nav-icon-btn {
-    @apply p-2 rounded-lg text-lavender-400 transition-all duration-200 cursor-pointer;
+    @apply p-2 rounded-lg text-lavender-200 transition-all duration-200 cursor-pointer;
   }
   .nav-icon-btn:hover {
     color: rgb(var(--c-sakura-500));
     background: rgba(var(--c-sakura-500) / 0.10);
   }
+  /* 日间模式：图标用最深色，保证与浅背景的对比度 */
+  :root:not(.dark) .nav-icon-btn {
+    color: rgb(45 14 25);
+  }
+  :root:not(.dark) .nav-icon-btn:hover {
+    color: rgb(var(--c-sakura-600));
+  }
 
   /* ── 下拉菜单项（Shoka 风格：粉→金渐变从左向右填充） ─ */
   .dropdown-item {
-    @apply flex items-center gap-2 px-4 py-2 text-sm text-lavender-400;
+    @apply flex items-center gap-2 px-4 py-2 text-sm font-semibold text-lavender-300;
     background-image: linear-gradient(90deg, var(--brand-g1) 0%, var(--brand-g3) 100%);
     background-size: 0% 100%;
     background-repeat: no-repeat;
     transition: background-size 0.3s ease, color 0.2s ease;
+  }
+  :root:not(.dark) .dropdown-item {
+    color: rgb(58 20 40);             /* lavender-200 */
   }
   .dropdown-item:hover {
     color: #fff;
@@ -307,12 +331,31 @@
 
   /* ── 移动端菜单项 ──────────────────────────────────── */
   .mobile-nav-item {
-    @apply flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm
-           text-lavender-300 hover:text-lavender-100
+    @apply flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold
+           text-lavender-200 hover:text-lavender-100
            transition-all duration-200;
+  }
+  :root:not(.dark) .mobile-nav-item {
+    color: rgb(45 14 25);
   }
   .mobile-nav-item:hover {
     background: rgba(127,127,127,0.12);
+  }
+
+  /* ── 视频上方覆盖：无论日夜，文字/图标必须是白色 ── */
+  .nav-over-video .nav-link,
+  .nav-over-video .nav-icon-btn,
+  :root:not(.dark) .nav-over-video .nav-link,
+  :root:not(.dark) .nav-over-video .nav-icon-btn {
+    color: #fff !important;
+    text-shadow: 0 1px 8px rgba(0,0,0,0.6), 0 0 20px rgba(0,0,0,0.3);
+  }
+  .nav-over-video .nav-link:hover,
+  .nav-over-video .nav-icon-btn:hover,
+  :root:not(.dark) .nav-over-video .nav-link:hover,
+  :root:not(.dark) .nav-over-video .nav-icon-btn:hover {
+    color: rgb(var(--c-sakura-300)) !important;
+    text-shadow: 0 1px 10px rgba(0,0,0,0.7), 0 0 24px rgba(0,0,0,0.35);
   }
 
   /* ── 章节分隔线装饰 ────────────────────────────────── */

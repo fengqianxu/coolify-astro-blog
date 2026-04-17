@@ -36,29 +36,28 @@ import { SITE } from '../config/site';
     aria-hidden="true"
   ></video>
 
-  <!-- 渐变遮罩：顶部微暗（提升导航可读性）→ 底部收入页面背景色（用 void-900） -->
+  <!-- 渐变遮罩：顶部微暗（提升导航可读性）→ 中部略暗（兜住中央文字）→ 底部收入页面背景色 -->
   <div
     class="absolute inset-0 pointer-events-none"
     style="background: linear-gradient(
       to bottom,
-      rgba(0,0,0,0.35) 0%,
-      transparent      30%,
-      transparent      60%,
+      rgba(0,0,0,0.45) 0%,
+      rgba(0,0,0,0.25) 30%,
+      rgba(0,0,0,0.30) 55%,
       rgb(var(--c-void-900)) 100%
     );"
     aria-hidden="true"
   ></div>
 
   <!-- 中央文字叠加 -->
-  <div class="relative z-10 text-center px-6 animate-fade-in">
-    <p class="text-white/60 text-xs tracking-[0.25em] uppercase mb-4 font-body">
+  <div class="hero-center relative z-10 text-center px-6 animate-fade-in">
+    <p class="hero-kicker text-xs tracking-[0.25em] uppercase mb-4 font-body">
       Welcome to
     </p>
-    <h1 class="font-heading text-6xl sm:text-8xl font-bold text-white
-               drop-shadow-[0_2px_20px_rgba(255,45,107,0.5)] mb-4 leading-none">
+    <h1 class="hero-title font-heading text-6xl sm:text-8xl font-bold mb-4 leading-none">
       {SITE.name}
     </h1>
-    <p class="text-white/70 text-base sm:text-lg font-body tracking-wide">
+    <p class="hero-sub text-base sm:text-lg font-body tracking-wide">
       {SITE.description}
     </p>
   </div>
@@ -113,3 +112,50 @@ import { SITE } from '../config/site';
     }) as EventListener);
   }
 </script>
+
+<style>
+  /*
+   * Hero 中央文字：在暗色/亮色视频上都要清晰可读。
+   * 策略：统一白字，用多层 text-shadow 模拟深色描边兜底。
+   */
+  .hero-kicker {
+    color: rgba(255, 255, 255, 0.88);
+    text-shadow:
+      0 1px 4px rgba(0, 0, 0, 0.6),
+      0 0 16px rgba(0, 0, 0, 0.45);
+  }
+  .hero-title {
+    color: #fff;
+    text-shadow:
+      0 2px 6px rgba(0, 0, 0, 0.7),
+      0 0 24px rgba(0, 0, 0, 0.45),
+      0 2px 20px rgba(255, 45, 107, 0.35);
+  }
+  .hero-sub {
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow:
+      0 1px 4px rgba(0, 0, 0, 0.7),
+      0 0 14px rgba(0, 0, 0, 0.45);
+  }
+
+  /* 亮色模式下视频更亮，阴影再加深一档，并把副标加粗一点 */
+  :root:not(.dark) .hero-kicker {
+    color: #fff;
+    text-shadow:
+      0 1px 4px rgba(0, 0, 0, 0.85),
+      0 0 18px rgba(0, 0, 0, 0.6);
+  }
+  :root:not(.dark) .hero-title {
+    text-shadow:
+      0 2px 6px rgba(0, 0, 0, 0.85),
+      0 0 28px rgba(0, 0, 0, 0.55),
+      0 2px 20px rgba(255, 45, 107, 0.3);
+  }
+  :root:not(.dark) .hero-sub {
+    color: #fff;
+    font-weight: 500;
+    text-shadow:
+      0 1px 4px rgba(0, 0, 0, 0.9),
+      0 0 16px rgba(0, 0, 0, 0.6);
+  }
+</style>

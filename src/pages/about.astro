@@ -45,26 +45,26 @@ const stacks = [
   {
     group: '语言',
     items: [
-      { name: 'TypeScript', accent: 'sakura' },
-      { name: 'Rust',       accent: 'gold', note: '在学' },
-      { name: 'Python',     accent: 'mint' },
+      { name: 'Java',       accent: 'sakura', note: '主力' },
+      { name: 'Python',     accent: 'mint',   note: '略懂' },
+      { name: 'SQL',        accent: 'gold' },
     ],
   },
   {
-    group: '前端',
+    group: '后端 & 存储',
     items: [
-      { name: 'Astro',    accent: 'sakura' },
-      { name: 'React',    accent: 'mint' },
-      { name: 'Tailwind', accent: 'sakura' },
-      { name: 'Vite',     accent: 'gold' },
+      { name: 'Spring Boot', accent: 'sakura' },
+      { name: 'MySQL',       accent: 'gold'   },
+      { name: 'Redis',       accent: 'sakura' },
+      { name: 'MyBatis',     accent: 'mint'   },
     ],
   },
   {
     group: '工具',
     items: [
-      { name: 'Git',    accent: 'gold' },
-      { name: 'Figma',  accent: 'sakura' },
-      { name: 'Neovim', accent: 'mint' },
+      { name: 'Git',    accent: 'gold'   },
+      { name: 'Docker', accent: 'sakura' },
+      { name: 'Linux',  accent: 'mint'   },
     ],
   },
 ];
@@ -122,10 +122,10 @@ const socials = [
 
           <!-- 标签胶囊 -->
           <div class="mt-4 flex flex-wrap justify-center sm:justify-start gap-2">
-            <span class="about-tag">前端开发</span>
-            <span class="about-tag">二次元</span>
-            <span class="about-tag">手冲咖啡</span>
-            <span class="about-tag">独立游戏</span>
+            <span class="about-tag">后端开发</span>
+            <span class="about-tag">申论备考</span>
+            <span class="about-tag">行测备考</span>
+            <span class="about-tag">读书笔记</span>
           </div>
         </div>
       </div>
@@ -138,14 +138,19 @@ const socials = [
       </div>
       <div class="glass-card p-6 sm:p-8 space-y-4 text-lavender-300 leading-relaxed">
         <p>
-          欢迎来到 <span class="text-gradient font-semibold">{SITE.name}</span>，
-          这是一个关于技术、动漫与生活的小小角落。在这里我会分享前端开发心得、
-          动漫观感以及日常随笔。
+          欢迎来到 <span class="text-gradient font-semibold">{SITE.name}</span>。
+          <span class="text-lavender-200 font-medium">helt</span> 在北欧语里是「英雄」，
+          也恰好是「何凌韬」拼音的缩写 —— 不敢自封什么英雄，只是对自己的一份期许。
         </p>
         <p>
-          写博客对我来说不是为了"运营"，而是把零散的思考存起来，
-          几年后回头看能知道自己走过哪些路。如果你也因为某篇文章有所共鸣，
-          那是额外的惊喜。
+          日常写 Java，偶尔写点 Python；同时在准备公考（申论 + 行测），也读书、记笔记。
+          这里会散放后端开发心得、公考备考整理、读书随感。
+          写博客对我来说不是为了"运营"，更像是
+          <span class="text-sakura-400">「泥上偶然留指爪」</span>
+          —— 把零散的思考存起来，几年后回头，能知道自己走过哪些路。
+        </p>
+        <p>
+          罗马不是一天建成的，慢慢来。如果你也因为某篇文章产生共鸣，那是额外的惊喜 —— 一起加油。
         </p>
       </div>
     </section>

@@ -11,6 +11,7 @@ import PostCard  from '../components/PostCard.astro';
 import Sidebar   from '../components/Sidebar.astro';
 import type { SidebarData } from '../types';
 import { catLeaf } from '../utils/category';
+import { SITE } from '../config/site';
 
 // ── 数据聚合 ─────────────────────────────────────────────────────────
 const allPosts = (await getCollection('posts', (p) => !p.data.draft))
@@ -44,7 +45,7 @@ const sidebarData: SidebarData = {
 };
 ---
 
-<Layout title="AniLog" heroVideo={true}>
+<Layout title={SITE.name} heroVideo={true}>
 
   <!-- 全屏视频开屏（100dvh） -->
   <HeroVideo />

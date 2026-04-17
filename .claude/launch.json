@@ -2,15 +2,9 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "Astro Dev Server",
-      "runtimeExecutable": "/bin/sh",
-      "runtimeArgs": ["/Users/coderhelt/Cluade/blog/dev.sh"],
-      "port": 4321
-    },
-    {
-      "name": "Astro Preview (after build)",
+      "name": "blog",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "preview"],
+      "runtimeArgs": ["run", "dev"],
       "port": 4321
     }
   ]

@@ -5,20 +5,21 @@
  */
 
 export const SITE = {
-  /** 站点名称，用于 <title>、logo 等 */
-  name: 'AniLog',
+  /** 站点名称，用于 <title>、logo 等
+   *  helt：北欧语「英雄」，亦作 He L(ingtao) T 拼音缩写 */
+  name: 'HeltLog',
 
-  /** 默认 meta description */
-  description: '记录技术成长，分享二次元热情',
+  /** 默认 meta description —— 苏轼《和子由渑池怀旧》 */
+  description: '人生到处知何似，应似飞鸿踏雪泥',
 
   /** 部署后的完整 URL（不含结尾斜杠） */
   url: 'https://your-blog.com',
 
   /** 作者昵称 */
-  author: '博主',
+  author: '何凌韬',
 
   /** 作者简介 */
-  bio: '热爱动漫、代码和咖啡的前端开发者。在这里记录技术成长与生活感悟。',
+  bio: '前端开发者，代码之外读书、备考、写点闲笔。偶为飞鸿，聊留指爪。',
 
   /** 头像路径（相对于 public/） */
   avatar: '/avatar.png',
