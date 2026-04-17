@@ -10,12 +10,11 @@
  *  - 每条文章：MM-DD · 分类胶囊 · 标题
  */
 
-import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import { catLeaf, catPathStr } from '../../utils/category';
+import { getSiteStats } from '../../utils/stats';
 
-const allPosts = (await getCollection('posts', p => !p.data.draft))
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const { allPosts, totalPosts } = await getSiteStats();
 
 type Post = typeof allPosts[number];
 
@@ -66,7 +65,7 @@ const fmtYMD = (d: Date) =>
     <div class="mb-10">
       <h1 class="font-heading text-3xl font-bold text-gradient mb-2">归档</h1>
       <p class="text-lavender-400 text-sm">
-        共 <span class="text-sakura-500 font-semibold">{allPosts.length}</span> 篇文章 ·
+        共 <span class="text-sakura-500 font-semibold">{totalPosts}</span> 篇文章 ·
         <span class="text-gold-400">{cheersFor(allPosts.length)}</span>，继续加油
       </p>
     </div>

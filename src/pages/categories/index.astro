@@ -12,11 +12,12 @@
  *  3. 文章条目：MM-DD · 标题（按日期降序）
  */
 
-import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
+import { getSiteStats } from '../../utils/stats';
+import { hashToPaletteIndex } from '../../utils/ui';
 
-const allPosts = (await getCollection('posts', p => !p.data.draft))
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+// 统一走 stats：allPosts 已按发布日降序排好，totalPosts 与其他页口径一致
+const { allPosts, totalPosts } = await getSiteStats();
 
 type Post = typeof allPosts[number];
 
@@ -78,12 +79,9 @@ const flattenTree = (nodes: CatNode[], depth = 0): FlatRow[] => {
 };
 
 // 分类徽章的配色（hash 到 sakura/gold/mint）
-const accentFor = (name: string) => {
-  const palette = ['sakura', 'gold', 'mint'] as const;
-  let h = 0;
-  for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
-  return palette[h % palette.length];
-};
+const CAT_PALETTE = ['sakura', 'gold', 'mint'] as const;
+const accentFor = (name: string): (typeof CAT_PALETTE)[number] =>
+  CAT_PALETTE[hashToPaletteIndex(name, CAT_PALETTE.length)]!;
 
 // 根节点锚点（只给根分类，子分类不需要单独锚）
 const anchorFor = (name: string) => `cat-${encodeURIComponent(name)}`;
@@ -111,7 +109,7 @@ const totalCategories = countAllNodes(root);
       <h1 class="font-heading text-3xl font-bold text-gradient mb-2">分类</h1>
       <p class="text-lavender-400 text-sm">
         共 <span class="text-sakura-500 font-semibold">{totalCategories}</span> 个分类（含子分类） ·
-        <span class="text-sakura-500 font-semibold">{allPosts.length}</span> 篇文章
+        <span class="text-sakura-500 font-semibold">{totalPosts}</span> 篇文章
       </p>
     </div>
 

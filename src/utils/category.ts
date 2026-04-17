@@ -2,24 +2,32 @@
  * @file utils/category.ts
  * @description 分类路径处理工具。category 统一是 string[]（从根到叶）。
  *              所有组件/页面都走这里的帮助函数，不要直接解构 data.category。
+ *
+ * 所有函数都用 CategoryData 这种「只关心 category 字段」的结构类型，
+ * 这样 CollectionEntry<'posts'>.data、PostMeta、PostSummary 都能直接传入。
  */
 
+import type { CategoryData } from '../types';
+
 /** 分类路径（从根到叶），例如 ["考试", "申论", "大作文"] */
-export const catPath = (data: { category: string[] }): string[] => data.category;
+export const catPath = (data: CategoryData): string[] => data.category;
+
+/** 根分类名（顶层），空数组时回退到「随笔」。 */
+export const catRoot = (data: CategoryData): string =>
+  data.category[0] ?? '随笔';
 
 /** 叶子分类名（用于卡片/胶囊上显示最具体的那一项） */
-export const catLeaf = (data: { category: string[] }): string => {
+export const catLeaf = (data: CategoryData): string => {
   const p = data.category;
   return p[p.length - 1] ?? '随笔';
 };
 
 /** 字符串化路径，默认用 " / " 连接，用于面包屑显示 */
-export const catPathStr = (data: { category: string[] }, sep = ' / '): string =>
+export const catPathStr = (data: CategoryData, sep = ' / '): string =>
   data.category.join(sep);
 
 /** 用作 Map key 的紧凑字符串（"考试/申论/大作文"） */
-export const catKey = (data: { category: string[] }): string =>
-  data.category.join('/');
+export const catKey = (data: CategoryData): string => data.category.join('/');
 
 /** 对齐 URL slug 的路径（不转义，由调用方按需 encodeURIComponent） */
-export const catSlug = (path: string[]): string => path.join('/');
+export const catSlug = (path: readonly string[]): string => path.join('/');

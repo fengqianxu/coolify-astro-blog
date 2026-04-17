@@ -1,15 +1,14 @@
 ---
-import { getCollection } from 'astro:content';
+/**
+ * @page /tags
+ * @description 所有标签云。字号随使用次数递增，点击进入 /tags/[tag]。
+ */
 import Layout from '../../layouts/Layout.astro';
+import { getSiteStats } from '../../utils/stats';
+import { tagFontSizePx } from '../../utils/ui';
 
-const allPosts = await getCollection('posts', p => !p.data.draft);
-const tagCounts: Record<string, number> = {};
-for (const post of allPosts) {
-  for (const tag of post.data.tags) {
-    tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
-  }
-}
-const allTags = Object.keys(tagCounts).sort((a, b) => tagCounts[b]! - tagCounts[a]!);
+// 统一走 stats，tagCounts 和 allTags 与首页 Sidebar / about 完全同口径
+const { allTags, tagCounts } = await getSiteStats();
 ---
 
 <Layout title="标签" description="所有标签">
@@ -22,7 +21,7 @@ const allTags = Object.keys(tagCounts).sort((a, b) => tagCounts[b]! - tagCounts[
         <a
           href={`/tags/${encodeURIComponent(tag)}`}
           class="tag-pill text-sm"
-          style={`font-size: ${Math.max(12, Math.min(18, 12 + (tagCounts[tag] ?? 1) * 2))}px`}
+          style={`font-size: ${tagFontSizePx(tagCounts[tag] ?? 1, { min: 12, max: 18, unit: 2 })}`}
         >
           {tag}
           <span class="ml-1 text-sakura-500/60">{tagCounts[tag]}</span>

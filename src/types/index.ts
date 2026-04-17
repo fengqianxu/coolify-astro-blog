@@ -49,3 +49,34 @@ export interface SearchEntry {
   category:    string[];   // 层级路径
   pubDate:     string; // ISO string（Date 不可 JSON 序列化）
 }
+
+/**
+ * 运行时校验：判断一个未知对象是否是合法的 SearchEntry。
+ * 用于 fetch('/api/posts.json') 之后的结果校验，避免字段缺失/类型不匹配
+ * 导致运行时 `undefined.toLowerCase()` 之类的崩溃。
+ *
+ * 故意写成纯类型守卫（不引入 zod），客户端 bundle 零额外体积。
+ */
+export function isSearchEntry(x: unknown): x is SearchEntry {
+  if (x === null || typeof x !== 'object') return false;
+  const e = x as Record<string, unknown>;
+  const isStr      = (v: unknown): v is string => typeof v === 'string';
+  const isStrArray = (v: unknown): v is string[] => Array.isArray(v) && v.every(isStr);
+  return (
+    isStr(e.slug)        &&
+    isStr(e.title)       &&
+    isStr(e.description) &&
+    isStrArray(e.tags)   &&
+    isStrArray(e.category) &&
+    isStr(e.pubDate)
+  );
+}
+
+/**
+ * 只传递 `category` 字段的极简入参类型。
+ * 给 utils/category.ts 用 —— 接受任何形如 `{ category: string[] }` 的对象，
+ * 因此 CollectionEntry<'posts'>.data / PostMeta / PostSummary 都能传入。
+ */
+export interface CategoryData {
+  category: string[];
+}
