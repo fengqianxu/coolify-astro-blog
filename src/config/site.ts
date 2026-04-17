@@ -19,7 +19,7 @@ export const SITE = {
   author: '何凌韬',
 
   /** 作者简介 */
-  bio: '前端开发者，代码之外读书、备考、写点闲笔。偶为飞鸿，聊留指爪。',
+  bio: '后端开发者（Java），代码之外读书、备考、写点闲笔。偶为飞鸿，聊留指爪。',
 
   /** 头像路径（相对于 public/） */
   avatar: '/avatar.png',
@@ -48,10 +48,11 @@ export const NAV_LINKS = [
 /** 文章分类对应的 emoji */
 export const CATEGORY_EMOJI: Record<string, string> = {
   '技术':  '⚙️',
-  '二次元': '🌸',
+  '考试':  '📚',
+  '申论':  '✒️',
+  '行测':  '🔢',
+  '读书':  '📖',
   '随笔':  '✏️',
-  '游戏':  '🎮',
-  '音乐':  '🎵',
 };
 
 /** 默认封面渐变（分类 → Tailwind gradient 类名） */
