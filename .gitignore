@@ -7,9 +7,21 @@ dist/
 *.log
 .DS_Store
 
+# 系统 / 编辑器杂文件
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
 # 本地素材 / 参考资料，不入仓
 assets/
 博客源代码参考/
 
 # 注意：public/videos/ 下的小视频（< 10MB）保留入仓
 # 超大视频请放到 assets/ 或 CDN，不要直接提交到 public/
+# ⚠️ 千万不要忽略 src/content/**/*.md —— 所有文章都在这下面！
+# 每次写完文章后务必：
+#   git status    → 确认文章文件出现在 Untracked/Modified
+#   git add src/content/posts/<你的新文件>.md
+#   git commit -m "post: ..."
+#   git push      → Coolify 会自动重建
