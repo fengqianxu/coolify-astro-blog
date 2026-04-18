@@ -76,10 +76,18 @@ const absOgImage   = new URL(ogImage, Astro.site ?? `${SITE.url}/`).toString();
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="alternate" type="application/rss+xml" title={`${SITE.name} RSS`} href="/rss.xml" />
 
-    <!-- 霞鹜文楷：温暖手写楷书风格 CDN 字体 -->
+    <!--
+      字体：
+        - LXGW WenKai（标题）/ Screen（正文）：jsDelivr CDN 手写楷书
+        - JetBrains Mono（font-mono 代码字体）：Google Fonts
+      全部走 <link>，避免在 global.css 里 @import 阻塞样式解析。
+    -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont@1.7.0/style.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" />
 
     <title>{fullTitle}</title>
 

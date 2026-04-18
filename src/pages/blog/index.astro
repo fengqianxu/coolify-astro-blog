@@ -22,7 +22,8 @@ const { allPosts, totalPosts, allTags, tagCounts, categoriesByTopLevel } =
       <section class="flex-1 min-w-0">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
           {allPosts.map((post, i) => (
-            <div class="animate-slide-up" style={`animation-delay:${i * 50}ms;animation-fill-mode:both`}>
+            // animation-delay 对 i 封顶：文章多时不想看到最后一张还在等 5 秒才浮现。
+            <div class="animate-slide-up" style={`animation-delay:${Math.min(i, 10) * 50}ms;animation-fill-mode:both`}>
               <PostCard
                 slug={post.slug}
                 title={post.data.title}
