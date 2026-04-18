@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.astro/
+public/
+package-lock.json
+# 用户写的中文 Markdown 正文，交给 Prettier 反而可能动到内容 —— 只格式化 frontmatter 之外的风格文件
+src/content/
+assets/
+博客源代码参考/
