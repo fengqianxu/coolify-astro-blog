@@ -79,8 +79,10 @@ const absOgImage   = new URL(ogImage, Astro.site ?? `${SITE.url}/`).toString();
 
     <!--
       字体：
-        - LXGW WenKai（标题）/ Screen（正文）：jsDelivr CDN 手写楷书
-        - JetBrains Mono（font-mono 代码字体）：Google Fonts
+        - LXGW WenKai / Screen（中文：标题 & 正文）—— jsDelivr CDN 手写楷书
+        - Fraunces（英文大标题，带 opsz/SOFT 变体轴）—— Google Fonts
+        - DM Sans（英文 UI / 标签）                   —— Google Fonts
+        - JetBrains Mono（代码）                     —— Google Fonts
       全部走 <link>，避免在 global.css 里 @import 阻塞样式解析。
     -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
@@ -88,7 +90,10 @@ const absOgImage   = new URL(ogImage, Astro.site ?? `${SITE.url}/`).toString();
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont@1.7.0/style.css" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
 
     <title>{fullTitle}</title>
 
@@ -140,10 +145,34 @@ const absOgImage   = new URL(ogImage, Astro.site ?? `${SITE.url}/`).toString();
 
     <Footer />
 
+    <!--
+      右下角阅读进度圆环 + 回到顶部。
+      只有在 scrollTop > 400 时可见，点击回顶。
+      SVG 里 linearGradient 的两个色标写死成日间主色（236,72,153 → 217,147,33）；
+      夜间仍是同样渐变（蓝钢色的渐变在圆环那么细线条上看不清层次，日间粉金更显眼）。
+    -->
+    <button
+      id="progress-ring"
+      class="progress-ring"
+      type="button"
+      aria-label="回到顶部"
+    >
+      <svg viewBox="0 0 56 56" aria-hidden="true">
+        <defs>
+          <linearGradient id="progressGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%"   stop-color="rgb(236,72,153)" />
+            <stop offset="100%" stop-color="rgb(217,147,33)" />
+          </linearGradient>
+        </defs>
+        <circle class="track" cx="28" cy="28" r="25"></circle>
+        <circle id="progress-ring-fill" class="fill" cx="28" cy="28" r="25"></circle>
+      </svg>
+      <span class="arrow" aria-hidden="true">↑</span>
+    </button>
+
     <script>
-      // 阅读进度条：基于文档总可滚动高度计算百分比。
-      //   - 仅文章页会渲染 #reading-progress 元素，列表页 getElementById 拿到 null 直接跳过
-      //   - rAF 节流：滚动事件可能很密，合并到下一帧计算一次就够
+      // ── 阅读进度条（文章页顶部横条） ─────────────────────────────
+      // 仅文章页会渲染 #reading-progress，列表页 getElementById 拿 null 直接跳过
       const progressBar = document.getElementById('reading-progress');
       if (progressBar) {
         let pending = false;
@@ -160,6 +189,11 @@ const absOgImage   = new URL(ogImage, Astro.site ?? `${SITE.url}/`).toString();
           requestAnimationFrame(updateProgress);
         }, { passive: true });
       }
+    </script>
+
+    <!-- 全站统一交互层（tilt / parallax / reveal / 右下圆环） -->
+    <script>
+      import '../scripts/interactions.ts';
     </script>
   </body>
 </html>
