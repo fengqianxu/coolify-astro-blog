@@ -7,7 +7,7 @@ import sitemap from '@astrojs/sitemap';
 // 这里不直接 import .ts 是为了避免给 astro 的 config loader 加额外约束
 export default defineConfig({
   // 全站绝对 URL —— canonical / sitemap / og:url 都会基于这个生成
-  site: 'https://your-blog.com',
+  site: 'https://blog.helingtao.com',
 
   integrations: [
     tailwind({ applyBaseStyles: false }),

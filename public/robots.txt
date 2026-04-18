@@ -1,5 +1,5 @@
 User-agent: *
 Allow: /
 
-# 构建时由 @astrojs/sitemap 生成 —— 替换成实际域名后生效
-Sitemap: https://your-blog.com/sitemap-index.xml
+# 构建时由 @astrojs/sitemap 生成
+Sitemap: https://blog.helingtao.com/sitemap-index.xml

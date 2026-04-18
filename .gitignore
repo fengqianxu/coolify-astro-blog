@@ -13,6 +13,9 @@ Thumbs.db
 .vscode/
 *.swp
 
+# Claude Code 本地调试/设置（launch.json、settings.local.json 等），纯个人工具配置
+.claude/
+
 # 本地素材 / 参考资料，不入仓
 assets/
 博客源代码参考/

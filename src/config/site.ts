@@ -13,7 +13,7 @@ export const SITE = {
   description: '人生到处知何似，应似飞鸿踏雪泥',
 
   /** 部署后的完整 URL（不含结尾斜杠） */
-  url: 'https://your-blog.com',
+  url: 'https://blog.helingtao.com',
 
   /** 作者昵称 */
   author: '何凌韬',
