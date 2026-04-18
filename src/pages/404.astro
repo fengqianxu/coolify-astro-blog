@@ -16,9 +16,16 @@ import { SITE } from '../config/site';
     class="relative z-10 flex flex-col items-center justify-center
            min-h-[calc(100dvh-4rem)] px-6 text-center"
   >
-    <div class="glass-card px-10 py-12 sm:px-14 sm:py-16 max-w-lg">
+    <div class="glass-card px-10 py-12 sm:px-14 sm:py-16 max-w-lg reveal">
+      <!--
+        "404" 是纯阿拉伯数字 —— 正好吃 font-display（Fraunces）的 opsz 144 +
+        SOFT 50 档位，超大字形时笔画会自然变粗、转角变软，比 font-heading
+        的楷书回退要更贴 HANDOFF 的 display 意图
+      -->
       <p
-        class="font-heading text-7xl sm:text-8xl font-bold text-gradient leading-none mb-4"
+        class="font-display text-7xl sm:text-8xl font-medium text-gradient
+               leading-none mb-4 tracking-tight"
+        style="font-variation-settings: 'opsz' 144, 'SOFT' 50;"
         aria-hidden="true"
       >
         404
