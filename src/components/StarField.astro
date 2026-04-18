@@ -1,12 +1,15 @@
 ---
 /**
  * @component StarField
- * @description 固定背景 Canvas —— 暗紫主题下的星光 + 樱花花瓣粒子。
+ * @description 固定背景 Canvas —— 极简几何轮廓粒子（圆环 / 方框 / 短线 / 微点）。
+ *              颜色从 CSS 变量 --particle-color / --particle-accent 取，
+ *              所以切换日/夜主题时粒子会自然跟着换色。
  *              pointer-events-none，不干扰任何交互。
  *
- * 粒子系统设计：
- *  - Sparkle：4 角星形，随机分布，缓慢闪烁（opacity 振荡）
- *  - Petal  ：椭圆形花瓣，从顶部生成后缓慢飘落，带轻微横向摇摆
+ * 数量/节奏经过 HANDOFF 调校：
+ *   - count ≤ 22，不堆屏（再多显得廉价）
+ *   - vy 0.05–0.17 × dpr，非常慢，像气泡在上升
+ *   - alpha 上限 0.22，几乎只是轮廓
  */
 ---
 
@@ -18,151 +21,127 @@
 
 <script>
   // ── 类型定义 ──────────────────────────────────────────────────────
-  interface Sparkle {
-    x: number; y: number;
-    r: number;          // 外半径
-    opacity: number;
-    dOpacity: number;   // 每帧 opacity 变化量
-    hue: number;        // 色相偏移（粉→紫）
-  }
+  type ParticleType = 'ring' | 'square' | 'line' | 'dot';
 
-  interface Petal {
+  interface Particle {
     x: number; y: number;
-    r: number;          // 椭圆长轴
     vx: number; vy: number;
-    rot: number; vRot: number;
-    opacity: number;
-    colorIdx: number;   // 花瓣颜色索引
+    size: number;
+    life: number;         // 用作渐入：alpha 随 life 饱和到 1
+    type: ParticleType;
+    rot: number; vr: number;
+    depth: number;        // 0.4–1.0，用作景深 alpha/速度调制
   }
-
-  // ── 花瓣颜色表（RGBA 模板，VAL 替换为实际 opacity） ───────────────
-  const PETAL_COLORS = [
-    'rgba(255,45,107,VAL)',   // sakura-500 hot pink
-    'rgba(255,91,148,VAL)',   // sakura-400 pink
-    'rgba(255,145,184,VAL)',  // sakura-300 soft pink
-    'rgba(255,170,0,VAL)',    // gold-400 amber
-    'rgba(255,122,69,VAL)',   // coral（粉橙过渡色）
-  ] as const;
 
   // ── Canvas 初始化 ─────────────────────────────────────────────────
   const canvas = document.getElementById('starfield') as HTMLCanvasElement;
   const ctx    = canvas.getContext('2d')!;
 
   let W = 0, H = 0;
-  let sparkles: Sparkle[] = [];
-  let petals:   Petal[]   = [];
-  let frameId   = 0;
-  let frameCount = 0;
+  let particles: Particle[] = [];
+  let frameId = 0;
+  const dpr = Math.min(2, window.devicePixelRatio || 1); // 手机高 DPR 时压到 2，控制 GPU 负担
 
   function resize() {
-    W = canvas.width  = window.innerWidth;
-    H = canvas.height = window.innerHeight;
+    W = canvas.width  = window.innerWidth  * dpr;
+    H = canvas.height = window.innerHeight * dpr;
+    canvas.style.width  = window.innerWidth  + 'px';
+    canvas.style.height = window.innerHeight + 'px';
   }
 
   // ── 粒子工厂 ─────────────────────────────────────────────────────
-  function createSparkle(): Sparkle {
-    return {
-      x:        Math.random() * W,
-      y:        Math.random() * H,
-      r:        Math.random() * 1.5 + 0.5,
-      opacity:  Math.random(),
-      dOpacity: (Math.random() * 0.008 + 0.004) * (Math.random() < 0.5 ? 1 : -1),
-      hue:      Math.random() * 60 - 30, // -30 ~ +30（粉到紫区间）
-    };
-  }
+  const SHAPES: ParticleType[] = ['ring', 'square', 'line', 'dot'];
 
-  function createPetal(anywhere = false): Petal {
+  function makeParticle(seedY = false): Particle {
+    const type = SHAPES[Math.floor(Math.random() * SHAPES.length)]!;
     return {
-      x:        Math.random() * W,
-      y:        anywhere ? Math.random() * H : -20,
-      r:        Math.random() * 5 + 4,
-      vx:       (Math.random() - 0.5) * 0.6,
-      vy:       Math.random() * 0.7 + 0.25,
-      rot:      Math.random() * Math.PI * 2,
-      vRot:     (Math.random() - 0.5) * 0.035,
-      opacity:  Math.random() * 0.45 + 0.15,
-      colorIdx: Math.floor(Math.random() * PETAL_COLORS.length),
+      x:     Math.random() * W,
+      y:     seedY ? Math.random() * H : -40,
+      vx:    (Math.random() - 0.5) * 0.08 * dpr,
+      vy:    (0.05 + Math.random() * 0.12) * dpr,
+      size:  (18 + Math.random() * 42) * dpr,
+      life:  seedY ? Math.random() : 0,
+      type,
+      rot:   Math.random() * Math.PI * 2,
+      vr:    (Math.random() - 0.5) * 0.0015,
+      depth: 0.4 + Math.random() * 0.6,
     };
   }
 
   function initParticles() {
-    const sparkleCount = Math.floor((W * H) / 8000);
-    sparkles = Array.from({ length: sparkleCount }, createSparkle);
-    petals   = Array.from({ length: 20 },           () => createPetal(true));
+    // HANDOFF 规定：Math.min(22, (w*h)/70000)
+    const count = Math.min(
+      22,
+      Math.floor((window.innerWidth * window.innerHeight) / 70000),
+    );
+    particles = Array.from({ length: count }, () => makeParticle(true));
   }
 
-  // ── 绘制函数 ──────────────────────────────────────────────────────
-  function drawSparkle(s: Sparkle) {
-    ctx.save();
-    ctx.translate(s.x, s.y);
-    ctx.globalAlpha = Math.max(0, s.opacity) * 0.7;
-    // 4 角星形（对角两组线）
-    ctx.beginPath();
-    for (let i = 0; i < 4; i++) {
-      const a = (i / 4) * Math.PI * 2;
-      const b = a + Math.PI / 4;
-      ctx.lineTo(Math.cos(a) * s.r,         Math.sin(a) * s.r);
-      ctx.lineTo(Math.cos(b) * (s.r * 0.3), Math.sin(b) * (s.r * 0.3));
-    }
-    ctx.closePath();
-    ctx.fillStyle = `hsl(${345 + s.hue}, 90%, 75%)`;
-    ctx.fill();
-    ctx.restore();
+  // ── 读取 CSS 变量 ─────────────────────────────────────────────────
+  // :root 里存的是 "236 72 153"（空格分隔），rgba() 需要逗号，这里转一下。
+  function getColors() {
+    const cs = getComputedStyle(document.documentElement);
+    const norm = (v: string) => v.trim().split(/\s+/).join(',');
+    return {
+      main:   norm(cs.getPropertyValue('--particle-color'))   || '236,72,153',
+      accent: norm(cs.getPropertyValue('--particle-accent')) || '217,147,33',
+    };
   }
 
-  function drawPetal(p: Petal) {
-    ctx.save();
-    ctx.translate(p.x, p.y);
-    ctx.rotate(p.rot);
-    ctx.globalAlpha = p.opacity;
-
-    // 花瓣主体
-    ctx.beginPath();
-    ctx.ellipse(0, 0, p.r, p.r * 0.5, 0, 0, Math.PI * 2);
-    ctx.fillStyle = PETAL_COLORS[p.colorIdx]!.replace('VAL', p.opacity.toFixed(2));
-    ctx.fill();
-
-    // 高光（增加立体感）
-    ctx.beginPath();
-    ctx.ellipse(-p.r * 0.25, -p.r * 0.15, p.r * 0.35, p.r * 0.15, -0.4, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255,255,255,0.35)';
-    ctx.fill();
-
-    ctx.restore();
-  }
-
-  // ── 动画主循环 ────────────────────────────────────────────────────
+  // ── 绘制 + 主循环 ──────────────────────────────────────────────────
   function tick() {
-    if (!running) return; // running=false（减弱动效/标签页后台）时优雅退出
+    if (!running) return;
     ctx.clearRect(0, 0, W, H);
+    const { main, accent } = getColors();
 
-    // 更新并绘制闪光
-    for (const s of sparkles) {
-      s.opacity += s.dOpacity;
-      if (s.opacity <= 0.05 || s.opacity >= 0.95) s.dOpacity *= -1;
-      drawSparkle(s);
-    }
-
-    // 更新并绘制花瓣
-    for (let i = petals.length - 1; i >= 0; i--) {
-      const p = petals[i]!;
-      // 轻微正弦横向摇摆
-      p.x   += p.vx + Math.sin(frameCount * 0.01 + i) * 0.3;
+    for (const p of particles) {
+      p.x   += p.vx;
       p.y   += p.vy;
-      p.rot += p.vRot;
-      drawPetal(p);
+      p.rot += p.vr;
+      p.life = Math.min(1, p.life + 0.002);
 
-      // 离开底部后重置到顶部
-      if (p.y > H + 30) petals[i] = createPetal(false);
+      // 回收：飘出视口任何一侧 → 重置到顶部
+      if (p.y - p.size > H + 40 || p.x < -p.size - 40 || p.x > W + p.size + 40) {
+        Object.assign(p, makeParticle(false));
+      }
+
+      const alpha = p.life * 0.22 * p.depth;
+      const rgb   = (p.type === 'line' || p.type === 'square') ? accent : main;
+
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.strokeStyle = `rgba(${rgb}, ${alpha})`;
+      ctx.lineWidth   = Math.max(1, 0.9 * dpr);
+
+      if (p.type === 'ring') {
+        ctx.beginPath();
+        ctx.arc(0, 0, p.size * 0.5, 0, Math.PI * 2);
+        ctx.stroke();
+      } else if (p.type === 'square') {
+        const s = p.size * 0.45;
+        ctx.strokeRect(-s, -s, s * 2, s * 2);
+      } else if (p.type === 'line') {
+        ctx.beginPath();
+        ctx.moveTo(-p.size * 0.6, 0);
+        ctx.lineTo( p.size * 0.6, 0);
+        ctx.stroke();
+      } else {
+        // dot：微小实心，亮度略高让点更有存在感
+        ctx.fillStyle = `rgba(${rgb}, ${alpha * 1.4})`;
+        ctx.beginPath();
+        ctx.arc(0, 0, Math.max(1.2, 1.4 * dpr), 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
     }
 
-    frameCount++;
     frameId = requestAnimationFrame(tick);
   }
 
   // ── 动画开关 ──────────────────────────────────────────────────────
   //   JS 动画（requestAnimationFrame）不受 CSS `animation: none` 约束，必须在 JS
-  //   里自己检查 prefers-reduced-motion，否则"减弱动态效果"用户依旧被强制观看。
+  //   里自己检查 prefers-reduced-motion，否则「减弱动态效果」用户依旧被强制观看。
   const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   let running = false;
 
@@ -184,16 +163,16 @@
   initParticles();
   start();
 
-  // 系统偏好变化（用户在系统设置里切换"减弱动态效果"）
   motionQuery.addEventListener('change', () => {
     motionQuery.matches ? stop() : start();
   });
 
-  // 标签页切到后台时暂停，避免空转（浏览器原生会降频到 1 FPS，但 canvas 仍占 GPU）
   document.addEventListener('visibilitychange', () => {
     document.hidden ? stop() : start();
   });
 
+  // 主题切换时：下一帧 getColors() 会自动取到新的 CSS 变量值，不用做额外处理。
+  // 只在尺寸变化时重建粒子，保持密度正确。
   window.addEventListener('resize', () => {
     stop();
     resize();
