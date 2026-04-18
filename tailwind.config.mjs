@@ -63,9 +63,16 @@ export default {
       },
 
       // ── Typography ─────────────────────────────────────────
+      //   heading  —— 中文标题优先走 LXGW WenKai（楷书）
+      //   body     —— 正文 LXGW WenKai Screen（屏显优化）
+      //   display  —— 英文大标题 Fraunces（带 opsz/SOFT 变体轴）
+      //   sans     —— 英文 UI / 标签 DM Sans（干净几何）
+      //   mono     —— 代码 JetBrains Mono
       fontFamily: {
         heading: ['"LXGW WenKai"',        'Georgia', 'serif'],
         body:    ['"LXGW WenKai Screen"',  '"LXGW WenKai"', 'system-ui', 'sans-serif'],
+        display: ['Fraunces',              '"LXGW WenKai"', 'Georgia', 'serif'],
+        sans:    ['"DM Sans"',             '"LXGW WenKai Screen"', 'system-ui', 'sans-serif'],
         mono:    ['"JetBrains Mono"', 'monospace'],
       },
 

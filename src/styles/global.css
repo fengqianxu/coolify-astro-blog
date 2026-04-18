@@ -3,21 +3,25 @@
  * @description 全站基础样式 + 双主题色彩系统。
  *
  * 主题架构：
- *   :root    —— 日间模式（默认，柔粉白底 + 深色文字）
- *   .dark    —— 夜间模式（纯暗底 + 霓虹粉 + 琥珀金）
+ *   :root    —— 日间模式（Saber 圣光金：玫瑰樱花主、圣光金副、暖米白底）
+ *   .dark    —— 夜间模式（Saber 蓝装：霓虹粉主、冷钢蓝副、深墨蓝底）
  *
- * Tailwind 色彩令牌（sakura / lavender / void / gold / mint）全部走 CSS 变量，
- * 因此所有 `bg-void-900`, `text-lavender-200` 等类名会随 <html> 的 .dark 自动切换。
+ * Tailwind 色彩令牌（sakura / gold / lavender / void / mint）全部走 CSS 变量，
+ * 所以 `bg-void-900`, `text-lavender-200` 等类名会随 <html>.dark 自动切换。
+ *
+ * 复合变量：
+ *   --brand-grad       主渐变（sakura-500 → gold-400）
+ *   --particle-color   粒子主色（RGB 三元组）
+ *   --particle-accent  粒子副色
+ *   --glass-shine      卡片扫光高光颜色
+ *   --shadow-card(-hover) 玻璃卡片阴影
  */
 
 /*
- * 字体外链已迁移到 layouts/Layout.astro 的 <head>：
+ * 字体外链集中到 layouts/Layout.astro 的 <head>：
+ *   - Fraunces（display 大标题）/ DM Sans（sans 英文 UI）—— Google Fonts
  *   - LXGW WenKai / Screen（heading/body）—— jsDelivr CDN
- *   - JetBrains Mono（font-mono）       —— Google Fonts
- * 不再从 CSS `@import` 加载字体：CSS 里的外链会阻塞样式解析，
- * 挪到 <link rel="stylesheet"> 可以并行，配合 preconnect 更快。
- * 另，Noto Sans/Serif JP 实际未被引用（tailwind fontFamily 只配了
- * LXGW WenKai），一并清除，首屏少下 ~200KB 字体请求。
+ *   - JetBrains Mono（font-mono）                —— Google Fonts
  */
 
 @tailwind base;
@@ -25,76 +29,105 @@
 @tailwind utilities;
 
 /* ─────────────────────────────────────────────────────
-   颜色变量（RGB 三元组，供 Tailwind `rgb(var() / <alpha-value>)` 消费）
+   1. BASE —— 颜色变量（RGB 三元组，供 Tailwind `rgb(var() / <alpha-value>)` 消费）
    ───────────────────────────────────────────────────── */
 @layer base {
 
-  /* ═══ 日间（默认）—— Soft Sakura ═══════════════════════ */
+  /* ═══ 日间（默认）—— Saber 圣光金 ══════════════════════ */
   :root {
     color-scheme: light;
 
-    /* sakura：主色（粉），日间稍柔和 */
+    /* sakura：主色（玫瑰樱花） */
     --c-sakura-100: 255 228 239;
     --c-sakura-200: 252 204 224;
     --c-sakura-300: 249 168 199;
     --c-sakura-400: 244 114 169;
-    --c-sakura-500: 236  72 153;  /* #EC4899 — 主色 */
+    --c-sakura-500: 236  72 153;   /* #EC4899 */
     --c-sakura-600: 219  39 122;
     --c-sakura-700: 190  24 100;
 
-    /* gold：副色（金/琥珀） */
-    --c-gold-300:   253 216 122;
-    --c-gold-400:   245 158  11;  /* #F59E0B */
-    --c-gold-500:   217 119   6;
+    /* gold：副色（圣光金，取代原 amber） */
+    --c-gold-300:   245 188  80;
+    --c-gold-400:   217 147  33;   /* 圣光金 */
+    --c-gold-500:   180 115  20;
 
-    /* lavender：文字层次（日间为深色）。500/600 经过重调，确保在 void-900
-     * 背景（#FFF5F9）上文本对比度达到 WCAG AA (4.5:1)；之前 600 实测约 2.3:1
-     * 会被「极浅灰辅助文字」一眼看穿。 */
-    --c-lavender-100:  45  14  25;   /* 最深 —— 主要标题 */
-    --c-lavender-200:  58  20  40;
-    --c-lavender-300:  82  40  60;
-    --c-lavender-400: 117  68  94;
-    --c-lavender-500: 135  82 108;   /* 辅助文字 ≈ 5.2:1 ✓ AA */
-    --c-lavender-600: 140  96 120;   /* 最浅 —— 辅助文字 ≈ 4.7:1 ✓ AA */
-    --c-lavender-700: 232 200 218;
+    /* lavender：文字层次（日间 = 深色）
+     * 100 最深（主要标题），400 最浅（辅助小字）。
+     * HANDOFF 只定义 100~400 四级；500/600 作为 400 的语义别名保持 AA，
+     * 现有 `text-lavender-500` / `text-lavender-600` 全部继续可读（≈ 4.8:1）。
+     * 700 保留为 decorative（分隔线/边框的浅色）。
+     */
+    --c-lavender-100:  30  14  25;
+    --c-lavender-200:  58  28  44;
+    --c-lavender-300: 100  60  80;
+    --c-lavender-400: 140  96 120;
+    --c-lavender-500: 140  96 120;   /* = 400；扁平 4 级层次 */
+    --c-lavender-600: 140  96 120;   /* = 400 */
+    --c-lavender-700: 232 215 225;
 
-    /* void：背景层次（日间为淡粉白） */
-    --c-void-950:   255 238 246;   /* 最浅 —— 滚动条轨道 */
-    --c-void-900:   255 245 249;   /* 页面底色 */
-    --c-void-800:   253 242 248;   /* 卡片内部代码块 */
-    --c-void-700:   250 230 240;
-    --c-void-600:   245 220 230;
-    --c-void-500:   238 208 222;
+    /* void：背景层次（日间 = 暖米白） */
+    --c-void-950:   250 240 232;   /* 滚动条轨道 */
+    --c-void-900:   252 244 240;   /* 页面底 */
+    --c-void-800:   255 248 244;
+    --c-void-700:   255 252 250;   /* 卡内 */
+    --c-void-600:   247 236 224;
+    --c-void-500:   240 228 214;
 
     /* mint：成功/在线 */
     --c-mint-400:    52 211 153;
     --c-mint-500:    16 185 129;
 
-    /* 复合变量 */
-    --brand-g1: #EC4899;
-    --brand-g2: #F472B6;
-    --brand-g3: #F59E0B;
+    /* 复合变量 —— 颜色 */
+    --brand-g1:   rgb(236,  72, 153);
+    --brand-g2:   rgb(244, 114, 169);
+    --brand-g3:   rgb(217, 147,  33);
+    --brand-grad: linear-gradient(135deg, rgb(var(--c-sakura-500)) 0%, rgb(var(--c-gold-400)) 100%);
+
+    /* 粒子背景用（Canvas 从这里 getComputedStyle 读） */
+    --particle-color:  236  72 153;
+    --particle-accent: 217 147  33;
+
+    /* 页面装饰径向渐变 */
     --body-radial:
       radial-gradient(ellipse 80% 50% at 20% -5%,  rgba(236, 72,153,0.10) 0%, transparent 55%),
-      radial-gradient(ellipse 60% 40% at 85%  10%, rgba(245,158, 11,0.08) 0%, transparent 55%),
+      radial-gradient(ellipse 60% 40% at 85%  10%, rgba(217,147, 33,0.08) 0%, transparent 55%),
       radial-gradient(ellipse 50% 40% at 50% 100%, rgba(236, 72,153,0.05) 0%, transparent 55%);
-    --scrollbar-track: #ffe9f2;
-    --selection-bg:    rgba(236,72,153,0.25);
-    --selection-fg:    #3a1428;
-    --nav-over-video-bg: linear-gradient(180deg, rgba(0,0,0,0.30) 0%, transparent 100%);
-    --nav-solid-bg:    rgba(255,245,249,0.88);
-    --nav-solid-border: rgba(236,72,153,0.12);
-    --glass-bg:        linear-gradient(145deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.65) 100%);
-    --glass-border:    rgba(236,72,153,0.15);
-    --glass-hover-border: rgba(236,72,153,0.40);
-    --divider-color:   rgba(236,72,153,0.12);
-    --shadow-card:        0 4px 24px rgba(236,72,153,0.10), inset 0 1px 0 rgba(255,255,255,0.7);
-    --shadow-card-hover:  0 8px 40px rgba(236,72,153,0.15), inset 0 1px 0 rgba(255,255,255,0.8), 0 0 20px rgba(236,72,153,0.10);
-    --shadow-glow-pink:   0 0 20px rgba(236, 72,153,0.35), 0 0 60px rgba(236, 72,153,0.12);
-    --shadow-glow-amber:  0 0 20px rgba(245,158, 11,0.30), 0 0 60px rgba(245,158, 11,0.10);
+
+    --scrollbar-track: rgb(250, 240, 232);
+    --selection-bg:    rgba(236, 72, 153, 0.25);
+    --selection-fg:    rgb(30, 14, 25);
+
+    /* 导航 */
+    --nav-over-video-bg:
+      linear-gradient(180deg, rgba(0,0,0,0.38) 0%, rgba(0,0,0,0.12) 45%, transparent 100%);
+    --nav-solid-bg:     rgba(252, 244, 240, 0.88);
+    --nav-solid-border: rgba(236,  72, 153, 0.12);
+
+    /* 玻璃 */
+    --glass-bg:           linear-gradient(145deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.65) 100%);
+    --glass-border:       rgba(236,  72, 153, 0.15);
+    --glass-hover-border: rgba(236,  72, 153, 0.40);
+    --glass-shine:        rgba(255, 255, 255, 0.55);  /* 卡片扫光 */
+    --divider-color:      rgba(236,  72, 153, 0.12);
+
+    /* 阴影（复合） */
+    --shadow-card:
+      0 6px 28px rgba(236, 72,153, 0.10),
+      0 1px 2px  rgba(30,  14, 25, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    --shadow-card-hover:
+      0 14px 44px rgba(236, 72,153, 0.18),
+      0 2px 8px   rgba(30,  14, 25, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    --shadow-glow-pink:
+      0 0 20px rgba(236,  72, 153, 0.35),
+      0 0 60px rgba(236,  72, 153, 0.12);
+    --shadow-glow-amber:
+      0 0 20px rgba(217, 147, 33, 0.32),
+      0 0 60px rgba(217, 147, 33, 0.10);
   }
 
-  /* ═══ 夜间 —— Neon Sakura ══════════════════════════════ */
+  /* ═══ 夜间 —— Saber 蓝装夜战（钢蓝调） ═════════════════ */
   .dark {
     color-scheme: dark;
 
@@ -103,65 +136,89 @@
     --c-sakura-200: 255 194 216;
     --c-sakura-300: 255 145 184;
     --c-sakura-400: 255  91 148;
-    --c-sakura-500: 255  45 107;  /* #FF2D6B */
+    --c-sakura-500: 255  45 107;   /* #FF2D6B */
     --c-sakura-600: 224  25  90;
     --c-sakura-700: 184   0  73;
 
-    /* gold：暖琥珀 */
-    --c-gold-300:   255 216 122;
-    --c-gold-400:   255 170   0;  /* #ffaa00 */
-    --c-gold-500:   230 146   0;
+    /* gold：副色从「金」换为「冷钢蓝」（保留 gold 变量名） */
+    --c-gold-300: 160 210 255;
+    --c-gold-400: 110 180 255;     /* Saber 蓝装钢蓝 */
+    --c-gold-500:  75 150 220;
 
-    /* lavender：文字（夜间为浅色，名字保留兼容）。500/600 略微提亮，
-     * 在 void-900 背景（#0F0F12）上达到 WCAG AA (4.5:1)。 */
-    --c-lavender-100: 250 250 250;
-    --c-lavender-200: 240 240 242;
-    --c-lavender-300: 212 212 220;
-    --c-lavender-400: 160 160 176;
-    --c-lavender-500: 144 144 160;   /* 辅助文字 ≈ 7.4:1 ✓ AA */
-    --c-lavender-600: 136 136 152;   /* 最浅 —— 辅助文字 ≈ 6.6:1 ✓ AA */
-    --c-lavender-700:  62  62  80;
+    /* lavender：文字（夜间 = 浅色）
+     * 100 最亮（主要标题），400 最暗（辅助小字，在 void-900 上 ≈ 6.2:1 ✓ AA）。
+     * 500/600 作为 400 的语义别名，保证 `text-lavender-500/600` 旧用法继续可读。
+     * 700 decorative（边框/分隔）。
+     */
+    --c-lavender-100: 250 250 252;
+    --c-lavender-200: 225 225 235;
+    --c-lavender-300: 175 175 195;
+    --c-lavender-400: 130 130 150;
+    --c-lavender-500: 130 130 150;   /* = 400 */
+    --c-lavender-600: 130 130 150;   /* = 400 */
+    --c-lavender-700:  60  60  80;
 
-    /* void：纯深黑 */
-    --c-void-950:     7   7  10;
-    --c-void-900:    15  15  18;
-    --c-void-800:    22  22  25;
-    --c-void-700:    29  29  34;
-    --c-void-600:    36  36  43;
-    --c-void-500:    44  44  53;
+    /* void：深墨蓝 */
+    --c-void-950:    5   6  12;
+    --c-void-900:   10  12  20;
+    --c-void-800:   14  16  26;
+    --c-void-700:   20  22  34;
+    --c-void-600:   28  30  42;
+    --c-void-500:   38  40  54;
 
     /* mint */
     --c-mint-400:    52 211 153;
     --c-mint-500:    16 185 129;
 
     /* 复合变量 */
-    --brand-g1: #FF2D6B;
-    --brand-g2: #ff7a45;
-    --brand-g3: #ffaa00;
+    --brand-g1:   rgb(255,  45, 107);
+    --brand-g2:   rgb(255, 120, 180);
+    --brand-g3:   rgb(110, 180, 255);
+    --brand-grad: linear-gradient(135deg, rgb(var(--c-sakura-500)) 0%, rgb(var(--c-gold-400)) 100%);
+
+    --particle-color:  255  45 107;
+    --particle-accent: 110 180 255;
+
     --body-radial:
-      radial-gradient(ellipse 80% 50% at 20% -5%,  rgba(255, 45,107,0.06) 0%, transparent 55%),
-      radial-gradient(ellipse 60% 40% at 85%  10%, rgba(255,170,  0,0.04) 0%, transparent 55%),
-      radial-gradient(ellipse 50% 40% at 50% 100%, rgba(255, 45,107,0.03) 0%, transparent 55%);
-    --scrollbar-track: #07070a;
-    --selection-bg:    rgba(255,45,107,0.25);
-    --selection-fg:    #f0f0f2;
-    --nav-over-video-bg: linear-gradient(180deg, rgba(0,0,0,0.40) 0%, transparent 100%);
-    --nav-solid-bg:    rgba(15,15,18,0.88);
-    --nav-solid-border: rgba(255,255,255,0.07);
-    --glass-bg:        linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
-    --glass-border:    rgba(255,255,255,0.08);
-    --glass-hover-border: rgba(255,45,107,0.28);
-    --divider-color:   rgba(255,255,255,0.08);
-    --shadow-card:        0 4px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.07);
-    --shadow-card-hover:  0 8px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.10), 0 0 20px rgba(255,45,107,0.08);
-    --shadow-glow-pink:   0 0 20px rgba(255, 45,107,0.35), 0 0 60px rgba(255, 45,107,0.12);
-    --shadow-glow-amber:  0 0 20px rgba(255,170,  0,0.25), 0 0 60px rgba(255,170,  0,0.08);
+      radial-gradient(ellipse 80% 50% at 20% -5%,  rgba(255, 45,107, 0.06) 0%, transparent 55%),
+      radial-gradient(ellipse 60% 40% at 85%  10%, rgba(110,180,255, 0.05) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 40% at 50% 100%, rgba(255, 45,107, 0.03) 0%, transparent 55%);
+
+    --scrollbar-track: rgb(5, 6, 12);
+    --selection-bg:    rgba(255, 45, 107, 0.25);
+    --selection-fg:    rgb(250, 250, 252);
+
+    --nav-over-video-bg:
+      linear-gradient(180deg, rgba(0,0,0,0.42) 0%, rgba(0,0,0,0.18) 45%, transparent 100%);
+    --nav-solid-bg:     rgba(10, 12, 20, 0.88);
+    --nav-solid-border: rgba(255, 255, 255, 0.07);
+
+    --glass-bg:           linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+    --glass-border:       rgba(255, 255, 255, 0.08);
+    --glass-hover-border: rgba(255,  45, 107, 0.28);
+    --glass-shine:        rgba(255, 255, 255, 0.12);
+    --divider-color:      rgba(255, 255, 255, 0.08);
+
+    --shadow-card:
+      0 6px 28px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.07);
+    --shadow-card-hover:
+      0 14px 44px rgba(0, 0, 0, 0.6),
+      0 0 24px    rgba(255, 45, 107, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.10);
+    --shadow-glow-pink:
+      0 0 20px rgba(255,  45, 107, 0.35),
+      0 0 60px rgba(255,  45, 107, 0.12);
+    --shadow-glow-amber:
+      0 0 20px rgba(110, 180, 255, 0.28),
+      0 0 60px rgba(110, 180, 255, 0.10);
   }
 
   /* 通用基础 */
   :root {
     --reading-progress: 0%;
     --nav-height: 4rem;
+    --progress-ring-size: 56px;
   }
 
   html {
@@ -196,6 +253,15 @@
     outline-offset: 3px;
     border-radius: 4px;
   }
+
+  /* ── View Transitions：主题切换径向扩散（Chromium / Safari 17+） ────
+   * 用 CSS 控制 old/new 根帧动画时长，避免默认 0.25s 太短看不到过渡。
+   */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.55s;
+    animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
 }
 
 /* ─────────────────────────────────────────────────────
@@ -203,7 +269,7 @@
    ───────────────────────────────────────────────────── */
 @layer components {
 
-  /* ── 玻璃态卡片（两种模式自动切换） ────────────────── */
+  /* ── 玻璃态卡片 ────────────────────────────────────── */
   .glass-card {
     @apply rounded-2xl border;
     background: var(--glass-bg);
@@ -234,7 +300,7 @@
     @apply text-sakura-300;
   }
 
-  /* ── 阅读进度条 ────────────────────────────────────── */
+  /* ── 阅读进度条（文章页顶部） ──────────────────────── */
   .reading-progress {
     @apply fixed top-0 left-0 h-[3px] z-50 pointer-events-none;
     width: var(--reading-progress);
@@ -256,29 +322,26 @@
 
   /* ── 导航菜单里的线性图标 ──────────────────────────── */
   .nav-ico {
-    @apply w-5 h-5 shrink-0;     /* 20px — 匹配 15px 文字 */
-    /* stroke 颜色自动继承 currentColor（link 文字色） */
+    @apply w-5 h-5 shrink-0;
   }
   .nav-ico-sm {
     @apply w-[14px] h-[14px] shrink-0;
   }
 
-  /* ── 导航链接（Shoka 风格：中心展开的下划线） ─────── */
+  /* ── 导航链接（中心展开的下划线） ──────────────────── */
   .nav-link {
     @apply relative flex items-center gap-1.5 px-3 py-1.5 font-semibold
            text-lavender-200 hover:text-lavender-100
            transition-colors duration-200;
-    font-size: 0.9375rem; /* 15px — 比 text-sm(14px) 大，中文字不会显小 */
+    font-size: 0.9375rem;
     letter-spacing: 0.04em;
   }
-  /* 日间模式下文字更深，保证在浅色背景上有足够对比度 */
   :root:not(.dark) .nav-link {
-    color: rgb(45 14 25);              /* lavender-100：最深色 */
+    color: rgb(var(--c-lavender-100));
   }
   :root:not(.dark) .nav-link:hover {
     color: rgb(var(--c-sakura-600));
   }
-  /* 下划线伪元素：高 3px，从中心 0 → 70% 展开 */
   .nav-link::before {
     content: '';
     position: absolute;
@@ -301,12 +364,6 @@
   .dark .nav-link-active {
     color: rgb(var(--c-sakura-300)) !important;
   }
-  /* 视频覆盖时 active 仍用白色 */
-  .nav-over-video .nav-link-active,
-  :root:not(.dark) .nav-over-video .nav-link-active {
-    color: #fff !important;
-    text-shadow: 0 1px 8px rgba(0,0,0,0.6), 0 0 20px rgba(0,0,0,0.3);
-  }
 
   /* ── 导航图标按钮 ──────────────────────────────────── */
   .nav-icon-btn {
@@ -316,15 +373,80 @@
     color: rgb(var(--c-sakura-500));
     background: rgba(var(--c-sakura-500) / 0.10);
   }
-  /* 日间模式：图标用最深色，保证与浅背景的对比度 */
   :root:not(.dark) .nav-icon-btn {
-    color: rgb(45 14 25);
+    color: rgb(var(--c-lavender-100));
   }
   :root:not(.dark) .nav-icon-btn:hover {
     color: rgb(var(--c-sakura-600));
   }
 
-  /* ── 下拉菜单项（Shoka 风格：粉→金渐变从左向右填充） ─ */
+  /* ── 视频覆盖时：对比度强化 ───────────────────────────
+   * 无论日夜，文字必须白色。白字 + 多层投影，日间尤其重要。
+   */
+  .nav-over-video .nav-link,
+  .nav-over-video .nav-icon-btn,
+  :root:not(.dark) .nav-over-video .nav-link,
+  :root:not(.dark) .nav-over-video .nav-icon-btn {
+    color: #fff !important;
+    font-weight: 700;
+    text-shadow:
+      0 1px 4px  rgba(0, 0, 0, 0.75),
+      0 0 12px   rgba(0, 0, 0, 0.50),
+      0 0 24px   rgba(0, 0, 0, 0.35);
+  }
+  .nav-over-video .nav-link:hover,
+  .nav-over-video .nav-icon-btn:hover,
+  :root:not(.dark) .nav-over-video .nav-link:hover,
+  :root:not(.dark) .nav-over-video .nav-icon-btn:hover {
+    color: rgb(var(--c-sakura-300)) !important;
+    text-shadow:
+      0 1px 6px  rgba(0, 0, 0, 0.85),
+      0 0 14px   rgba(0, 0, 0, 0.55),
+      0 0 28px   rgba(0, 0, 0, 0.40);
+  }
+  .nav-over-video .nav-link-active,
+  :root:not(.dark) .nav-over-video .nav-link-active {
+    color: #fff !important;
+    text-shadow:
+      0 1px 8px  rgba(0, 0, 0, 0.80),
+      0 0 20px   rgba(0, 0, 0, 0.50);
+  }
+
+  /* ── Logo 占位（等用户替换为 PNG/SVG） ─────────────────
+   * img 加 onerror 时兜底为渐变方块，文字用字体字号不会大起大落。
+   */
+  .logo-mark {
+    @apply inline-flex items-center justify-center shrink-0 relative;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--brand-grad);
+    box-shadow:
+      0 4px 16px rgba(236, 72, 153, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .logo-mark:hover {
+    transform: rotate(-4deg) scale(1.04);
+    box-shadow:
+      0 6px 22px rgba(236, 72, 153, 0.50),
+      inset 0 1px 0 rgba(255, 255, 255, 0.40);
+  }
+  .logo-mark img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+  .dark .logo-mark {
+    box-shadow:
+      0 4px 16px rgba(255, 45, 107, 0.45),
+      0 0 24px   rgba(110, 180, 255, 0.20),
+      inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  }
+
+  /* ── 下拉菜单项 ────────────────────────────────────── */
   .dropdown-item {
     @apply flex items-center gap-2 px-4 py-2 text-sm font-semibold text-lavender-300;
     background-image: linear-gradient(90deg, var(--brand-g1) 0%, var(--brand-g3) 100%);
@@ -333,7 +455,7 @@
     transition: background-size 0.3s ease, color 0.2s ease;
   }
   :root:not(.dark) .dropdown-item {
-    color: rgb(58 20 40);             /* lavender-200 */
+    color: rgb(var(--c-lavender-200));
   }
   .dropdown-item:hover {
     color: #fff;
@@ -347,26 +469,10 @@
            transition-all duration-200;
   }
   :root:not(.dark) .mobile-nav-item {
-    color: rgb(45 14 25);
+    color: rgb(var(--c-lavender-100));
   }
   .mobile-nav-item:hover {
-    background: rgba(127,127,127,0.12);
-  }
-
-  /* ── 视频上方覆盖：无论日夜，文字/图标必须是白色 ── */
-  .nav-over-video .nav-link,
-  .nav-over-video .nav-icon-btn,
-  :root:not(.dark) .nav-over-video .nav-link,
-  :root:not(.dark) .nav-over-video .nav-icon-btn {
-    color: #fff !important;
-    text-shadow: 0 1px 8px rgba(0,0,0,0.6), 0 0 20px rgba(0,0,0,0.3);
-  }
-  .nav-over-video .nav-link:hover,
-  .nav-over-video .nav-icon-btn:hover,
-  :root:not(.dark) .nav-over-video .nav-link:hover,
-  :root:not(.dark) .nav-over-video .nav-icon-btn:hover {
-    color: rgb(var(--c-sakura-300)) !important;
-    text-shadow: 0 1px 10px rgba(0,0,0,0.7), 0 0 24px rgba(0,0,0,0.35);
+    background: rgba(127, 127, 127, 0.12);
   }
 
   /* ── 章节分隔线装饰 ────────────────────────────────── */
@@ -376,6 +482,186 @@
   .section-heading::before {
     content: '';
     @apply block w-1 h-6 rounded-full bg-gradient-brand shrink-0;
+  }
+
+  /* ── Hero 标题（Fraunces + 渐变 + 漂浮） ────────────── */
+  .hero-display {
+    font-family: 'Fraunces', 'LXGW WenKai', Georgia, serif;
+    font-weight: 500;
+    font-size: clamp(72px, 11vw, 160px);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    font-variation-settings: "opsz" 144, "SOFT" 100;
+    background: var(--brand-grad);
+    -webkit-background-clip: text;
+            background-clip: text;
+    color: transparent;
+    animation: heroTitleFloat 7s ease-in-out infinite;
+    will-change: transform;
+  }
+  @keyframes heroTitleFloat {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-8px); }
+  }
+
+  /* ── Hero 视频容器呼吸光晕 ─────────────────────────── */
+  .hero-video-breathe {
+    animation: heroVideoBreathe 6s ease-in-out infinite;
+  }
+  @keyframes heroVideoBreathe {
+    0%, 100% {
+      box-shadow:
+        0 20px 60px rgba(var(--c-sakura-500), 0.25),
+        0 0 40px    rgba(var(--c-sakura-500), 0.15);
+    }
+    50% {
+      box-shadow:
+        0 28px 80px rgba(var(--c-sakura-500), 0.40),
+        0 0 80px    rgba(var(--c-sakura-500), 0.25);
+    }
+  }
+
+  /* ── Hero 三层视差容器 ─────────────────────────────── */
+  .hero-layer {
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
+  }
+
+  /* ── 卡片 3D tilt ───────────────────────────────────── */
+  .tilt {
+    transform-style: preserve-3d;
+    will-change: transform;
+    transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .tilt > * {
+    transform: translateZ(0);
+  }
+  .tilt .tilt-deep  { transform: translateZ(20px); }
+  .tilt .tilt-deeper{ transform: translateZ(30px); }
+
+  /* ── 卡片 ::before 扫光（斜向光带 left:-100% → 140%） ── */
+  .shine {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+  .shine::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: linear-gradient(
+      110deg,
+      transparent 40%,
+      var(--glass-shine) 50%,
+      transparent 60%
+    );
+    transform: translateX(-100%);
+    transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .shine:hover::before {
+    transform: translateX(140%);
+  }
+
+  /* ── 头像环（conic-gradient 30s 慢转） ─────────────── */
+  .avatar-ring {
+    background: conic-gradient(
+      from 0deg,
+      rgb(var(--c-sakura-500)) 0%,
+      rgb(var(--c-gold-400))  50%,
+      rgb(var(--c-sakura-500)) 100%
+    );
+    animation: ringSpin 30s linear infinite;
+    will-change: transform;
+  }
+  @keyframes ringSpin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  /* ── 侧边栏/统计数字（Fraunces 500） ──────────────── */
+  .stat-num {
+    font-family: 'Fraunces', 'LXGW WenKai', Georgia, serif;
+    font-weight: 500;
+    font-variation-settings: "opsz" 72;
+    letter-spacing: -0.01em;
+  }
+
+  /* ── 右下角阅读进度圆环 ─────────────────────────────── */
+  .progress-ring {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    width: var(--progress-ring-size);
+    height: var(--progress-ring-size);
+    z-index: 40;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(8px) scale(0.9);
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .progress-ring.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+  .progress-ring svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+  }
+  .progress-ring .track {
+    fill: none;
+    stroke: rgba(127, 127, 127, 0.18);
+    stroke-width: 3;
+  }
+  .progress-ring .fill {
+    fill: none;
+    stroke: url(#progressGrad);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 157;
+    stroke-dashoffset: 157;
+    transition: stroke-dashoffset 0.12s linear;
+  }
+  .progress-ring .arrow {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgb(var(--c-sakura-500));
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .dark .progress-ring .arrow {
+    color: rgb(var(--c-sakura-400));
+  }
+
+  /* ── 滚动入场 ───────────────────────────────────────── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+      opacity 0.7s cubic-bezier(0.2, 0.8, 0.2, 1),
+      transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .reveal.in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── 主题切换「径向扩散」兜底（不支持 View Transitions 时用） ── */
+  .theme-ripple {
+    position: fixed;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 1;
   }
 }
 
@@ -388,12 +674,17 @@
   .delay-300 { animation-delay: 300ms; }
   .delay-400 { animation-delay: 400ms; }
   .delay-500 { animation-delay: 500ms; }
+
+  /* Fraunces 字体族（display）快捷类 */
+  .font-display {
+    font-family: 'Fraunces', 'LXGW WenKai', Georgia, serif;
+    font-variation-settings: "opsz" 144, "SOFT" 100;
+  }
 }
 
 /* ─────────────────────────────────────────────────────
    4. 无障碍：尊重用户「减少动画」偏好
    —— macOS / iOS 的"减弱动态效果"、Windows 的"显示动画"开关都会命中这个媒体查询。
-   把所有 animation / transition 时长压到近乎 0，彻底关掉 StarField 粒子等装饰动画。
    ───────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -405,11 +696,30 @@
     scroll-behavior: auto !important;
   }
 
-  /* 纯装饰性粒子/光斑动画直接隐藏，避免空转消耗 CPU */
+  /* 纯装饰性粒子/光斑/呼吸/旋转动画直接关掉 */
   .star-field,
   .about-bg-blob,
   .about-avatar-ring,
-  .about-status-dot {
+  .about-status-dot,
+  .avatar-ring,
+  .hero-display,
+  .hero-video-breathe {
     animation: none !important;
+  }
+
+  /* tilt / parallax / shine 也失效 —— JS 那边同样有 motion 检查 */
+  .tilt {
+    transform: none !important;
+  }
+  .shine::before {
+    transition: none !important;
+    opacity: 0 !important;
+  }
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .progress-ring {
+    transition: opacity 0.01ms !important;
   }
 }
