@@ -371,11 +371,31 @@ const isAbout = current.startsWith('/about');
     const nowDark = !document.documentElement.classList.contains('dark');
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    // 把按钮中心的像素坐标写到根 CSS 变量上。global.css 的
+    // @keyframes themeClipReveal 会读这三个变量，把 clip-path 的圆心
+    // 钉在按钮上，半径扩到覆盖整个视口对角线 —— 比默认的 cross-fade
+    // 在纯颜色切换时明显得多。
+    const rect = themeBtn.getBoundingClientRect();
+    const x = rect.left + rect.width  / 2;
+    const y = rect.top  + rect.height / 2;
+    // 从点击点到四角的最大距离，保证圆扩到最远一角时刚好覆盖屏幕。
+    // 用 Math.hypot 避免手写 sqrt 又一次浮点失精。
+    const r = Math.hypot(
+      Math.max(x, window.innerWidth  - x),
+      Math.max(y, window.innerHeight - y),
+    );
+    const root = document.documentElement;
+    root.style.setProperty('--theme-x', `${x}px`);
+    root.style.setProperty('--theme-y', `${y}px`);
+    root.style.setProperty('--theme-r', `${r}px`);
+
     // @ts-ignore - View Transitions API（Chromium 111+/Safari 18+）尚未进标准 DOM lib
     const vt = !prefersReduced && document.startViewTransition?.bind(document);
     if (vt) {
       vt(() => applyTheme(nowDark));
     } else {
+      // Firefox / prefers-reduced-motion：同步切，CSS 里该褪色的值还会
+      // 按 transition-duration 自然过渡，不会突兀。
       applyTheme(nowDark);
     }
   });

@@ -254,13 +254,29 @@
     border-radius: 4px;
   }
 
-  /* ── View Transitions：主题切换径向扩散（Chromium / Safari 17+） ────
-   * 用 CSS 控制 old/new 根帧动画时长，避免默认 0.25s 太短看不到过渡。
+  /* ── View Transitions：主题切换径向扩散（Chromium 111+ / Safari 18+） ─
+   *
+   * 默认 cross-fade 在纯颜色切换场景里插值太细、观感上几乎是瞬切；
+   * 改成「老帧静止做底层 + 新帧从点击点 clip-path 圆形扩散」，视觉叙事
+   * 是「光 / 影从触点蔓延开」，和 Saber 圣光金 ↔ 蓝钢的主题名呼应。
+   *
+   * --theme-x / --theme-y / --theme-r 由 NavBar 的 theme-toggle 监听器
+   * 在点击时写入根元素（按钮中心 + 覆盖视口对角线的半径）。兜底值
+   * (50% / 50% / 150vmax) 用于未命中时，动画也能优雅降级到中心扩散。
    */
-  ::view-transition-old(root),
+  ::view-transition-old(root) {
+    animation: none;
+  }
   ::view-transition-new(root) {
-    animation-duration: 0.55s;
-    animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+    animation: themeClipReveal 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  @keyframes themeClipReveal {
+    from {
+      clip-path: circle(0 at var(--theme-x, 50%) var(--theme-y, 50%));
+    }
+    to {
+      clip-path: circle(var(--theme-r, 150vmax) at var(--theme-x, 50%) var(--theme-y, 50%));
+    }
   }
 }
 
