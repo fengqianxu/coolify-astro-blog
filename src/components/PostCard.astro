@@ -37,8 +37,7 @@ const gradient = CATEGORY_GRADIENT[leaf] ?? CATEGORY_GRADIENT[root] ?? 'from-voi
 
 <article
   class:list={[
-    'glass-card overflow-hidden group relative',
-    'transition-transform duration-300 hover:-translate-y-1',
+    'glass-card overflow-hidden group relative tilt shine',
     featured ? 'sm:col-span-2' : '',
   ]}
 >
@@ -76,7 +75,11 @@ const gradient = CATEGORY_GRADIENT[leaf] ?? CATEGORY_GRADIENT[root] ?? 'from-voi
   </div>
 
   <!-- ── 文字区域 ─────────────────────────────────────── -->
-  <div class="p-5 flex flex-col gap-2.5">
+  <!--
+    tilt-deep 让文字层在 tilt 的 3D 空间里 translateZ(20px)，鼠标倾斜时
+    文字会「稍微飘出卡片平面」，是让 3D 感觉真实的点睛之笔。
+  -->
+  <div class="p-5 flex flex-col gap-2.5 tilt-deep">
     <h2 class="font-heading font-semibold text-base text-lavender-100 line-clamp-2
                group-hover:text-sakura-300 transition-colors duration-200 leading-snug">
       <!--
