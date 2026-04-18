@@ -46,10 +46,21 @@ const isAbout = current.startsWith('/about');
     ]}
   >
 
-    <!-- Logo ───────────────────────────────────────────── -->
-    <a href="/" class="flex items-center gap-2 shrink-0" aria-label={SITE.name}>
-      <span class="text-xl select-none animate-bounce-gentle inline-block" aria-hidden="true">🌸</span>
-      <span class="font-heading font-bold text-lg text-gradient">{SITE.name}</span>
+    <!--
+      Logo ───────────────────────────────────────────────
+      用户自己会在 /public 里放 logo.svg 或 logo.png，放进来前先用
+      渐变方块兜底；img 加载失败时 onerror 把自己隐藏，用户不会看到破图。
+      logo-mark 已在 global.css 定义好（40×40 圆角，brand-grad 背景，
+      hover 微旋）。这里刻意不写站名文字，让 logo 图形承担全部品牌呈现。
+    -->
+    <a href="/" class="logo-mark" aria-label={SITE.name}>
+      <img
+        src="/logo.svg"
+        alt={SITE.name}
+        width="40"
+        height="40"
+        onerror="this.style.display='none'"
+      />
     </a>
 
     <!-- Desktop links ──────────────────────────────────── -->
@@ -343,14 +354,29 @@ const isAbout = current.startsWith('/about');
     }
   });
 
-  // ── 主题切换：切换 .dark，持久化到 localStorage，派发 theme:change ─
+  // ── 主题切换：View Transitions API（径向扩散过渡） ────
+  //   支持的浏览器（Chrome 111+ / Edge / Safari 18+）会用浏览器原生的
+  //   cross-fade + position-based animation；不支持的走同步切换，
+  //   视觉上就是瞬切，但不会出错。
   const themeBtn = document.getElementById('theme-toggle-btn')!;
+
+  function applyTheme(nowDark: boolean) {
+    document.documentElement.classList.toggle('dark', nowDark);
+    localStorage.setItem('theme', nowDark ? 'dark' : 'light');
+    // 通知其他组件（HeroVideo）切换视频资源
+    document.dispatchEvent(new CustomEvent('theme:change', { detail: { dark: nowDark } }));
+  }
 
   themeBtn.addEventListener('click', () => {
     const nowDark = !document.documentElement.classList.contains('dark');
-    document.documentElement.classList.toggle('dark', nowDark);
-    localStorage.setItem('theme', nowDark ? 'dark' : 'light');
-    // 通知其他组件（如 HeroVideo）切换资源
-    document.dispatchEvent(new CustomEvent('theme:change', { detail: { dark: nowDark } }));
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // @ts-ignore - View Transitions API（Chromium 111+/Safari 18+）尚未进标准 DOM lib
+    const vt = !prefersReduced && document.startViewTransition?.bind(document);
+    if (vt) {
+      vt(() => applyTheme(nowDark));
+    } else {
+      applyTheme(nowDark);
+    }
   });
 </script>
