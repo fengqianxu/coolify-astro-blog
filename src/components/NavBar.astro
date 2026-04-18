@@ -262,13 +262,15 @@ const isAbout = current.startsWith('/about');
   const isHero = header.dataset.hero === 'true';
 
   // 视频首屏：越过 80% 视口；普通页面：越过 nav 高度
-  const SCROLL_THRESHOLD = isHero ? window.innerHeight * 0.8 : 64;
+  //   用 let：窗口尺寸变化时（横竖屏切换 / 缩放）需要重算，否则横屏滚动阈值会错。
+  let scrollThreshold = isHero ? window.innerHeight * 0.8 : 64;
 
-  let lastY = window.scrollY;
+  let lastY   = window.scrollY;
+  let ticking = false;
 
-  function onScroll() {
+  function computeScroll() {
     const currentY = window.scrollY;
-    const passed = currentY > SCROLL_THRESHOLD;
+    const passed = currentY > scrollThreshold;
 
     // 背景样式切换（只对 hero 页生效，普通页永远是 solid）
     if (isHero) {
@@ -291,11 +293,24 @@ const isAbout = current.startsWith('/about');
     }
 
     lastY = currentY;
+    ticking = false;
+  }
+
+  // rAF 节流：滚动事件可能 120Hz 触发，合并到下一帧处理避免浪费 CPU。
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(computeScroll);
   }
 
   // 初始态
-  onScroll();
+  computeScroll();
   window.addEventListener('scroll', onScroll, { passive: true });
+
+  // 窗口尺寸变化时重算阈值（手机横竖屏 / 桌面窗口缩放）
+  window.addEventListener('resize', () => {
+    scrollThreshold = isHero ? window.innerHeight * 0.8 : 64;
+  }, { passive: true });
 
   // ── 移动端菜单开关 ────────────────────────────────────────────────
   const menuBtn    = document.getElementById('mobile-menu-btn')!;

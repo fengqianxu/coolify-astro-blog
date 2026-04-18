@@ -10,14 +10,19 @@
 
 const pad = (n: number): string => String(n).padStart(2, '0');
 
-/** 2024-03-05 —— 机器可读，用于 <time datetime> / RSS / JSON-LD */
+/**
+ * 2024-03-05 —— 机器可读，用于 <time datetime> / RSS / JSON-LD。
+ * 用 UTC：frontmatter 里的 `2024-03-05` 被 zod 解析成 UTC 零点 Date，
+ * 若在负时区（GMT-05、GMT+08 以东反之）用本地 `.getFullYear/Month/Date` 会
+ * 差一天。统一走 UTC 才能保证所有渠道显示的日期与作者写的字符串一致。
+ */
 export function fmtYMD(d: Date): string {
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
 }
 
-/** 03-05 —— 年内分组列表用 */
+/** 03-05 —— 年内分组列表用（同 fmtYMD 口径，走 UTC） */
 export function fmtMD(d: Date): string {
-  return `${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  return `${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
 }
 
 /** 2024年3月5日 —— 人类可读中文长格式 */

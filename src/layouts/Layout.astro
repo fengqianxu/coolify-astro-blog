@@ -113,8 +113,10 @@ const absOgImage   = new URL(ogImage, Astro.site ?? `${SITE.url}/`).toString();
   </head>
 
   <body class="min-h-dvh flex flex-col">
-    <!-- 阅读进度条（仅文章页有意义，其他页不可见） -->
-    <div class="reading-progress" id="reading-progress" aria-hidden="true"></div>
+    {/* 阅读进度条：仅文章页挂载，列表/归档/关于这些页面完全不渲染元素 + 不绑定 scroll */}
+    {ogType === 'article' && (
+      <div class="reading-progress" id="reading-progress" aria-hidden="true"></div>
+    )}
 
     <!-- 粒子背景（花瓣 + 闪光） -->
     <StarField />
@@ -138,16 +140,24 @@ const absOgImage   = new URL(ogImage, Astro.site ?? `${SITE.url}/`).toString();
     <Footer />
 
     <script>
-      // 阅读进度条：基于文档总可滚动高度计算百分比
+      // 阅读进度条：基于文档总可滚动高度计算百分比。
+      //   - 仅文章页会渲染 #reading-progress 元素，列表页 getElementById 拿到 null 直接跳过
+      //   - rAF 节流：滚动事件可能很密，合并到下一帧计算一次就够
       const progressBar = document.getElementById('reading-progress');
       if (progressBar) {
+        let pending = false;
         const updateProgress = () => {
           const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
           const scrollable = scrollHeight - clientHeight;
           const pct = scrollable > 0 ? (scrollTop / scrollable) * 100 : 0;
           progressBar.style.setProperty('--reading-progress', `${Math.min(pct, 100)}%`);
+          pending = false;
         };
-        window.addEventListener('scroll', updateProgress, { passive: true });
+        window.addEventListener('scroll', () => {
+          if (pending) return;
+          pending = true;
+          requestAnimationFrame(updateProgress);
+        }, { passive: true });
       }
     </script>
   </body>

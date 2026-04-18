@@ -98,10 +98,16 @@ const gradient = CATEGORY_GRADIENT[leaf] ?? CATEGORY_GRADIENT[root] ?? 'from-voi
         {dateStr}
       </time>
 
-      <!-- 最多展示 3 个标签 -->
-      <div class="flex flex-wrap gap-1" aria-label="文章标签">
+      <!--
+        最多展示 3 个标签 —— 做成真链接到 /tags/{tag}：
+         - relative z-10 抬到 `<h2> <a after:absolute after:inset-0>` 的全卡片 overlay
+           之上，否则 tag-pill 的 hover 态会被 overlay 吃掉；同时让点击直接走到标签页，
+           不会先触发整卡卡片的 post 跳转。
+         - cursor-pointer 在 .tag-pill 里原本就有，现在终于名副其实。
+      -->
+      <div class="relative z-10 flex flex-wrap gap-1" aria-label="文章标签">
         {tags.slice(0, LIMITS.postCardTags).map((tag) => (
-          <span class="tag-pill">{tag}</span>
+          <a href={`/tags/${encodeURIComponent(tag)}`} class="tag-pill">{tag}</a>
         ))}
       </div>
     </div>

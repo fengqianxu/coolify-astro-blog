@@ -13,6 +13,8 @@
  *   mint-*     —— 成功/在线状态（两模式一致）
  */
 
+import typography from '@tailwindcss/typography';
+
 const cssVar = (v) => `rgb(var(${v}) / <alpha-value>)`;
 
 /** @type {import('tailwindcss').Config} */
@@ -141,5 +143,5 @@ export default {
       }),
     },
   },
-  plugins: [require('@tailwindcss/typography')],
+  plugins: [typography],
 };

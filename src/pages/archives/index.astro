@@ -19,12 +19,13 @@ const { allPosts, totalPosts } = await getSiteStats();
 
 type Post = typeof allPosts[number];
 
-// 按 年 → 月 两级分组
+// 按 年 → 月 两级分组。统一走 UTC，和 utils/date.ts 的 fmtYMD/fmtMD 保持同口径：
+// 避免构建机器与发布时区错位导致的「同一篇被归到不同月/年」。
 const yearMap = new Map<number, Map<number, Post[]>>();
 for (const post of allPosts) {
   const d = post.data.pubDate;
-  const y = d.getFullYear();
-  const m = d.getMonth() + 1;
+  const y = d.getUTCFullYear();
+  const m = d.getUTCMonth() + 1;
   if (!yearMap.has(y)) yearMap.set(y, new Map());
   const monthMap = yearMap.get(y)!;
   if (!monthMap.has(m)) monthMap.set(m, []);
