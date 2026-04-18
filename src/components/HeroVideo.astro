@@ -62,7 +62,7 @@ import { SITE } from '../config/site';
     </p>
   </div>
 
-  <!-- 滚动引导 -->
+  <!-- 滚动引导（点击事件由下方 script 绑定，不用 inline onclick：CSP 更干净） -->
   <button
     id="scroll-hint"
     type="button"
@@ -71,7 +71,6 @@ import { SITE } from '../config/site';
            text-white/50 hover:text-white/90
            transition-colors duration-300 group"
     aria-label="向下滚动查看内容"
-    onclick="window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })"
   >
     <span class="text-[10px] tracking-[0.3em] uppercase font-body">Scroll</span>
     {[0, 120, 240].map((delay) => (
@@ -111,6 +110,12 @@ import { SITE } from '../config/site';
       applyVideo(Boolean(e.detail?.dark));
     }) as EventListener);
   }
+
+  // ── 滚动引导按钮：点击滚到视口下一屏 ──────────────────────────
+  const scrollHint = document.getElementById('scroll-hint');
+  scrollHint?.addEventListener('click', () => {
+    window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
+  });
 </script>
 
 <style>

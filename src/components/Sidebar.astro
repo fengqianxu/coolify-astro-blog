@@ -6,7 +6,7 @@
  */
 
 import type { SidebarData } from '../types';
-import { SITE } from '../config/site';
+import { SITE, LIMITS } from '../config/site';
 import { tagFontSizePx } from '../utils/ui';
 import { fmtMonthDayCN } from '../utils/date';
 
@@ -14,6 +14,14 @@ type Props = SidebarData;
 
 const { allTags, tagCounts, recentPosts, categories, totalPosts } =
   Astro.props;
+
+// 标签云展示上限：tagCloudMax=0 时不截断。按 tagCounts 降序取前 N，避免侧边
+// 太长的标签列表把「最近发布」挤到视口外
+const tagsForCloud = LIMITS.tagCloudMax > 0
+  ? [...allTags]
+      .sort((a, b) => (tagCounts[b] ?? 0) - (tagCounts[a] ?? 0))
+      .slice(0, LIMITS.tagCloudMax)
+  : allTags;
 ---
 
 <aside class="space-y-5 lg:w-72 shrink-0" aria-label="侧边栏">
@@ -119,7 +127,7 @@ const { allTags, tagCounts, recentPosts, categories, totalPosts } =
       标签云
     </h4>
     <div class="flex flex-wrap gap-2">
-      {allTags.map((tag) => (
+      {tagsForCloud.map((tag) => (
         <a
           href={`/tags/${encodeURIComponent(tag)}`}
           class="tag-pill"

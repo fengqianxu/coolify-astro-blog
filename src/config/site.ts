@@ -86,9 +86,46 @@ export const NOW_LIST = [
   { icon: 'game', label: '在玩', title: '独立游戏 Hollow Knight', sub: '白宫通关中' },
 ] as const;
 
-/** 社交 / 联系方式 —— 在 /about 页展示 */
+/**
+ * 社交 / 联系方式 —— 在 /about 页展示。
+ * TODO(owner): 若有新的社交平台，按此结构追加；href 若暂无请填 '#' 并在 UI
+ * 层通过 `href === '#'` 决定渲染方式（避免放弃式 mailto:hello@example.com）。
+ */
 export const SOCIALS = [
-  { name: 'GitHub', href: 'https://github.com/',      icon: 'github' },
-  { name: 'RSS',    href: '/rss.xml',                 icon: 'rss'    },
-  { name: 'Email',  href: 'mailto:hello@example.com', icon: 'mail'   },
+  { name: 'GitHub', href: 'https://github.com/coderhelt',        icon: 'github' },
+  { name: 'RSS',    href: '/rss.xml',                            icon: 'rss'    },
+  { name: 'Email',  href: 'mailto:hello@helingtao.com',          icon: 'mail'   },
+] as const;
+
+/**
+ * /about 页的技术栈矩阵。
+ * 从 about.astro 外提到 config，和 NOW_LIST / SOCIALS 同处管理，
+ * 改一个地方即可；accent 走 sakura / mint / gold 三档色调与全站一致。
+ */
+export const ABOUT_STACKS = [
+  {
+    group: '语言',
+    items: [
+      { name: 'Java',       accent: 'sakura', note: '主力' },
+      { name: 'Python',     accent: 'mint',   note: '略懂' },
+      { name: 'SQL',        accent: 'gold' },
+    ],
+  },
+  {
+    group: '后端 & 存储',
+    items: [
+      { name: 'Spring Boot', accent: 'sakura' },
+      { name: 'MySQL',       accent: 'gold'   },
+      { name: 'Redis',       accent: 'sakura' },
+      { name: 'MyBatis',     accent: 'mint'   },
+    ],
+  },
+  {
+    group: '工具',
+    items: [
+      { name: 'Git',    accent: 'gold'   },
+      { name: 'Docker', accent: 'sakura' },
+      { name: 'Linux',  accent: 'mint'   },
+    ],
+  },
 ] as const;

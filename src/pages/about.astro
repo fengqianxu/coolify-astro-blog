@@ -13,7 +13,7 @@
  */
 
 import Layout from '../layouts/Layout.astro';
-import { SITE, NOW_LIST, SOCIALS } from '../config/site';
+import { SITE, NOW_LIST, SOCIALS, ABOUT_STACKS } from '../config/site';
 import { getSiteStats, kilo } from '../utils/stats';
 
 // 站点统计：走统一 source（utils/stats.ts），和首页/blog/sidebar 口径一致
@@ -29,36 +29,9 @@ const daysOnline = Math.max(
   Math.floor((Date.now() - earliest.valueOf()) / (1000 * 60 * 60 * 24))
 );
 
-// —— 技术栈：分组 + 图标路径（Lucide 或简化路径） ——
-const stacks = [
-  {
-    group: '语言',
-    items: [
-      { name: 'Java',       accent: 'sakura', note: '主力' },
-      { name: 'Python',     accent: 'mint',   note: '略懂' },
-      { name: 'SQL',        accent: 'gold' },
-    ],
-  },
-  {
-    group: '后端 & 存储',
-    items: [
-      { name: 'Spring Boot', accent: 'sakura' },
-      { name: 'MySQL',       accent: 'gold'   },
-      { name: 'Redis',       accent: 'sakura' },
-      { name: 'MyBatis',     accent: 'mint'   },
-    ],
-  },
-  {
-    group: '工具',
-    items: [
-      { name: 'Git',    accent: 'gold'   },
-      { name: 'Docker', accent: 'sakura' },
-      { name: 'Linux',  accent: 'mint'   },
-    ],
-  },
-];
-
-// 「此刻 / 社交」列表从 config 读取，避免硬编码散落
+// 「技术栈 / 此刻 / 社交」三个列表统一放在 config/site.ts，
+// 所有模板从同一处消费，避免在页面里硬编码扩散
+const stacks  = ABOUT_STACKS;
 const nowList = NOW_LIST;
 const socials = SOCIALS;
 ---

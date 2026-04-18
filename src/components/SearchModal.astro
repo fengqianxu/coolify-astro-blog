@@ -39,6 +39,8 @@
            stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
         <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
       </svg>
+      <!-- sr-only label：屏幕阅读器能读到“搜索关键词”，视觉用户看到 placeholder 即可 -->
+      <label for="search-input" class="sr-only">搜索关键词</label>
       <input
         id="search-input"
         type="search"
@@ -46,7 +48,6 @@
         autocomplete="off"
         class="flex-1 bg-transparent text-lavender-100 placeholder-lavender-600
                text-sm focus:outline-none"
-        aria-label="搜索关键词"
       />
       <!-- 关闭按钮 -->
       <button
