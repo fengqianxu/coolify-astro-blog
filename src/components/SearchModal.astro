@@ -188,6 +188,16 @@
       return;
     }
 
+    // 小工具：构造带 class 的元素 + 文本（用 textContent，彻底杜绝 HTML 注入）
+    const el = <K extends keyof HTMLElementTagNameMap>(
+      tag: K, cls: string, text?: string,
+    ): HTMLElementTagNameMap[K] => {
+      const node = document.createElement(tag);
+      node.className = cls;
+      if (text !== undefined) node.textContent = text;
+      return node;
+    };
+
     results.forEach((post, idx) => {
       const li = document.createElement('li');
       li.setAttribute('role', 'option');
@@ -200,17 +210,25 @@
         year: 'numeric', month: 'short', day: 'numeric',
       });
 
-      li.innerHTML = `
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium text-lavender-100 truncate">${post.title}</p>
-          <p class="text-xs text-lavender-500 truncate mt-0.5">${post.description}</p>
-          <p class="text-xs text-lavender-600 mt-1">${post.category.join(' / ')} · ${date}</p>
-        </div>
-        <svg class="w-4 h-4 text-lavender-600 shrink-0 mt-0.5" fill="none" stroke="currentColor"
-             stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="m9 18 6-6-6-6"/>
-        </svg>
-      `;
+      // 文本节点：所有字符串都走 textContent，避免 frontmatter 里潜藏 HTML 被执行
+      const textWrap = el('div', 'flex-1 min-w-0');
+      textWrap.appendChild(el('p', 'text-sm font-medium text-lavender-100 truncate', post.title));
+      textWrap.appendChild(el('p', 'text-xs text-lavender-500 truncate mt-0.5', post.description));
+      textWrap.appendChild(
+        el('p', 'text-xs text-lavender-600 mt-1', `${post.category.join(' / ')} · ${date}`),
+      );
+      li.appendChild(textWrap);
+
+      // 右侧箭头：SVG 走 innerHTML 是安全的 —— 这段是代码里写死的字面量，不拼接任何变量
+      const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      arrow.setAttribute('class', 'w-4 h-4 text-lavender-600 shrink-0 mt-0.5');
+      arrow.setAttribute('fill', 'none');
+      arrow.setAttribute('stroke', 'currentColor');
+      arrow.setAttribute('stroke-width', '2');
+      arrow.setAttribute('viewBox', '0 0 24 24');
+      arrow.setAttribute('aria-hidden', 'true');
+      arrow.innerHTML = '<path d="m9 18 6-6-6-6"/>';
+      li.appendChild(arrow);
 
       li.addEventListener('click', () => {
         window.location.href = `/blog/${post.slug}`;

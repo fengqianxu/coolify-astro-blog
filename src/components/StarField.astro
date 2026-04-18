@@ -133,6 +133,7 @@
 
   // ── 动画主循环 ────────────────────────────────────────────────────
   function tick() {
+    if (!running) return; // running=false（减弱动效/标签页后台）时优雅退出
     ctx.clearRect(0, 0, W, H);
 
     // 更新并绘制闪光
@@ -159,15 +160,44 @@
     frameId = requestAnimationFrame(tick);
   }
 
+  // ── 动画开关 ──────────────────────────────────────────────────────
+  //   JS 动画（requestAnimationFrame）不受 CSS `animation: none` 约束，必须在 JS
+  //   里自己检查 prefers-reduced-motion，否则"减弱动态效果"用户依旧被强制观看。
+  const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let running = false;
+
+  function start() {
+    if (running) return;
+    if (motionQuery.matches || document.hidden) return;
+    running = true;
+    tick();
+  }
+  function stop() {
+    if (!running) return;
+    running = false;
+    cancelAnimationFrame(frameId);
+    ctx.clearRect(0, 0, W, H);
+  }
+
   // ── 生命周期 ──────────────────────────────────────────────────────
   resize();
   initParticles();
-  tick();
+  start();
+
+  // 系统偏好变化（用户在系统设置里切换"减弱动态效果"）
+  motionQuery.addEventListener('change', () => {
+    motionQuery.matches ? stop() : start();
+  });
+
+  // 标签页切到后台时暂停，避免空转（浏览器原生会降频到 1 FPS，但 canvas 仍占 GPU）
+  document.addEventListener('visibilitychange', () => {
+    document.hidden ? stop() : start();
+  });
 
   window.addEventListener('resize', () => {
-    cancelAnimationFrame(frameId);
+    stop();
     resize();
     initParticles();
-    tick();
+    start();
   }, { passive: true });
 </script>
