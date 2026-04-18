@@ -59,8 +59,8 @@ const cheersFor = (n: number) => {
 <Layout title="归档" description="所有文章按时间归档">
   <div class="relative z-10 max-w-4xl mx-auto px-6 pb-20">
 
-    <!-- 页头 -->
-    <div class="mb-10">
+    <!-- 页头：reveal 让首屏入场和列表页节奏对齐 -->
+    <div class="mb-10 reveal">
       <h1 class="font-heading text-3xl font-bold text-gradient mb-2">归档</h1>
       <p class="text-lavender-400 text-sm">
         共 <span class="text-sakura-500 font-semibold">{totalPosts}</span> 篇文章 ·
@@ -86,7 +86,7 @@ const cheersFor = (n: number) => {
       <!-- 主体 timeline -->
       <div class="flex-1 min-w-0 space-y-14">
         {years.map(({ year, months, total }) => (
-          <section id={`y-${year}`} class="scroll-mt-20">
+          <section id={`y-${year}`} class="scroll-mt-20 reveal">
             <!-- 年份大标题 -->
             <div class="arch-year-header">
               <h2 class="font-heading text-4xl font-bold text-gradient leading-none">

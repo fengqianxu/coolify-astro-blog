@@ -99,8 +99,8 @@ const totalCategories = countAllNodes(root);
 <Layout title="分类" description="按分类浏览所有文章">
   <div class="relative z-10 max-w-4xl mx-auto px-6 pb-20">
 
-    <!-- 页头 -->
-    <div class="mb-8">
+    <!-- 页头：reveal 让首屏入场和列表页节奏对齐 -->
+    <div class="mb-8 reveal">
       <h1 class="font-heading text-3xl font-bold text-gradient mb-2">分类</h1>
       <p class="text-lavender-400 text-sm">
         共 <span class="text-sakura-500 font-semibold">{totalCategories}</span> 个分类（含子分类） ·
@@ -109,7 +109,7 @@ const totalCategories = countAllNodes(root);
     </div>
 
     <!-- 顶层分类徽章一览 -->
-    <div class="glass-card p-5 mb-10 flex flex-wrap gap-3">
+    <div class="glass-card p-5 mb-10 flex flex-wrap gap-3 reveal" data-delay="80">
       {topLevel.map((n) => (
         <a
           href={`#${anchorFor(n.name)}`}
@@ -128,7 +128,7 @@ const totalCategories = countAllNodes(root);
       {topLevel.map((rootNode) => {
         const rows = flattenTree([rootNode]);
         return (
-          <section id={anchorFor(rootNode.name)} class="scroll-mt-20">
+          <section id={anchorFor(rootNode.name)} class="scroll-mt-20 reveal">
             <div class="cat-tree glass-card px-6 py-5">
               {rows.map(({ node, depth }) => (
                 <div class="cat-node" style={`--depth: ${depth}`}>

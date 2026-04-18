@@ -60,8 +60,8 @@ const jsonLd = {
       </div>
     )}
 
-    <!-- 元数据头 -->
-    <header class="mb-8">
+    <!-- 元数据头：reveal + 文章卡之间错开 140ms，开卷入场 -->
+    <header class="mb-8 reveal">
       <div class="flex flex-wrap items-center gap-2 mb-4">
         <!-- 分类路径面包屑（考试 / 申论 / 大作文） -->
         <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium
@@ -78,8 +78,16 @@ const jsonLd = {
         ))}
       </div>
 
-      <h1 class="font-heading text-3xl sm:text-4xl font-bold text-lavender-100
-                 leading-tight mb-4">
+      <!--
+        标题改吃 font-display（Fraunces）：opsz 72 + SOFT 50 让大字时字形略软、
+        更贴 HANDOFF「圣光金 / 优雅」意图；weight 500 配 opsz，比 700 干净得多。
+        中文回退到 LXGW WenKai（family 链在 tailwind.config.mjs 里已定）。
+      -->
+      <h1
+        class="font-display text-3xl sm:text-4xl font-medium text-lavender-100
+               leading-tight mb-4 tracking-tight"
+        style="font-variation-settings: 'opsz' 72, 'SOFT' 50;"
+      >
         {title}
       </h1>
 
@@ -91,15 +99,19 @@ const jsonLd = {
       </div>
     </header>
 
-    <!-- Markdown 正文（prose-twilight 来自 tailwind.config.mjs typography 扩展） -->
-    <div class="glass-card p-8 sm:p-10
+    <!--
+      Markdown 正文（prose-twilight 来自 tailwind.config.mjs typography 扩展）
+      reveal + data-delay=140：header 先浮现，正文卡紧随其后，避免同框一起撞入场
+    -->
+    <div class="glass-card p-8 sm:p-10 reveal
                 prose prose-twilight max-w-none
                 prose-headings:font-heading
                 prose-a:no-underline prose-a:text-sakura-400 hover:prose-a:text-sakura-300
                 prose-code:before:content-none prose-code:after:content-none
                 prose-pre:rounded-2xl prose-pre:border prose-pre:border-white/8
                 prose-blockquote:bg-sakura-500/5 prose-blockquote:rounded-r-xl prose-blockquote:py-1
-                prose-img:rounded-2xl prose-img:shadow-card">
+                prose-img:rounded-2xl prose-img:shadow-card"
+         data-delay="140">
       <slot />
     </div>
 

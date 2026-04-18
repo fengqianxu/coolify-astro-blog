@@ -13,10 +13,15 @@ const { allTags, tagCounts } = await getSiteStats();
 
 <Layout title="标签" description="所有标签">
   <div class="relative z-10 max-w-3xl mx-auto px-6 pb-20">
-    <h1 class="font-heading text-3xl font-bold text-gradient mb-2">标签</h1>
-    <p class="text-slate-400 text-sm mb-8">共 {allTags.length} 个标签</p>
 
-    <div class="glass-card p-6 flex flex-wrap gap-3">
+    <!-- 页头：reveal 让标题随滚动浮现，和其它列表页同节奏 -->
+    <div class="mb-8 reveal">
+      <h1 class="font-heading text-3xl font-bold text-gradient mb-2">标签</h1>
+      <!-- 原 text-slate-400 不在 token 里，会退回浏览器默认；统一换成 lavender-500 -->
+      <p class="text-lavender-500 text-sm">共 {allTags.length} 个标签</p>
+    </div>
+
+    <div class="glass-card p-6 flex flex-wrap gap-3 reveal" data-delay="80">
       {allTags.map(tag => (
         <a
           href={`/tags/${encodeURIComponent(tag)}`}

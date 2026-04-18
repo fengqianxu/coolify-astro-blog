@@ -22,23 +22,33 @@ const { posts } = Astro.props;
 
 <Layout title={`标签：${tag}`}>
   <div class="relative z-10 max-w-5xl mx-auto px-6 pb-20">
-    <div class="mb-8 flex items-center gap-3">
-      <a href="/tags" class="text-slate-500 hover:text-sakura-400 transition-colors text-sm">标签</a>
-      <span class="text-slate-600">/</span>
+
+    <!--
+      面包屑行：原用 text-slate-500/600，slate-* 未在 tailwind.config.mjs 的 colors 里
+      注册（项目 token 是 sakura/lavender/void/gold/mint），运行时拿不到值。
+      统一换到 lavender 体系，既贴 token，也和文章列表页的层次一致。
+    -->
+    <div class="mb-8 flex items-center gap-3 reveal">
+      <a href="/tags" class="text-lavender-500 hover:text-sakura-400 transition-colors text-sm">标签</a>
+      <span class="text-lavender-600">/</span>
       <span class="tag-pill text-sm">{tag}</span>
-      <span class="text-slate-500 text-sm ml-auto">{posts.length} 篇</span>
+      <span class="text-lavender-500 text-sm ml-auto">{posts.length} 篇</span>
     </div>
+
+    <!-- 卡片阶梯浮现（封顶 i<=10），文章多时最后一张不必等半秒以上 -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-      {posts.map(post => (
-        <PostCard
-          slug={post.slug}
-          title={post.data.title}
-          description={post.data.description}
-          pubDate={post.data.pubDate}
-          tags={post.data.tags}
-          category={post.data.category}
-          heroImage={post.data.heroImage}
-        />
+      {posts.map((post, i) => (
+        <div class="reveal" data-delay={String(Math.min(i, 10) * 50)}>
+          <PostCard
+            slug={post.slug}
+            title={post.data.title}
+            description={post.data.description}
+            pubDate={post.data.pubDate}
+            tags={post.data.tags}
+            category={post.data.category}
+            heroImage={post.data.heroImage}
+          />
+        </div>
       ))}
     </div>
   </div>

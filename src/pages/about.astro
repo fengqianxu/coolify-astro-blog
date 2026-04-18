@@ -40,7 +40,7 @@ const socials = SOCIALS;
   <div class="relative z-10 max-w-3xl mx-auto px-6 pb-20 space-y-10">
 
     <!-- ═══ 1. Hero ═══════════════════════════════════════ -->
-    <section class="about-hero glass-card overflow-hidden relative">
+    <section class="about-hero glass-card overflow-hidden relative reveal">
       <!-- 背景装饰光斑 -->
       <div class="about-bg-blob" aria-hidden="true"></div>
 
@@ -84,7 +84,7 @@ const socials = SOCIALS;
     </section>
 
     <!-- ═══ 2. 关于我 ═════════════════════════════════════ -->
-    <section>
+    <section class="reveal">
       <div class="section-heading">
         <h2 class="font-heading text-xl font-bold text-lavender-100">关于我</h2>
       </div>
@@ -109,7 +109,7 @@ const socials = SOCIALS;
     </section>
 
     <!-- ═══ 3. 技术栈 ═════════════════════════════════════ -->
-    <section>
+    <section class="reveal">
       <div class="section-heading">
         <h2 class="font-heading text-xl font-bold text-lavender-100">技术栈</h2>
       </div>
@@ -125,7 +125,12 @@ const socials = SOCIALS;
                 <span class="stack-chip" data-accent={item.accent}>
                   <span class="stack-dot"></span>
                   <span>{item.name}</span>
-                  {item.note && <small class="stack-note">{item.note}</small>}
+                  {/*
+                    ABOUT_STACKS.items 是联合类型，`note` 只挂在部分成员上。
+                    用 `'note' in item` 先做 narrowing，让 TS 认可这次访问；
+                    后面再判值是为了空串/undefined 时也不渲染 <small>。
+                  */}
+                  {'note' in item && item.note && <small class="stack-note">{item.note}</small>}
                 </span>
               ))}
             </div>
@@ -135,7 +140,7 @@ const socials = SOCIALS;
     </section>
 
     <!-- ═══ 4. 此刻 ═══════════════════════════════════════ -->
-    <section>
+    <section class="reveal">
       <div class="section-heading">
         <h2 class="font-heading text-xl font-bold text-lavender-100">此刻</h2>
       </div>
@@ -180,26 +185,26 @@ const socials = SOCIALS;
     </section>
 
     <!-- ═══ 5. 站点数据 ═══════════════════════════════════ -->
-    <section>
+    <section class="reveal">
       <div class="section-heading">
         <h2 class="font-heading text-xl font-bold text-lavender-100">站点数据</h2>
       </div>
 
       <div class="glass-card p-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div class="stat">
-          <div class="stat-num text-gradient">{totalPosts}</div>
+          <div class="stat-num text-gradient text-3xl">{totalPosts}</div>
           <div class="stat-label">文章</div>
         </div>
         <div class="stat">
-          <div class="stat-num text-gradient">{totalCategories}</div>
+          <div class="stat-num text-gradient text-3xl">{totalCategories}</div>
           <div class="stat-label">分类</div>
         </div>
         <div class="stat">
-          <div class="stat-num text-gradient">{totalTags}</div>
+          <div class="stat-num text-gradient text-3xl">{totalTags}</div>
           <div class="stat-label">标签</div>
         </div>
         <div class="stat">
-          <div class="stat-num text-gradient">{kilo(totalBodyChars)}</div>
+          <div class="stat-num text-gradient text-3xl">{kilo(totalBodyChars)}</div>
           <div class="stat-label">字符</div>
         </div>
       </div>
@@ -209,7 +214,7 @@ const socials = SOCIALS;
     </section>
 
     <!-- ═══ 6. 联系 ═══════════════════════════════════════ -->
-    <section>
+    <section class="reveal">
       <div class="section-heading">
         <h2 class="font-heading text-xl font-bold text-lavender-100">联系我</h2>
       </div>
@@ -396,10 +401,12 @@ const socials = SOCIALS;
   .stat {
     text-align: center;
   }
+  /*
+    .stat-num 的字体/字重/光学尺寸交给 global.css 的 Fraunces 口径统一管理
+    （和 Sidebar 同一套），这里只补 line-height —— 否则 Fraunces 在 text-3xl
+    默认 1.2 行高会比旧的 mono 1.1 松半分，和 stat-label 之间会多一口气。
+  */
   .stat-num {
-    font-family: var(--font-mono, ui-monospace, monospace);
-    font-size: 1.875rem;
-    font-weight: 700;
     line-height: 1.1;
   }
   .stat-label {
