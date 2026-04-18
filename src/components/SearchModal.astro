@@ -87,6 +87,7 @@
 
 <script>
   import { isSearchEntry, type SearchEntry } from '../types';
+  import { LIMITS } from '../config/site';
 
   // ── DOM refs（全部断言非 null：缺任一个都是模板 bug，早崩比静默错好） ──
   const modal      = document.getElementById('search-modal')!;
@@ -165,7 +166,7 @@
         p.description.toLowerCase().includes(q) ||
         p.tags.some((t) => t.toLowerCase().includes(q)) ||
         p.category.some((c) => c.toLowerCase().includes(q)),
-    ).slice(0, 8); // 最多展示 8 条
+    ).slice(0, LIMITS.searchResults);
   }
 
   function renderResults(results: SearchEntry[]) {

@@ -8,6 +8,7 @@
 import type { SidebarData } from '../types';
 import { SITE } from '../config/site';
 import { tagFontSizePx } from '../utils/ui';
+import { fmtMonthDayCN } from '../utils/date';
 
 type Props = SidebarData;
 
@@ -101,7 +102,7 @@ const { allTags, tagCounts, recentPosts, categories, totalPosts } =
               datetime={post.pubDate.toISOString()}
               class="text-xs text-lavender-600"
             >
-              {post.pubDate.toLocaleDateString('zh-CN', { month: 'long', day: 'numeric' })}
+              {fmtMonthDayCN(post.pubDate)}
             </time>
           </a>
         </li>

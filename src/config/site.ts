@@ -61,3 +61,34 @@ export const CATEGORY_GRADIENT: Record<string, string> = {
   '二次元': 'from-rose-950/80   to-pink-900/60',
   '随笔':   'from-stone-900/80  to-zinc-950/60',
 };
+
+/**
+ * 列表 / 切片的数量上限。
+ * 统一集中管理，避免在模板里散落 `.slice(0, 8)` 这种魔法数字。
+ */
+export const LIMITS = {
+  /** 首页精选卡片数量 */
+  homeFeatured:  8,
+  /** 搜索结果展示条数 */
+  searchResults: 8,
+  /** 侧边栏「最近文章」条数 */
+  sidebarRecent: 5,
+  /** 文章卡片上最多展示的 tag 数 */
+  postCardTags:  3,
+  /** 标签云里最多展示多少标签（0 = 不限制） */
+  tagCloudMax:   0,
+} as const;
+
+/** 「此刻」小卡片列表 —— 在 /about 页展示 */
+export const NOW_LIST = [
+  { icon: 'tv',   label: '在追', title: '春季番巡礼',            sub: '详情见 /blog 里的追番指南' },
+  { icon: 'book', label: '在读', title: '《程序员修炼之道》',     sub: '查漏补缺' },
+  { icon: 'game', label: '在玩', title: '独立游戏 Hollow Knight', sub: '白宫通关中' },
+] as const;
+
+/** 社交 / 联系方式 —— 在 /about 页展示 */
+export const SOCIALS = [
+  { name: 'GitHub', href: 'https://github.com/',      icon: 'github' },
+  { name: 'RSS',    href: '/rss.xml',                 icon: 'rss'    },
+  { name: 'Email',  href: 'mailto:hello@example.com', icon: 'mail'   },
+] as const;

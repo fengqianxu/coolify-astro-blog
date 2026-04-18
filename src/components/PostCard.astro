@@ -14,7 +14,8 @@
  */
 
 import type { PostSummary } from '../types';
-import { CATEGORY_EMOJI, CATEGORY_GRADIENT } from '../config/site';
+import { CATEGORY_EMOJI, CATEGORY_GRADIENT, LIMITS } from '../config/site';
+import { fmtLong } from '../utils/date';
 
 /**
  * PostCard 接受的 category 是 string[]（层级路径）。
@@ -25,9 +26,7 @@ type Props = PostSummary;
 
 const { slug, title, description, pubDate, tags, category, heroImage, featured } = Astro.props;
 
-const dateStr = pubDate.toLocaleDateString('zh-CN', {
-  year: 'numeric', month: 'long', day: 'numeric',
-});
+const dateStr = fmtLong(pubDate);
 
 const leaf = category[category.length - 1] ?? '随笔';
 const root = category[0] ?? '随笔';
@@ -99,7 +98,7 @@ const gradient = CATEGORY_GRADIENT[leaf] ?? CATEGORY_GRADIENT[root] ?? 'from-voi
 
       <!-- 最多展示 3 个标签 -->
       <div class="flex flex-wrap gap-1" aria-label="文章标签">
-        {tags.slice(0, 3).map((tag) => (
+        {tags.slice(0, LIMITS.postCardTags).map((tag) => (
           <span class="tag-pill">{tag}</span>
         ))}
       </div>

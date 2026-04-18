@@ -13,7 +13,7 @@
  */
 
 import Layout from '../layouts/Layout.astro';
-import { SITE } from '../config/site';
+import { SITE, NOW_LIST, SOCIALS } from '../config/site';
 import { getSiteStats, kilo } from '../utils/stats';
 
 // 站点统计：走统一 source（utils/stats.ts），和首页/blog/sidebar 口径一致
@@ -58,19 +58,9 @@ const stacks = [
   },
 ];
 
-// —— 此刻在关注的内容 ——
-const nowList = [
-  { icon: 'tv',      label: '在追',  title: '春季番巡礼',   sub: '详情见 /blog 里的追番指南' },
-  { icon: 'book',    label: '在读',  title: '《程序员修炼之道》', sub: '查漏补缺' },
-  { icon: 'game',    label: '在玩',  title: '独立游戏 Hollow Knight', sub: '白宫通关中' },
-];
-
-// —— 社交 / 联系 ——
-const socials = [
-  { name: 'GitHub', href: 'https://github.com/',             icon: 'github' },
-  { name: 'RSS',    href: '/rss.xml',                        icon: 'rss' },
-  { name: 'Email',  href: 'mailto:hello@example.com',        icon: 'mail' },
-];
+// 「此刻 / 社交」列表从 config 读取，避免硬编码散落
+const nowList = NOW_LIST;
+const socials = SOCIALS;
 ---
 
 <Layout title="关于" description={`关于 ${SITE.author} 与 ${SITE.name}`}>

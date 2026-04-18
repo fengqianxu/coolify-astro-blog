@@ -3,6 +3,7 @@ import Layout from '../../layouts/Layout.astro';
 import PostCard from '../../components/PostCard.astro';
 import Sidebar from '../../components/Sidebar.astro';
 import { getSiteStats } from '../../utils/stats';
+import { LIMITS } from '../../config/site';
 
 // 统计走同一个 source，保证和 about 页、首页 sidebar 口径完全一致
 const { allPosts, totalPosts, allTags, tagCounts, categoriesByTopLevel } =
@@ -40,7 +41,7 @@ const { allPosts, totalPosts, allTags, tagCounts, categoriesByTopLevel } =
         allTags={allTags}
         tagCounts={tagCounts}
         totalPosts={totalPosts}
-        recentPosts={allPosts.slice(0, 5).map(p => ({
+        recentPosts={allPosts.slice(0, LIMITS.sidebarRecent).map(p => ({
           slug: p.slug, title: p.data.title, pubDate: p.data.pubDate,
         }))}
         categories={categoriesByTopLevel}

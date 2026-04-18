@@ -9,7 +9,7 @@ import HeroVideo from '../components/HeroVideo.astro';
 import PostCard  from '../components/PostCard.astro';
 import Sidebar   from '../components/Sidebar.astro';
 import type { SidebarData } from '../types';
-import { SITE } from '../config/site';
+import { SITE, LIMITS } from '../config/site';
 import { getSiteStats } from '../utils/stats';
 
 // ── 站点统计（唯一信息源，见 utils/stats.ts） ─────────────────────
@@ -21,7 +21,7 @@ const sidebarData: SidebarData = {
   tagCounts,
   categories: categoriesByTopLevel,
   totalPosts,
-  recentPosts: allPosts.slice(0, 5).map((p) => ({
+  recentPosts: allPosts.slice(0, LIMITS.sidebarRecent).map((p) => ({
     slug:    p.slug,
     title:   p.data.title,
     pubDate: p.data.pubDate,
@@ -61,7 +61,7 @@ const sidebarData: SidebarData = {
           )
           : (
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              {allPosts.slice(0, 8).map((post, i) => (
+              {allPosts.slice(0, LIMITS.homeFeatured).map((post, i) => (
                 <div
                   class="animate-slide-up"
                   style={`animation-delay: ${i * 60}ms`}

@@ -15,6 +15,7 @@
 import Layout from '../../layouts/Layout.astro';
 import { getSiteStats } from '../../utils/stats';
 import { hashToPaletteIndex } from '../../utils/ui';
+import { fmtMD, fmtYMD } from '../../utils/date';
 
 // 统一走 stats：allPosts 已按发布日降序排好，totalPosts 与其他页口径一致
 const { allPosts, totalPosts } = await getSiteStats();
@@ -85,12 +86,6 @@ const accentFor = (name: string): (typeof CAT_PALETTE)[number] =>
 
 // 根节点锚点（只给根分类，子分类不需要单独锚）
 const anchorFor = (name: string) => `cat-${encodeURIComponent(name)}`;
-
-// 日期格式
-const fmtMD = (d: Date) =>
-  `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-const fmtYMD = (d: Date) =>
-  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
 // 页头统计（总分类数 = 所有节点数）
 const countAllNodes = (node: CatNode): number => {

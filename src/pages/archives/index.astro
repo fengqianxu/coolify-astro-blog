@@ -13,6 +13,7 @@
 import Layout from '../../layouts/Layout.astro';
 import { catLeaf, catPathStr } from '../../utils/category';
 import { getSiteStats } from '../../utils/stats';
+import { fmtMD, fmtYMD } from '../../utils/date';
 
 const { allPosts, totalPosts } = await getSiteStats();
 
@@ -52,10 +53,6 @@ const cheersFor = (n: number) => {
   return '初出茅庐';
 };
 
-const fmtMD = (d: Date) =>
-  `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-const fmtYMD = (d: Date) =>
-  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 ---
 
 <Layout title="归档" description="所有文章按时间归档">

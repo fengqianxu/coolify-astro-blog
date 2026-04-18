@@ -9,21 +9,40 @@
 
 import Layout from './Layout.astro';
 import type { PostMeta } from '../types';
+import { fmtLong } from '../utils/date';
+import { SITE } from '../config/site';
 
 // 只需 PostMeta 的子集，不含 draft/featured
 type Props = Omit<PostMeta, 'draft' | 'featured'>;
 
 const { title, description, pubDate, updatedDate, heroImage, tags, category } = Astro.props;
 
-const dateStr = pubDate.toLocaleDateString('zh-CN', {
-  year: 'numeric', month: 'long', day: 'numeric',
-});
-const updatedStr = updatedDate?.toLocaleDateString('zh-CN', {
-  year: 'numeric', month: 'long', day: 'numeric',
-});
+const dateStr    = fmtLong(pubDate);
+const updatedStr = updatedDate ? fmtLong(updatedDate) : undefined;
+
+// JSON-LD Article schema，帮 Google 把文章页当「文章」而不是普通 web 页
+const siteBase = Astro.site ?? new URL(`${SITE.url}/`);
+const pageUrl  = new URL(Astro.url.pathname, siteBase).toString();
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type':   'BlogPosting',
+  headline:  title,
+  description,
+  image:     heroImage ? new URL(heroImage, siteBase).toString() : undefined,
+  datePublished: pubDate.toISOString(),
+  dateModified:  (updatedDate ?? pubDate).toISOString(),
+  author:   { '@type': 'Person',       name: SITE.author },
+  publisher:{ '@type': 'Organization', name: SITE.name   },
+  keywords: tags.join(', '),
+  articleSection: category.join(' / '),
+  mainEntityOfPage: { '@type': 'WebPage', '@id': pageUrl },
+  url: pageUrl,
+};
 ---
 
-<Layout title={title} description={description} ogImage={heroImage}>
+<Layout title={title} description={description} ogImage={heroImage} ogType="article">
+  <!-- 结构化数据：搜索引擎解析 body 内 JSON-LD 同样有效 -->
+  <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />
   <article class="relative z-10 max-w-3xl mx-auto px-6 pb-24">
 
     <!-- 封面图 -->
