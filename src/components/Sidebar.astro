@@ -27,22 +27,25 @@ const tagsForCloud = LIMITS.tagCloudMax > 0
 <aside class="space-y-5 lg:w-72 shrink-0" aria-label="侧边栏">
 
   <!-- ── 个人卡片 ──────────────────────────────────────── -->
-  <div class="glass-card p-6 flex flex-col items-center text-center gap-3">
+  <div class="glass-card p-6 flex flex-col items-center text-center gap-3 reveal">
 
-    <!-- 头像（带发光环） -->
+    <!--
+      头像：conic-gradient 的旋转外环（30s / 匝，缓到几乎察觉不到），
+      中间垫 3px 留出环宽，里层 img 自己是圆形头像。
+    -->
     <div class="relative">
-      <div class="w-20 h-20 rounded-full p-0.5 bg-gradient-brand animate-float shadow-glow-pink">
+      <div class="avatar-ring w-20 h-20 rounded-full p-[3px] shadow-glow-pink">
         <img
           src={SITE.avatar}
           alt={`${SITE.author} 的头像`}
-          class="w-full h-full rounded-full object-cover"
+          class="w-full h-full rounded-full object-cover bg-void-800"
           width="80"
           height="80"
           loading="eager"
           decoding="async"
         />
       </div>
-      <!-- 在线状态点 -->
+      <!-- 在线状态点（略微下沉，避开旋转环） -->
       <span
         class="absolute bottom-0.5 right-0.5 w-3.5 h-3.5 bg-mint-400
                border-2 border-void-800 rounded-full"
@@ -57,7 +60,11 @@ const tagsForCloud = LIMITS.tagCloudMax > 0
     </div>
     <p class="text-xs text-lavender-400 leading-relaxed">{SITE.bio}</p>
 
-    <!-- 统计行 -->
+    <!--
+      统计行：数字用 .stat-num（Fraunces 500 + opsz 72 + 负字距），
+      贴合 HANDOFF「不加粗、优雅」的意图；字号从 text-sm → text-xl
+      让 Fraunces 的字形细节能被看清。
+    -->
     <div class="flex gap-4 text-center w-full border-t border-white/6 pt-3">
       {[
         { value: totalPosts,                     label: '文章' },
@@ -65,7 +72,7 @@ const tagsForCloud = LIMITS.tagCloudMax > 0
         { value: Object.keys(categories).length, label: '分类' },
       ].map(({ value, label }) => (
         <div class="flex-1">
-          <div class="font-semibold text-sakura-400 text-sm">{value}</div>
+          <div class="stat-num text-xl text-sakura-400">{value}</div>
           <div class="text-xs text-lavender-600">{label}</div>
         </div>
       ))}
@@ -73,7 +80,7 @@ const tagsForCloud = LIMITS.tagCloudMax > 0
   </div>
 
   <!-- ── 分类列表 ──────────────────────────────────────── -->
-  <div class="glass-card p-5">
+  <div class="glass-card p-5 reveal" data-delay="80">
     <h4 class="section-heading font-heading text-sm font-semibold text-lavender-200">
       分类
     </h4>
@@ -97,7 +104,7 @@ const tagsForCloud = LIMITS.tagCloudMax > 0
   </div>
 
   <!-- ── 最近发布 ──────────────────────────────────────── -->
-  <div class="glass-card p-5">
+  <div class="glass-card p-5 reveal" data-delay="160">
     <h4 class="section-heading font-heading text-sm font-semibold text-lavender-200">
       最近发布
     </h4>
@@ -122,7 +129,7 @@ const tagsForCloud = LIMITS.tagCloudMax > 0
   </div>
 
   <!-- ── 标签云 ────────────────────────────────────────── -->
-  <div class="glass-card p-5">
+  <div class="glass-card p-5 reveal" data-delay="240">
     <h4 class="section-heading font-heading text-sm font-semibold text-lavender-200">
       标签云
     </h4>

@@ -13,17 +13,19 @@ const { allPosts, totalPosts, allTags, tagCounts, categoriesByTopLevel } =
 <Layout title="文章" description="所有文章列表">
   <div class="relative z-10 max-w-5xl mx-auto px-6 pb-16">
 
-    <div class="mb-8">
+    <div class="mb-8 reveal">
       <h1 class="font-heading text-3xl font-bold text-gradient mb-2">全部文章</h1>
-      <p class="text-slate-400 text-sm">共 {totalPosts} 篇</p>
+      <p class="text-lavender-500 text-sm">共 {totalPosts} 篇</p>
     </div>
 
     <div class="flex flex-col lg:flex-row gap-8">
       <section class="flex-1 min-w-0">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
           {allPosts.map((post, i) => (
-            // animation-delay 对 i 封顶：文章多时不想看到最后一张还在等 5 秒才浮现。
-            <div class="animate-slide-up" style={`animation-delay:${Math.min(i, 10) * 50}ms;animation-fill-mode:both`}>
+            // data-delay 对 i 封顶：文章多时不想看到最后一张还在等 5 秒才浮现。
+            // 从 animate-slide-up 换到 reveal —— 滚入视口触发比"开屏全播"
+            // 更省 CPU，也更贴合「内容被发现」的视觉叙事。
+            <div class="reveal" data-delay={String(Math.min(i, 10) * 50)}>
               <PostCard
                 slug={post.slug}
                 title={post.data.title}
