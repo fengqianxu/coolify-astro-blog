@@ -1,13 +1,16 @@
 ---
 /**
  * @component HeroVideo
- * @description 首页全屏视频开屏区。
+ * @description 首页全屏视频开屏区（三层视差 + Fraunces 渐变标题 + 呼吸光晕）。
  *
- * 结构：
- *  - 背景视频（autoplay / muted / loop），随主题切换资源
- *  - 底部渐变遮罩（视频 → 页面背景色，过渡自然）
- *  - 中央叠加文字（站名 + 副标题）
- *  - 底部滚动引导箭头（可点击跳过）
+ * 结构（从背景到前景）：
+ *  1. hero-bg-blobs  —— 远景彩色光斑，data-parallax="0.4"（移动最多）
+ *  2. hero-video-wrap —— 视频容器本体，data-parallax="0.15"（中深度）；
+ *                        绕容器一圈的 box-shadow 做 6s 呼吸光晕
+ *  3. hero-text       —— 中央标题/副标，data-parallax="-0.1"（反向轻微视差）
+ *
+ * 视差的 mousemove 监听绑在 #hero-splash 上（interactions.ts 的 initParallax()），
+ * 这里只负责结构与样式。滚动时 parallax 依然生效。
  */
 
 import { SITE } from '../config/site';
@@ -18,61 +21,76 @@ import { SITE } from '../config/site';
   class="relative w-full h-dvh overflow-hidden flex items-center justify-center"
   aria-label="开场动态视频"
 >
-  <!--
-    背景视频：
-      data-src-dark / data-src-light 由脚本根据主题选用
-      初始 src 由内联脚本依据 localStorage 在 SSR HTML 上就地设置（避免切换闪烁）
-  -->
-  <video
-    id="hero-video"
-    class="absolute inset-0 w-full h-full object-cover"
-    data-src-dark={SITE.heroVideo}
-    data-src-light={SITE.heroVideoLight}
-    autoplay
-    muted
-    loop
-    playsinline
-    preload="metadata"
-    aria-hidden="true"
-  ></video>
-
-  <!-- 渐变遮罩：顶部微暗（提升导航可读性）→ 中部略暗（兜住中央文字）→ 底部收入页面背景色 -->
+  <!-- ── 远景光斑层（hero-bg-blobs） ───────────────────────────── -->
   <div
-    class="absolute inset-0 pointer-events-none"
-    style="background: linear-gradient(
-      to bottom,
-      rgba(0,0,0,0.45) 0%,
-      rgba(0,0,0,0.25) 30%,
-      rgba(0,0,0,0.30) 55%,
-      rgb(var(--c-void-900)) 100%
-    );"
+    class="hero-layer hero-bg-blobs absolute inset-0 pointer-events-none z-0"
+    data-parallax="0.4"
     aria-hidden="true"
   ></div>
 
-  <!-- 中央文字叠加 -->
-  <div class="hero-center relative z-10 text-center px-6 animate-fade-in">
-    <p class="hero-kicker text-xs tracking-[0.25em] uppercase mb-4 font-body">
+  <!-- ── 视频容器层（hero-video-wrap） ─────────────────────────── -->
+  <div
+    class="hero-layer hero-video-wrap hero-video-breathe absolute inset-0 z-[1]"
+    data-parallax="0.15"
+    aria-hidden="true"
+  >
+    <!--
+      背景视频：
+        data-src-dark / data-src-light 由脚本根据主题选用
+        初始 src 由下方脚本依据 <html>.dark 就地设置（避免切换闪烁）
+    -->
+    <video
+      id="hero-video"
+      class="absolute inset-0 w-full h-full object-cover"
+      data-src-dark={SITE.heroVideo}
+      data-src-light={SITE.heroVideoLight}
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="metadata"
+      aria-hidden="true"
+    ></video>
+
+    <!-- 渐变遮罩：顶部微暗（护航 nav）→ 中部略暗 → 底部收入页面底色 -->
+    <div
+      class="absolute inset-0 pointer-events-none"
+      style="background: linear-gradient(
+        to bottom,
+        rgba(0,0,0,0.42) 0%,
+        rgba(0,0,0,0.20) 30%,
+        rgba(0,0,0,0.28) 55%,
+        rgb(var(--c-void-900)) 100%
+      );"
+      aria-hidden="true"
+    ></div>
+  </div>
+
+  <!-- ── 中央文字层（hero-text） ────────────────────────────────── -->
+  <div
+    class="hero-text relative z-10 text-center px-6 animate-fade-in"
+    data-parallax="-0.1"
+  >
+    <p class="hero-kicker text-xs tracking-[0.25em] uppercase mb-5 font-sans">
       Welcome to
     </p>
-    <h1 class="hero-title font-heading text-6xl sm:text-8xl font-bold mb-4 leading-none">
-      {SITE.name}
-    </h1>
+    <h1 class="hero-display mb-5">{SITE.name}</h1>
     <p class="hero-sub text-base sm:text-lg font-body tracking-wide">
       {SITE.description}
     </p>
   </div>
 
-  <!-- 滚动引导（点击事件由下方 script 绑定，不用 inline onclick：CSP 更干净） -->
+  <!-- 滚动引导 —— 不加 data-parallax，它需要固定在底边 -->
   <button
     id="scroll-hint"
     type="button"
     class="absolute bottom-8 left-1/2 -translate-x-1/2 z-10
            flex flex-col items-center gap-1.5 cursor-pointer
-           text-white/50 hover:text-white/90
-           transition-colors duration-300 group"
+           text-white/60 hover:text-white
+           transition-colors duration-300"
     aria-label="向下滚动查看内容"
   >
-    <span class="text-[10px] tracking-[0.3em] uppercase font-body">Scroll</span>
+    <span class="text-[10px] tracking-[0.3em] uppercase font-sans">Scroll</span>
     {[0, 120, 240].map((delay) => (
       <svg
         class="w-4 h-4 animate-bounce"
@@ -102,16 +120,14 @@ import { SITE } from '../config/site';
       video!.play().catch(() => { /* 自动播放可能被浏览器阻止，静默忽略 */ });
     }
 
-    // 初始装载：当前 <html> 的 .dark 状态由 Layout 的 inline 脚本在渲染前决定
     applyVideo(document.documentElement.classList.contains('dark'));
 
-    // 响应主题切换事件
     document.addEventListener('theme:change', ((e: CustomEvent) => {
       applyVideo(Boolean(e.detail?.dark));
     }) as EventListener);
   }
 
-  // ── 滚动引导按钮：点击滚到视口下一屏 ──────────────────────────
+  // ── 滚动引导按钮 ───────────────────────────────────────────────
   const scrollHint = document.getElementById('scroll-hint');
   scrollHint?.addEventListener('click', () => {
     window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
@@ -120,47 +136,66 @@ import { SITE } from '../config/site';
 
 <style>
   /*
-   * Hero 中央文字：在暗色/亮色视频上都要清晰可读。
-   * 策略：统一白字，用多层 text-shadow 模拟深色描边兜底。
+   * 远景光斑：两个大号 radial gradient 模糊飘浮，颜色取主题色低饱和变体。
+   * 位置分左上/右下，深度 0.4 会跟着鼠标/滚动飘移。
    */
-  .hero-kicker {
-    color: rgba(255, 255, 255, 0.88);
-    text-shadow:
-      0 1px 4px rgba(0, 0, 0, 0.6),
-      0 0 16px rgba(0, 0, 0, 0.45);
+  .hero-bg-blobs {
+    background:
+      radial-gradient(ellipse 60% 50% at 18% 22%, rgba(255, 45, 107, 0.28) 0%, transparent 60%),
+      radial-gradient(ellipse 55% 45% at 82% 78%, rgba(217, 147,  33, 0.22) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 50% 50%, rgba(255, 255, 255, 0.04) 0%, transparent 70%);
+    filter: blur(8px);
   }
-  .hero-title {
-    color: #fff;
-    text-shadow:
-      0 2px 6px rgba(0, 0, 0, 0.7),
-      0 0 24px rgba(0, 0, 0, 0.45),
-      0 2px 20px rgba(255, 45, 107, 0.35);
-  }
-  .hero-sub {
-    color: rgba(255, 255, 255, 0.95);
-    text-shadow:
-      0 1px 4px rgba(0, 0, 0, 0.7),
-      0 0 14px rgba(0, 0, 0, 0.45);
+  :root:not(.dark) .hero-bg-blobs {
+    background:
+      radial-gradient(ellipse 60% 50% at 18% 22%, rgba(236,  72, 153, 0.22) 0%, transparent 60%),
+      radial-gradient(ellipse 55% 45% at 82% 78%, rgba(217, 147,  33, 0.28) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 50% 50%, rgba(255, 255, 255, 0.10) 0%, transparent 70%);
   }
 
-  /* 亮色模式下视频更亮，阴影再加深一档，并把副标加粗一点 */
-  :root:not(.dark) .hero-kicker {
-    color: #fff;
+  /*
+   * 副标「Welcome to」—— 白字多层阴影，两主题都能看清
+   */
+  .hero-kicker {
+    color: rgba(255, 255, 255, 0.92);
+    font-weight: 500;
     text-shadow:
-      0 1px 4px rgba(0, 0, 0, 0.85),
-      0 0 18px rgba(0, 0, 0, 0.6);
+      0 1px 4px rgba(0, 0, 0, 0.7),
+      0 0 16px  rgba(0, 0, 0, 0.45);
   }
-  :root:not(.dark) .hero-title {
+
+  /*
+   * 主标题：复用全局 .hero-display（Fraunces + brand-grad + heroTitleFloat），
+   * 这里再加一层 drop-shadow 保证在视频亮场景下仍有描边。
+   */
+  .hero-display {
+    filter:
+      drop-shadow(0 2px 10px rgba(0, 0, 0, 0.35))
+      drop-shadow(0 0 24px  rgba(0, 0, 0, 0.22));
+  }
+  :root:not(.dark) .hero-display {
+    filter:
+      drop-shadow(0 2px 10px rgba(0, 0, 0, 0.55))
+      drop-shadow(0 0 28px  rgba(0, 0, 0, 0.30));
+  }
+
+  /*
+   * 副标：白字 + 多层阴影，日间更粗一档保证对比度
+   */
+  .hero-sub {
+    color: rgba(255, 255, 255, 0.95);
+    max-width: 36ch;
+    margin-left: auto;
+    margin-right: auto;
     text-shadow:
-      0 2px 6px rgba(0, 0, 0, 0.85),
-      0 0 28px rgba(0, 0, 0, 0.55),
-      0 2px 20px rgba(255, 45, 107, 0.3);
+      0 1px 4px rgba(0, 0, 0, 0.7),
+      0 0 14px  rgba(0, 0, 0, 0.45);
   }
   :root:not(.dark) .hero-sub {
     color: #fff;
     font-weight: 500;
     text-shadow:
       0 1px 4px rgba(0, 0, 0, 0.9),
-      0 0 16px rgba(0, 0, 0, 0.6);
+      0 0 16px  rgba(0, 0, 0, 0.6);
   }
 </style>

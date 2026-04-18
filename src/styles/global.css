@@ -504,20 +504,27 @@
     50%      { transform: translateY(-8px); }
   }
 
-  /* ── Hero 视频容器呼吸光晕 ─────────────────────────── */
+  /* ── Hero 视频容器呼吸光晕 ───────────────────────────
+   * 容器本身占满视口（inset:0），外向 box-shadow 会被视口切掉；
+   * 改用 inset box-shadow —— 从视频四周向内渲染一圈粉色软光，
+   * 恰好是 demo 里那种「视频仿佛被一圈光罩包住」的观感。
+   *
+   * `rgb(R G B / A)` 现代函数式语法才能和 space-separated CSS 变量
+   * 直接组合；`rgba(var(...), alpha)` 会因为 var() 展开出空格而失效。
+   */
   .hero-video-breathe {
     animation: heroVideoBreathe 6s ease-in-out infinite;
   }
   @keyframes heroVideoBreathe {
     0%, 100% {
       box-shadow:
-        0 20px 60px rgba(var(--c-sakura-500), 0.25),
-        0 0 40px    rgba(var(--c-sakura-500), 0.15);
+        inset 0 0 120px rgb(var(--c-sakura-500) / 0.28),
+        inset 0 0 60px  rgb(var(--c-sakura-500) / 0.14);
     }
     50% {
       box-shadow:
-        0 28px 80px rgba(var(--c-sakura-500), 0.40),
-        0 0 80px    rgba(var(--c-sakura-500), 0.25);
+        inset 0 0 180px rgb(var(--c-sakura-500) / 0.45),
+        inset 0 0 90px  rgb(var(--c-sakura-500) / 0.22);
     }
   }
 
