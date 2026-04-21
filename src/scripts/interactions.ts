@@ -113,6 +113,9 @@ function initReveal() {
     return;
   }
 
+  // threshold 用 0 而非 0.12：长文章正文可能比视口高 10 倍以上，
+  // 12% 永远达不到（max ratio = viewport / element），reveal 不触发，整屏白屏。
+  // 用 rootMargin 负底边代替阈值，确保元素顶部进入视口一定距离再入场。
   const io = new IntersectionObserver(
     (entries) => {
       entries.forEach((en) => {
@@ -124,7 +127,7 @@ function initReveal() {
         io.unobserve(el);
       });
     },
-    { threshold: 0.12, rootMargin: '0px 0px -60px 0px' },
+    { threshold: 0, rootMargin: '0px 0px -60px 0px' },
   );
 
   els.forEach((el) => io.observe(el));
