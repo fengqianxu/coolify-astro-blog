@@ -100,4 +100,4 @@ Layout.astro 的 `<head>` 里有一段 `is:inline` 同步脚本决定 `html.dark
 - **Magic number 进 LIMITS。** 列表切片、标签云上限一类的数字统一写到 `src/config/site.ts` 的 `LIMITS`，模板里不出现 `.slice(0, 8)` 这种字面量。
 - **写文章 ≠ 改代码。** 纯新增 `src/content/posts/*.md` 不需要跑 lint（`.prettierignore` 已经把 `src/content/` 排除），但仍然要跑 `npm run type-check`，让 content schema 校验 frontmatter。
 - **不自作主张加 README / 归档 / 决策文档。** 工作上下文走对话和 plan；确实需要的长期知识，写进这份 CLAUDE.md 或 `src/config/site.ts` 的注释里。
-- **审查 / 结构优化另开会话。** 代码审查和重构提案在 `../blog-review/` 的独立会话里进行（那里有自己的 CLAUDE.md 与 git 历史），避免把审查笔记和本仓库的日常开发上下文混在一起。本仓库不读写 blog-review。
+- **审查 / 计划 / 结构优化另开会话。** 代码审查和重构提案在 `../blog-review/`；基于 review 的执行条目 triage 和实施追踪在 `../blog-plan/`。两者都有自己的 CLAUDE.md 与 git 历史，避免把审查笔记、执行清单和本仓库的日常开发上下文混在一起。本仓库不读写 `blog-review` 和 `blog-plan`。
