@@ -448,12 +448,11 @@ const isAbout = current.startsWith('/about');
     const passed = currentY > scrollThreshold;
 
     // 背景样式切换（只对 hero 页生效，普通页永远是 solid）
+    // 用 toggle(force) 保证幂等：即使某个 class 初始不在也能正确落到目标态；
+    // classList.replace 在目标不存在时是 no-op，会把两个 class 同时漏掉。
     if (isHero) {
-      if (passed) {
-        navBar.classList.replace('nav-over-video', 'nav-solid');
-      } else {
-        navBar.classList.replace('nav-solid', 'nav-over-video');
-      }
+      navBar.classList.toggle('nav-solid', passed);
+      navBar.classList.toggle('nav-over-video', !passed);
     }
 
     // 方向感知隐藏/显示

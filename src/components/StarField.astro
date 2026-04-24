@@ -76,6 +76,9 @@
 
   // ── 读取 CSS 变量 ─────────────────────────────────────────────────
   // :root 里存的是 "236 72 153"（空格分隔），rgba() 需要逗号，这里转一下。
+  // 缓存在模块闭包里：每帧 tick() 读这个变量，不再调 getComputedStyle
+  // （getComputedStyle 会同步触发 layout 回算，每帧 60Hz × 2 次 = 持续热点）。
+  // 主题切换时由 NavBar 派发的 'theme:change' 事件触发一次重取。
   function getColors() {
     const cs = getComputedStyle(document.documentElement);
     const norm = (v: string) => v.trim().split(/\s+/).join(',');
@@ -84,12 +87,13 @@
       accent: norm(cs.getPropertyValue('--particle-accent')) || '217,147,33',
     };
   }
+  let colors = getColors();
 
   // ── 绘制 + 主循环 ──────────────────────────────────────────────────
   function tick() {
     if (!running) return;
     ctx.clearRect(0, 0, W, H);
-    const { main, accent } = getColors();
+    const { main, accent } = colors;
 
     for (const p of particles) {
       p.x += p.vx;
@@ -168,7 +172,11 @@
     document.hidden ? stop() : start();
   });
 
-  // 主题切换时：下一帧 getColors() 会自动取到新的 CSS 变量值，不用做额外处理。
+  // 主题切换：重取 CSS 变量色值，下一帧 tick() 就用新色。
+  document.addEventListener('theme:change', () => {
+    colors = getColors();
+  });
+
   // 只在尺寸变化时重建粒子，保持密度正确。
   window.addEventListener(
     'resize',

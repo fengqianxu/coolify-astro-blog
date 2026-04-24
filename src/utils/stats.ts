@@ -12,7 +12,15 @@
 
 import { getCollection } from 'astro:content';
 
-export async function getSiteStats() {
+// Module-level memo：构建期首页/Sidebar/about/archives 多处调用，只算一次。
+// 缓存 Promise（不是 resolved 值），并发调用共享同一次 getCollection。
+let _cache: ReturnType<typeof _compute> | null = null;
+
+export function getSiteStats() {
+  return (_cache ??= _compute());
+}
+
+async function _compute() {
   const allPosts = (await getCollection('posts', (p) => !p.data.draft)).sort(
     (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
   );
