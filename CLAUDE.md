@@ -2,6 +2,28 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 本工作区在三仓库流水线里的位置
+
+本仓库是 HeltLog 三工作区的 **执行方（implementation）**。三仓库分账，互不跨 commit：
+
+```
+../blog-review/reviews/*.md   找问题（"哪里有可改之处"）
+        │
+        ▼
+../blog-plan/plans/*.md       triage + 批次拆分 + 实施追踪（"挑哪些做、分几批、状态")
+        │
+        ▼
+本仓库 src/**                 实际改代码 + npm run verify + commit
+```
+
+会话职责：本仓库只做"按 plan 的 checklist 实施 + 跑 lint/verify + commit"。**不**在本仓库写 review 报告、不在本仓库做 triage 判断。读写边界：
+
+- ✅ **可读** `../blog-plan/plans/*.md` —— 取批次条目，知道这次要改哪几个文件
+- ❌ **不读** `../blog-review/` —— review 的有效信息已经被 plan 用 `#N` 引用收编，再读一遍只会被噪声/已跳过条目带偏
+- ❌ **不 Edit / 不 Write** 任何 `../` 路径 —— 跨仓库写会破坏分账约定，也跳过 plan 的回填流程
+
+批次完成后提醒用户切回 `../blog-plan/` 会话回填 commit sha（本会话**不**自己去改 plan 文件）。
+
 ## 硬性要求（User Non-Negotiables）
 
 1. **写代码必须走规范。** 改完任何 `.ts/.astro/.mjs/.css` 之前，跑 `npm run format && npm run lint`，确保无报错再进下一步。ESLint / Prettier 配置在仓库根，不要本地覆盖。

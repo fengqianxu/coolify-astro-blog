@@ -45,3 +45,12 @@ public/videos/
 
 # ── Claude 本地调试配置 ───────────────────────────────
 .claude/
+
+# ── 兄弟仓库（HeltLog 三工作区流水线）───────────────
+# 实施会话只读 ../blog-plan/plans/*.md；review 原文不读，
+# blog-plan 的 git/CLAUDE.md/claudeignore 也不需要进上下文
+../blog-review/
+../blog-plan/.git/
+../blog-plan/CLAUDE.md
+../blog-plan/.claudeignore
+../blog-plan/.gitignore
