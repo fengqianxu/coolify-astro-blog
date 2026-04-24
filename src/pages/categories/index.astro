@@ -20,19 +20,23 @@ import { fmtMD, fmtYMD } from '../../utils/date';
 // 统一走 stats：allPosts 已按发布日降序排好，totalPosts 与其他页口径一致
 const { allPosts, totalPosts } = await getSiteStats();
 
-type Post = typeof allPosts[number];
+type Post = (typeof allPosts)[number];
 
 // ── 构建分类树 ─────────────────────────────────────────────────────
 interface CatNode {
-  name:     string;            // 本节点名（"申论"）
-  path:     string[];          // 从根到本节点的路径（["考试","申论"]）
-  posts:    Post[];             // 恰好挂在本节点的文章（不含子孙节点的）
+  name: string; // 本节点名（"申论"）
+  path: string[]; // 从根到本节点的路径（["考试","申论"]）
+  posts: Post[]; // 恰好挂在本节点的文章（不含子孙节点的）
   children: Map<string, CatNode>;
-  count:    number;             // 整棵子树下的文章总数（含本节点 + 所有后代）
+  count: number; // 整棵子树下的文章总数（含本节点 + 所有后代）
 }
 
 const makeNode = (name: string, path: string[]): CatNode => ({
-  name, path, posts: [], children: new Map(), count: 0,
+  name,
+  path,
+  posts: [],
+  children: new Map(),
+  count: 0,
 });
 
 const root: CatNode = makeNode('__root__', []);
@@ -67,7 +71,7 @@ const topLevel = [...root.children.values()].sort((a, b) => b.count - a.count);
 interface FlatRow {
   kind: 'node';
   node: CatNode;
-  depth: number;   // 0 = 根分类，1/2/... = 子分类
+  depth: number; // 0 = 根分类，1/2/... = 子分类
 }
 const flattenTree = (nodes: CatNode[], depth = 0): FlatRow[] => {
   const rows: FlatRow[] = [];
@@ -98,7 +102,6 @@ const totalCategories = countAllNodes(root);
 
 <Layout title="分类" description="按分类浏览所有文章">
   <div class="relative z-10 max-w-4xl mx-auto px-6 pb-20">
-
     <!-- 页头：reveal 让首屏入场和列表页节奏对齐 -->
     <div class="mb-8 reveal">
       <h1 class="font-heading text-3xl font-bold text-gradient mb-2">分类</h1>
@@ -110,66 +113,67 @@ const totalCategories = countAllNodes(root);
 
     <!-- 顶层分类徽章一览 -->
     <div class="glass-card p-5 mb-10 flex flex-wrap gap-3 reveal" data-delay="80">
-      {topLevel.map((n) => (
-        <a
-          href={`#${anchorFor(n.name)}`}
-          class="cat-chip"
-          data-accent={accentFor(n.name)}
-        >
-          <span class="cat-dot" aria-hidden="true"></span>
-          <span>{n.name}</span>
-          <span class="cat-count">{n.count}</span>
-        </a>
-      ))}
+      {
+        topLevel.map((n) => (
+          <a href={`#${anchorFor(n.name)}`} class="cat-chip" data-accent={accentFor(n.name)}>
+            <span class="cat-dot" aria-hidden="true" />
+            <span>{n.name}</span>
+            <span class="cat-count">{n.count}</span>
+          </a>
+        ))
+      }
     </div>
 
     <!-- 每个根分类一组 tree -->
     <div class="space-y-14">
-      {topLevel.map((rootNode) => {
-        const rows = flattenTree([rootNode]);
-        return (
-          <section id={anchorFor(rootNode.name)} class="scroll-mt-20 reveal">
-            <div class="cat-tree glass-card px-6 py-5">
-              {rows.map(({ node, depth }) => (
-                <div class="cat-node" style={`--depth: ${depth}`}>
-                  <!-- 节点标题行 -->
-                  <div class="cat-node-head">
-                    {depth > 0 && <span class="cat-branch" aria-hidden="true"></span>}
-                    <span class="cat-node-name" data-depth={depth}>
-                      {node.name}
-                    </span>
-                    <span class="cat-node-count">{node.count}</span>
+      {
+        topLevel.map((rootNode) => {
+          const rows = flattenTree([rootNode]);
+          return (
+            <section id={anchorFor(rootNode.name)} class="scroll-mt-20 reveal">
+              <div class="cat-tree glass-card px-6 py-5">
+                {rows.map(({ node, depth }) => (
+                  <div class="cat-node" style={`--depth: ${depth}`}>
+                    {/* 节点标题行 */}
+                    <div class="cat-node-head">
+                      {depth > 0 && <span class="cat-branch" aria-hidden="true" />}
+                      <span class="cat-node-name" data-depth={depth}>
+                        {node.name}
+                      </span>
+                      <span class="cat-node-count">{node.count}</span>
+                    </div>
+
+                    {/* 本节点直挂的文章（若有） */}
+                    {node.posts.length > 0 && (
+                      <ol class="cat-post-list">
+                        {node.posts.map((post) => (
+                          <li class="cat-row">
+                            <time class="cat-date font-mono" datetime={fmtYMD(post.data.pubDate)}>
+                              {fmtMD(post.data.pubDate)}
+                            </time>
+                            <a href={`/blog/${post.slug}`} class="cat-title">
+                              {post.data.title}
+                            </a>
+                          </li>
+                        ))}
+                      </ol>
+                    )}
                   </div>
+                ))}
+              </div>
+            </section>
+          );
+        })
+      }
 
-                  <!-- 本节点直挂的文章（若有） -->
-                  {node.posts.length > 0 && (
-                    <ol class="cat-post-list">
-                      {node.posts.map((post) => (
-                        <li class="cat-row">
-                          <time class="cat-date font-mono" datetime={fmtYMD(post.data.pubDate)}>
-                            {fmtMD(post.data.pubDate)}
-                          </time>
-                          <a href={`/blog/${post.slug}`} class="cat-title">
-                            {post.data.title}
-                          </a>
-                        </li>
-                      ))}
-                    </ol>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
-        );
-      })}
-
-      {topLevel.length === 0 && (
-        <div class="glass-card p-12 text-center text-lavender-500">
-          还没有文章，快去写第一篇吧～
-        </div>
-      )}
+      {
+        topLevel.length === 0 && (
+          <div class="glass-card p-12 text-center text-lavender-500">
+            还没有文章，快去写第一篇吧～
+          </div>
+        )
+      }
     </div>
-
   </div>
 </Layout>
 
@@ -199,9 +203,15 @@ const totalCategories = countAllNodes(root);
     border-radius: 9999px;
     flex-shrink: 0;
   }
-  .cat-chip[data-accent="sakura"] .cat-dot { background: rgb(var(--c-sakura-500)); }
-  .cat-chip[data-accent="gold"]   .cat-dot { background: rgb(var(--c-gold-400));   }
-  .cat-chip[data-accent="mint"]   .cat-dot { background: rgb(var(--c-mint-400));   }
+  .cat-chip[data-accent='sakura'] .cat-dot {
+    background: rgb(var(--c-sakura-500));
+  }
+  .cat-chip[data-accent='gold'] .cat-dot {
+    background: rgb(var(--c-gold-400));
+  }
+  .cat-chip[data-accent='mint'] .cat-dot {
+    background: rgb(var(--c-mint-400));
+  }
   .cat-count {
     font-size: 0.75rem;
     padding: 0 0.375rem;
@@ -259,17 +269,17 @@ const totalCategories = countAllNodes(root);
     font-size: 1.25rem;
     line-height: 1.2;
   }
-  .cat-node-name[data-depth="1"] {
+  .cat-node-name[data-depth='1'] {
     font-size: 1rem;
     color: rgb(var(--c-lavender-200));
     font-weight: 500;
   }
-  .cat-node-name[data-depth="2"] {
+  .cat-node-name[data-depth='2'] {
     font-size: 0.9375rem;
     color: rgb(var(--c-lavender-300));
     font-weight: 500;
   }
-  .cat-node-name[data-depth="3"] {
+  .cat-node-name[data-depth='3'] {
     font-size: 0.875rem;
     color: rgb(var(--c-lavender-400));
     font-weight: 500;

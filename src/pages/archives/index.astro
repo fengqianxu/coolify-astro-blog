@@ -17,7 +17,7 @@ import { fmtMD, fmtYMD } from '../../utils/date';
 
 const { allPosts, totalPosts } = await getSiteStats();
 
-type Post = typeof allPosts[number];
+type Post = (typeof allPosts)[number];
 
 // 按 年 → 月 两级分组。统一走 UTC，和 utils/date.ts 的 fmtYMD/fmtMD 保持同口径：
 // 避免构建机器与发布时区错位导致的「同一篇被归到不同月/年」。
@@ -47,18 +47,16 @@ const years = [...yearMap.entries()]
 const cheersFor = (n: number) => {
   if (n > 210) return '产量惊人';
   if (n > 130) return '持续输出';
-  if (n > 80)  return '渐入佳境';
-  if (n > 50)  return '小有积累';
-  if (n > 30)  return '还不错';
-  if (n > 10)  return '刚起步';
+  if (n > 80) return '渐入佳境';
+  if (n > 50) return '小有积累';
+  if (n > 30) return '还不错';
+  if (n > 10) return '刚起步';
   return '初出茅庐';
 };
-
 ---
 
 <Layout title="归档" description="所有文章按时间归档">
   <div class="relative z-10 max-w-4xl mx-auto px-6 pb-20">
-
     <!-- 页头：reveal 让首屏入场和列表页节奏对齐 -->
     <div class="mb-10 reveal">
       <h1 class="font-heading text-3xl font-bold text-gradient mb-2">归档</h1>
@@ -72,67 +70,69 @@ const cheersFor = (n: number) => {
     <div class="flex gap-8">
       <aside class="hidden lg:block w-20 shrink-0 sticky top-24 self-start">
         <ul class="space-y-3">
-          {years.map(y => (
-            <li>
-              <a href={`#y-${y.year}`} class="arch-year-anchor">
-                <span class="arch-year-num">{y.year}</span>
-                <span class="arch-year-count">{y.total}</span>
-              </a>
-            </li>
-          ))}
+          {
+            years.map((y) => (
+              <li>
+                <a href={`#y-${y.year}`} class="arch-year-anchor">
+                  <span class="arch-year-num">{y.year}</span>
+                  <span class="arch-year-count">{y.total}</span>
+                </a>
+              </li>
+            ))
+          }
         </ul>
       </aside>
 
       <!-- 主体 timeline -->
       <div class="flex-1 min-w-0 space-y-14">
-        {years.map(({ year, months, total }) => (
-          <section id={`y-${year}`} class="scroll-mt-20 reveal">
-            <!-- 年份大标题 -->
-            <div class="arch-year-header">
-              <h2 class="font-heading text-4xl font-bold text-gradient leading-none">
-                {year}
-              </h2>
-              <div class="arch-year-meta">
-                <span class="arch-year-line"></span>
-                <span class="text-lavender-400 text-sm">{total} 篇</span>
-              </div>
-            </div>
-
-            <!-- 月份分段 -->
-            <div class="pl-2 mt-6 space-y-8">
-              {months.map(({ month, posts }) => (
-                <div>
-                  <h3 class="arch-month-title">
-                    <span class="text-sakura-500 font-mono">{String(month).padStart(2, '0')}</span>
-                    <span class="text-xs text-lavender-500 font-body">月</span>
-                    <span class="arch-month-divider"></span>
-                    <span class="text-xs text-lavender-500">{posts.length} 篇</span>
-                  </h3>
-
-                  <ol class="arch-list">
-                    {posts.map(post => (
-                      <li class="arch-row">
-                        <time
-                          class="arch-date font-mono"
-                          datetime={fmtYMD(post.data.pubDate)}
-                        >
-                          {fmtMD(post.data.pubDate)}
-                        </time>
-                        <span class="arch-cat" title={catPathStr(post.data)}>{catLeaf(post.data)}</span>
-                        <a href={`/blog/${post.slug}`} class="arch-title">
-                          {post.data.title}
-                        </a>
-                      </li>
-                    ))}
-                  </ol>
+        {
+          years.map(({ year, months, total }) => (
+            <section id={`y-${year}`} class="scroll-mt-20 reveal">
+              {/* 年份大标题 */}
+              <div class="arch-year-header">
+                <h2 class="font-heading text-4xl font-bold text-gradient leading-none">{year}</h2>
+                <div class="arch-year-meta">
+                  <span class="arch-year-line" />
+                  <span class="text-lavender-400 text-sm">{total} 篇</span>
                 </div>
-              ))}
-            </div>
-          </section>
-        ))}
+              </div>
+
+              {/* 月份分段 */}
+              <div class="pl-2 mt-6 space-y-8">
+                {months.map(({ month, posts }) => (
+                  <div>
+                    <h3 class="arch-month-title">
+                      <span class="text-sakura-500 font-mono">
+                        {String(month).padStart(2, '0')}
+                      </span>
+                      <span class="text-xs text-lavender-500 font-body">月</span>
+                      <span class="arch-month-divider" />
+                      <span class="text-xs text-lavender-500">{posts.length} 篇</span>
+                    </h3>
+
+                    <ol class="arch-list">
+                      {posts.map((post) => (
+                        <li class="arch-row">
+                          <time class="arch-date font-mono" datetime={fmtYMD(post.data.pubDate)}>
+                            {fmtMD(post.data.pubDate)}
+                          </time>
+                          <span class="arch-cat" title={catPathStr(post.data)}>
+                            {catLeaf(post.data)}
+                          </span>
+                          <a href={`/blog/${post.slug}`} class="arch-title">
+                            {post.data.title}
+                          </a>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                ))}
+              </div>
+            </section>
+          ))
+        }
       </div>
     </div>
-
   </div>
 </Layout>
 
