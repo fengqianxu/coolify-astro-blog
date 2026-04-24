@@ -16,12 +16,12 @@ export const GET: APIRoute = async () => {
   const index: SearchEntry[] = posts
     .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
     .map((p) => ({
-      slug:        p.slug,
-      title:       p.data.title,
+      slug: p.slug,
+      title: p.data.title,
       description: p.data.description,
-      tags:        p.data.tags,
-      category:    p.data.category,
-      pubDate:     p.data.pubDate.toISOString(),
+      tags: p.data.tags,
+      category: p.data.category,
+      pubDate: p.data.pubDate.toISOString(),
     }));
 
   return new Response(JSON.stringify(index), {

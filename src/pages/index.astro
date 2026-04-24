@@ -4,17 +4,16 @@
  * @description 全屏视频开屏 → 滚动进入最新文章网格 + 侧边栏。
  */
 
-import Layout    from '../layouts/Layout.astro';
+import Layout from '../layouts/Layout.astro';
 import HeroVideo from '../components/HeroVideo.astro';
-import PostCard  from '../components/PostCard.astro';
-import Sidebar   from '../components/Sidebar.astro';
+import PostCard from '../components/PostCard.astro';
+import Sidebar from '../components/Sidebar.astro';
 import type { SidebarData } from '../types';
 import { SITE, LIMITS } from '../config/site';
 import { getSiteStats } from '../utils/stats';
 
 // ── 站点统计（唯一信息源，见 utils/stats.ts） ─────────────────────
-const { allPosts, totalPosts, allTags, tagCounts, categoriesByTopLevel } =
-  await getSiteStats();
+const { allPosts, totalPosts, allTags, tagCounts, categoriesByTopLevel } = await getSiteStats();
 
 const sidebarData: SidebarData = {
   allTags,
@@ -22,44 +21,44 @@ const sidebarData: SidebarData = {
   categories: categoriesByTopLevel,
   totalPosts,
   recentPosts: allPosts.slice(0, LIMITS.sidebarRecent).map((p) => ({
-    slug:    p.slug,
-    title:   p.data.title,
+    slug: p.slug,
+    title: p.data.title,
     pubDate: p.data.pubDate,
   })),
 };
 ---
 
 <Layout title={SITE.name} heroVideo={true}>
-
   <!-- 全屏视频开屏（100dvh） -->
   <HeroVideo />
 
   <!-- 正文区（滚动后呈现） -->
   <div id="main-content" class="relative z-10 max-w-5xl mx-auto px-6 pb-20">
-
     <!-- 区块标题 -->
     <div class="section-heading pt-14 mb-6 reveal">
       <h2 class="font-heading font-semibold text-lavender-200 text-xl">最新文章</h2>
-      <a href="/blog"
-         class="ml-auto text-xs text-sakura-400 hover:text-sakura-300
-                transition-colors font-medium">
+      <a
+        href="/blog"
+        class="ml-auto text-xs text-sakura-400 hover:text-sakura-300
+                transition-colors font-medium"
+      >
         查看全部 →
       </a>
     </div>
 
     <!-- 文章网格 + 侧边栏 -->
     <div class="flex flex-col lg:flex-row gap-8">
-
       <!-- 文章网格 -->
       <section class="flex-1 min-w-0" aria-label="最新文章列表">
-        {allPosts.length === 0
-          ? (
+        {
+          allPosts.length === 0 ? (
             <div class="glass-card p-12 text-center text-lavender-500 reveal">
-              <p class="text-4xl mb-3" aria-hidden="true">📝</p>
+              <p class="text-4xl mb-3" aria-hidden="true">
+                📝
+              </p>
               <p>还没有文章，快来发布第一篇吧！</p>
             </div>
-          )
-          : (
+          ) : (
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
               {/*
                 每张卡片挂 .reveal + 递增 data-delay：进入视口时阶梯入场，
@@ -88,5 +87,4 @@ const sidebarData: SidebarData = {
       <Sidebar {...sidebarData} />
     </div>
   </div>
-
 </Layout>

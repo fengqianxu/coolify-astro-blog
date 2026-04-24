@@ -12,23 +12,21 @@ import { fmtMonthDayCN } from '../utils/date';
 
 type Props = SidebarData;
 
-const { allTags, tagCounts, recentPosts, categories, totalPosts } =
-  Astro.props;
+const { allTags, tagCounts, recentPosts, categories, totalPosts } = Astro.props;
 
 // 标签云展示上限：tagCloudMax=0 时不截断。按 tagCounts 降序取前 N，避免侧边
 // 太长的标签列表把「最近发布」挤到视口外
-const tagsForCloud = LIMITS.tagCloudMax > 0
-  ? [...allTags]
-      .sort((a, b) => (tagCounts[b] ?? 0) - (tagCounts[a] ?? 0))
-      .slice(0, LIMITS.tagCloudMax)
-  : allTags;
+const tagsForCloud =
+  LIMITS.tagCloudMax > 0
+    ? [...allTags]
+        .sort((a, b) => (tagCounts[b] ?? 0) - (tagCounts[a] ?? 0))
+        .slice(0, LIMITS.tagCloudMax)
+    : allTags;
 ---
 
 <aside class="space-y-5 lg:w-72 shrink-0" aria-label="侧边栏">
-
   <!-- ── 个人卡片 ──────────────────────────────────────── -->
   <div class="glass-card p-6 flex flex-col items-center text-center gap-3 reveal">
-
     <!--
       头像：conic-gradient 的旋转外环（30s / 匝，缓到几乎察觉不到），
       中间垫 3px 留出环宽，里层 img 自己是圆形头像。
@@ -49,8 +47,7 @@ const tagsForCloud = LIMITS.tagCloudMax > 0
       <span
         class="absolute bottom-0.5 right-0.5 w-3.5 h-3.5 bg-mint-400
                border-2 border-void-800 rounded-full"
-        aria-label="在线"
-      ></span>
+        aria-label="在线"></span>
     </div>
 
     <!-- 名字 + 简介 -->
@@ -66,85 +63,85 @@ const tagsForCloud = LIMITS.tagCloudMax > 0
       让 Fraunces 的字形细节能被看清。
     -->
     <div class="flex gap-4 text-center w-full border-t border-white/6 pt-3">
-      {[
-        { value: totalPosts,                     label: '文章' },
-        { value: allTags.length,                 label: '标签' },
-        { value: Object.keys(categories).length, label: '分类' },
-      ].map(({ value, label }) => (
-        <div class="flex-1">
-          <div class="stat-num text-xl text-sakura-400">{value}</div>
-          <div class="text-xs text-lavender-600">{label}</div>
-        </div>
-      ))}
+      {
+        [
+          { value: totalPosts, label: '文章' },
+          { value: allTags.length, label: '标签' },
+          { value: Object.keys(categories).length, label: '分类' },
+        ].map(({ value, label }) => (
+          <div class="flex-1">
+            <div class="stat-num text-xl text-sakura-400">{value}</div>
+            <div class="text-xs text-lavender-600">{label}</div>
+          </div>
+        ))
+      }
     </div>
   </div>
 
   <!-- ── 分类列表 ──────────────────────────────────────── -->
   <div class="glass-card p-5 reveal" data-delay="80">
-    <h4 class="section-heading font-heading text-sm font-semibold text-lavender-200">
-      分类
-    </h4>
+    <h4 class="section-heading font-heading text-sm font-semibold text-lavender-200">分类</h4>
     <ul class="space-y-1">
-      {Object.entries(categories).map(([cat, count]) => (
-        <li>
-          <a
-            href={`/categories#cat-${encodeURIComponent(cat)}`}
-            class="flex items-center justify-between px-3 py-1.5 rounded-xl text-sm
+      {
+        Object.entries(categories).map(([cat, count]) => (
+          <li>
+            <a
+              href={`/categories#cat-${encodeURIComponent(cat)}`}
+              class="flex items-center justify-between px-3 py-1.5 rounded-xl text-sm
                    text-lavender-400 hover:text-lavender-100 hover:bg-white/5
                    transition-all duration-200"
-          >
-            <span>{cat}</span>
-            <span class="text-xs bg-sakura-500/15 text-sakura-400 rounded-full px-2 py-0.5">
-              {count}
-            </span>
-          </a>
-        </li>
-      ))}
+            >
+              <span>{cat}</span>
+              <span class="text-xs bg-sakura-500/15 text-sakura-400 rounded-full px-2 py-0.5">
+                {count}
+              </span>
+            </a>
+          </li>
+        ))
+      }
     </ul>
   </div>
 
   <!-- ── 最近发布 ──────────────────────────────────────── -->
   <div class="glass-card p-5 reveal" data-delay="160">
-    <h4 class="section-heading font-heading text-sm font-semibold text-lavender-200">
-      最近发布
-    </h4>
+    <h4 class="section-heading font-heading text-sm font-semibold text-lavender-200">最近发布</h4>
     <ul class="space-y-3">
-      {recentPosts.map((post) => (
-        <li>
-          <a href={`/blog/${post.slug}`} class="group flex flex-col gap-0.5">
-            <span class="text-sm text-lavender-300 group-hover:text-sakura-300
-                         transition-colors line-clamp-1 font-medium">
-              {post.title}
-            </span>
-            <time
-              datetime={post.pubDate.toISOString()}
-              class="text-xs text-lavender-600"
-            >
-              {fmtMonthDayCN(post.pubDate)}
-            </time>
-          </a>
-        </li>
-      ))}
+      {
+        recentPosts.map((post) => (
+          <li>
+            <a href={`/blog/${post.slug}`} class="group flex flex-col gap-0.5">
+              <span
+                class="text-sm text-lavender-300 group-hover:text-sakura-300
+                         transition-colors line-clamp-1 font-medium"
+              >
+                {post.title}
+              </span>
+              <time datetime={post.pubDate.toISOString()} class="text-xs text-lavender-600">
+                {fmtMonthDayCN(post.pubDate)}
+              </time>
+            </a>
+          </li>
+        ))
+      }
     </ul>
   </div>
 
   <!-- ── 标签云 ────────────────────────────────────────── -->
   <div class="glass-card p-5 reveal" data-delay="240">
-    <h4 class="section-heading font-heading text-sm font-semibold text-lavender-200">
-      标签云
-    </h4>
+    <h4 class="section-heading font-heading text-sm font-semibold text-lavender-200">标签云</h4>
     <div class="flex flex-wrap gap-2">
-      {tagsForCloud.map((tag) => (
-        <a
-          href={`/tags/${encodeURIComponent(tag)}`}
-          class="tag-pill"
-          style={`font-size: ${tagFontSizePx(tagCounts[tag] ?? 1)}`}
-        >
-          {tag}
-          <span class="text-sakura-600/70">{tagCounts[tag]}</span>
-        </a>
-      ))}
+      {
+        tagsForCloud.map((tag) => (
+          <a
+            href={`/tags/${encodeURIComponent(tag)}`}
+            class="tag-pill"
+            style={`font-size: ${tagFontSizePx(tagCounts[tag] ?? 1)}`}
+          >
+            {tag}
+            <span class="text-sakura-600/70">{tagCounts[tag]}</span>
+          </a>
+        ))
+      }
     </div>
   </div>
-
 </aside>

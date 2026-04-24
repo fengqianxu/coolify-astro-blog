@@ -30,12 +30,11 @@ function initTilt() {
       const rect = card.getBoundingClientRect();
       const px = (e.clientX - rect.left) / rect.width;
       const py = (e.clientY - rect.top) / rect.height;
-      const rx = (py - 0.5) * -8;  // 垂直方向 → X 轴旋转
-      const ry = (px - 0.5) *  8;  // 水平方向 → Y 轴旋转
+      const rx = (py - 0.5) * -8; // 垂直方向 → X 轴旋转
+      const ry = (px - 0.5) * 8; // 水平方向 → Y 轴旋转
       if (raf) cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
-        card.style.transform =
-          `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-6px)`;
+        card.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-6px)`;
       });
     };
 
@@ -59,21 +58,25 @@ function initParallax() {
   if (!layers.length) return;
   if (prefersReduced()) {
     // 仍让布局显示，但不做 rAF 循环
-    layers.forEach((el) => { el.style.transform = 'translate3d(0,0,0)'; });
+    layers.forEach((el) => {
+      el.style.transform = 'translate3d(0,0,0)';
+    });
     return;
   }
 
   // 鼠标视差只在 hero 区内有效。没找到 #hero-splash 就只跟滚动。
   const hero = document.getElementById('hero-splash');
 
-  let mouseX = 0, mouseY = 0;
-  let targetX = 0, targetY = 0;
+  let mouseX = 0,
+    mouseY = 0;
+  let targetX = 0,
+    targetY = 0;
 
   if (hero) {
     hero.addEventListener('mousemove', (e) => {
       const rect = hero.getBoundingClientRect();
-      targetX = (e.clientX - rect.left - rect.width  / 2) / rect.width;
-      targetY = (e.clientY - rect.top  - rect.height / 2) / rect.height;
+      targetX = (e.clientX - rect.left - rect.width / 2) / rect.width;
+      targetY = (e.clientY - rect.top - rect.height / 2) / rect.height;
     });
     hero.addEventListener('mouseleave', () => {
       targetX = 0;
@@ -150,8 +153,7 @@ function initProgressRing() {
     const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
     const max = scrollHeight - clientHeight;
     const pct = max > 0 ? scrollTop / max : 0;
-    (fill as unknown as SVGCircleElement).style.strokeDashoffset =
-      String(CIRC * (1 - pct));
+    (fill as unknown as SVGCircleElement).style.strokeDashoffset = String(CIRC * (1 - pct));
     ring.classList.toggle('visible', scrollTop > 400);
     pending = false;
   };

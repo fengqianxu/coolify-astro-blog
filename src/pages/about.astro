@@ -17,28 +17,25 @@ import { SITE, NOW_LIST, SOCIALS, ABOUT_STACKS } from '../config/site';
 import { getSiteStats, kilo } from '../utils/stats';
 
 // 站点统计：走统一 source（utils/stats.ts），和首页/blog/sidebar 口径一致
-const { allPosts, totalPosts, totalTags, totalCategories, totalBodyChars } =
-  await getSiteStats();
+const { allPosts, totalPosts, totalTags, totalCategories, totalBodyChars } = await getSiteStats();
 
 // 建站日（用最早一篇的 pubDate 作近似，否则用今天）
-const earliest = allPosts
-  .map(p => p.data.pubDate)
-  .sort((a, b) => a.valueOf() - b.valueOf())[0] ?? new Date();
+const earliest =
+  allPosts.map((p) => p.data.pubDate).sort((a, b) => a.valueOf() - b.valueOf())[0] ?? new Date();
 const daysOnline = Math.max(
   1,
-  Math.floor((Date.now() - earliest.valueOf()) / (1000 * 60 * 60 * 24))
+  Math.floor((Date.now() - earliest.valueOf()) / (1000 * 60 * 60 * 24)),
 );
 
 // 「技术栈 / 此刻 / 社交」三个列表统一放在 config/site.ts，
 // 所有模板从同一处消费，避免在页面里硬编码扩散
-const stacks  = ABOUT_STACKS;
+const stacks = ABOUT_STACKS;
 const nowList = NOW_LIST;
 const socials = SOCIALS;
 ---
 
 <Layout title="关于" description={`关于 ${SITE.author} 与 ${SITE.name}`}>
   <div class="relative z-10 max-w-3xl mx-auto px-6 pb-20 space-y-10">
-
     <!-- ═══ 1. Hero ═══════════════════════════════════════ -->
     <section class="about-hero glass-card overflow-hidden relative reveal">
       <!-- 背景装饰光斑 -->
@@ -48,13 +45,7 @@ const socials = SOCIALS;
         <!-- 头像：双层光环 + 在线指示 -->
         <div class="about-avatar-wrap shrink-0">
           <div class="about-avatar-ring" aria-hidden="true"></div>
-          <img
-            src={SITE.avatar}
-            alt={SITE.author}
-            class="about-avatar"
-            width="128"
-            height="128"
-          />
+          <img src={SITE.avatar} alt={SITE.author} class="about-avatar" width="128" height="128" />
           <span class="about-status" aria-label="在线">
             <span class="about-status-dot"></span>
           </span>
@@ -62,9 +53,7 @@ const socials = SOCIALS;
 
         <!-- 文本 -->
         <div class="text-center sm:text-left min-w-0">
-          <div class="about-greet text-xs tracking-[0.3em] uppercase mb-2">
-            Hi, I am
-          </div>
+          <div class="about-greet text-xs tracking-[0.3em] uppercase mb-2">Hi, I am</div>
           <h1 class="font-heading text-4xl font-bold text-gradient leading-tight mb-2">
             {SITE.author}
           </h1>
@@ -91,14 +80,13 @@ const socials = SOCIALS;
       <div class="glass-card p-6 sm:p-8 space-y-4 text-lavender-300 leading-relaxed">
         <p>
           欢迎来到 <span class="text-gradient font-semibold">{SITE.name}</span>。
-          <span class="text-lavender-200 font-medium">helt</span> 在北欧语里是「英雄」，
-          也恰好是「何凌韬」拼音的缩写 —— 不敢自封什么英雄，只是对自己的一份期许。
+          <span class="text-lavender-200 font-medium">helt</span> 在北欧语里是「英雄」， 也恰好是「何凌韬」拼音的缩写
+          —— 不敢自封什么英雄，只是对自己的一份期许。
         </p>
         <p>
-          我是一名<span class="text-lavender-200 font-medium">后端开发者</span>，
-          日常主力 Java、偶尔写点 Python；同时在准备公考（申论 + 行测），也读书、记笔记。
-          这里会散放后端开发心得、公考备考整理、读书随感。
-          写博客对我来说不是为了"运营"，更像是
+          我是一名<span class="text-lavender-200 font-medium">后端开发者</span>， 日常主力
+          Java、偶尔写点 Python；同时在准备公考（申论 + 行测），也读书、记笔记。
+          这里会散放后端开发心得、公考备考整理、读书随感。 写博客对我来说不是为了"运营"，更像是
           <span class="text-sakura-400">「泥上偶然留指爪」</span>
           —— 把零散的思考存起来，几年后回头，能知道自己走过哪些路。
         </p>
@@ -115,27 +103,29 @@ const socials = SOCIALS;
       </div>
 
       <div class="space-y-5">
-        {stacks.map(group => (
-          <div>
-            <div class="text-xs text-lavender-500 tracking-[0.15em] uppercase mb-2 pl-1">
-              {group.group}
-            </div>
-            <div class="flex flex-wrap gap-2">
-              {group.items.map(item => (
-                <span class="stack-chip" data-accent={item.accent}>
-                  <span class="stack-dot"></span>
-                  <span>{item.name}</span>
-                  {/*
+        {
+          stacks.map((group) => (
+            <div>
+              <div class="text-xs text-lavender-500 tracking-[0.15em] uppercase mb-2 pl-1">
+                {group.group}
+              </div>
+              <div class="flex flex-wrap gap-2">
+                {group.items.map((item) => (
+                  <span class="stack-chip" data-accent={item.accent}>
+                    <span class="stack-dot" />
+                    <span>{item.name}</span>
+                    {/*
                     ABOUT_STACKS.items 是联合类型，`note` 只挂在部分成员上。
                     用 `'note' in item` 先做 narrowing，让 TS 认可这次访问；
                     后面再判值是为了空串/undefined 时也不渲染 <small>。
                   */}
-                  {'note' in item && item.note && <small class="stack-note">{item.note}</small>}
-                </span>
-              ))}
+                    {'note' in item && item.note && <small class="stack-note">{item.note}</small>}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        }
       </div>
     </section>
 
@@ -146,41 +136,60 @@ const socials = SOCIALS;
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {nowList.map(item => (
-          <div class="glass-card p-4 hover:-translate-y-0.5 transition-transform">
-            <div class="flex items-center gap-2 mb-2">
-              <span class="now-icon" aria-hidden="true">
-                {item.icon === 'tv' && (
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="2" y="7" width="20" height="15" rx="2"/>
-                    <path d="m17 2-5 5-5-5"/>
-                  </svg>
-                )}
-                {item.icon === 'book' && (
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
-                  </svg>
-                )}
-                {item.icon === 'game' && (
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="6" x2="10" y1="11" y2="11"/>
-                    <line x1="8" x2="8" y1="9" y2="13"/>
-                    <line x1="15" x2="15.01" y1="12" y2="12"/>
-                    <line x1="18" x2="18.01" y1="10" y2="10"/>
-                    <path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258A4 4 0 0 0 17.32 5z"/>
-                  </svg>
-                )}
-              </span>
-              <span class="text-xs text-lavender-500 tracking-wider">{item.label}</span>
+        {
+          nowList.map((item) => (
+            <div class="glass-card p-4 hover:-translate-y-0.5 transition-transform">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="now-icon" aria-hidden="true">
+                  {item.icon === 'tv' && (
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.75"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <rect x="2" y="7" width="20" height="15" rx="2" />
+                      <path d="m17 2-5 5-5-5" />
+                    </svg>
+                  )}
+                  {item.icon === 'book' && (
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.75"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+                    </svg>
+                  )}
+                  {item.icon === 'game' && (
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.75"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <line x1="6" x2="10" y1="11" y2="11" />
+                      <line x1="8" x2="8" y1="9" y2="13" />
+                      <line x1="15" x2="15.01" y1="12" y2="12" />
+                      <line x1="18" x2="18.01" y1="10" y2="10" />
+                      <path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258A4 4 0 0 0 17.32 5z" />
+                    </svg>
+                  )}
+                </span>
+                <span class="text-xs text-lavender-500 tracking-wider">{item.label}</span>
+              </div>
+              <div class="text-sm text-lavender-100 font-medium leading-snug">{item.title}</div>
+              <div class="text-xs text-lavender-500 mt-1">{item.sub}</div>
             </div>
-            <div class="text-sm text-lavender-100 font-medium leading-snug">
-              {item.title}
-            </div>
-            <div class="text-xs text-lavender-500 mt-1">
-              {item.sub}
-            </div>
-          </div>
-        ))}
+          ))
+        }
       </div>
     </section>
 
@@ -220,40 +229,62 @@ const socials = SOCIALS;
       </div>
 
       <div class="flex flex-wrap gap-3">
-        {socials.map(s => (
-          <a
-            href={s.href}
-            class="social-btn"
-            target={s.href.startsWith('http') ? '_blank' : undefined}
-            rel={s.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-          >
-            <span class="social-ico" aria-hidden="true">
-              {s.icon === 'github' && (
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/>
-                  <path d="M9 18c-4.51 2-5-2-7-2"/>
-                </svg>
-              )}
-              {s.icon === 'rss' && (
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M4 11a9 9 0 0 1 9 9"/>
-                  <path d="M4 4a16 16 0 0 1 16 16"/>
-                  <circle cx="5" cy="19" r="1"/>
-                </svg>
-              )}
-              {s.icon === 'mail' && (
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                  <rect width="20" height="16" x="2" y="4" rx="2"/>
-                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
-                </svg>
-              )}
-            </span>
-            <span>{s.name}</span>
-          </a>
-        ))}
+        {
+          socials.map((s) => (
+            <a
+              href={s.href}
+              class="social-btn"
+              target={s.href.startsWith('http') ? '_blank' : undefined}
+              rel={s.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+            >
+              <span class="social-ico" aria-hidden="true">
+                {s.icon === 'github' && (
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.75"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
+                    <path d="M9 18c-4.51 2-5-2-7-2" />
+                  </svg>
+                )}
+                {s.icon === 'rss' && (
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.75"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M4 11a9 9 0 0 1 9 9" />
+                    <path d="M4 4a16 16 0 0 1 16 16" />
+                    <circle cx="5" cy="19" r="1" />
+                  </svg>
+                )}
+                {s.icon === 'mail' && (
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.75"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect width="20" height="16" x="2" y="4" rx="2" />
+                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                  </svg>
+                )}
+              </span>
+              <span>{s.name}</span>
+            </a>
+          ))
+        }
       </div>
     </section>
-
   </div>
 </Layout>
 
@@ -285,18 +316,15 @@ const socials = SOCIALS;
     position: absolute;
     inset: -6px;
     border-radius: 9999px;
-    background: conic-gradient(
-      from 0deg,
-      var(--brand-g1),
-      var(--brand-g3),
-      var(--brand-g1)
-    );
+    background: conic-gradient(from 0deg, var(--brand-g1), var(--brand-g3), var(--brand-g1));
     animation: spin-slow 8s linear infinite;
     opacity: 0.7;
     filter: blur(0.5px);
   }
   @keyframes spin-slow {
-    to { transform: rotate(360deg); }
+    to {
+      transform: rotate(360deg);
+    }
   }
   .about-avatar {
     position: relative;
@@ -325,8 +353,13 @@ const socials = SOCIALS;
     animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
   @keyframes pulse-ring {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7); }
-    70%      { box-shadow: 0 0 0 6px rgba(52, 211, 153, 0); }
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7);
+    }
+    70% {
+      box-shadow: 0 0 0 6px rgba(52, 211, 153, 0);
+    }
   }
 
   .about-greet {
@@ -374,9 +407,15 @@ const socials = SOCIALS;
     border-radius: 9999px;
     flex-shrink: 0;
   }
-  .stack-chip[data-accent="sakura"] .stack-dot { background: rgb(var(--c-sakura-500)); }
-  .stack-chip[data-accent="gold"]   .stack-dot { background: rgb(var(--c-gold-400));   }
-  .stack-chip[data-accent="mint"]   .stack-dot { background: rgb(var(--c-mint-400));   }
+  .stack-chip[data-accent='sakura'] .stack-dot {
+    background: rgb(var(--c-sakura-500));
+  }
+  .stack-chip[data-accent='gold'] .stack-dot {
+    background: rgb(var(--c-gold-400));
+  }
+  .stack-chip[data-accent='mint'] .stack-dot {
+    background: rgb(var(--c-mint-400));
+  }
   .stack-note {
     font-size: 0.625rem;
     padding: 0.0625rem 0.375rem;
@@ -395,7 +434,10 @@ const socials = SOCIALS;
     justify-content: center;
     color: rgb(var(--c-sakura-500));
   }
-  .now-icon svg { width: 18px; height: 18px; }
+  .now-icon svg {
+    width: 18px;
+    height: 18px;
+  }
 
   /* ══ 5. 站点数据 ═══════════════════════════════════ */
   .stat {

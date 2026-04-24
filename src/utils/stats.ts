@@ -13,8 +13,9 @@
 import { getCollection } from 'astro:content';
 
 export async function getSiteStats() {
-  const allPosts = (await getCollection('posts', (p) => !p.data.draft))
-    .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+  const allPosts = (await getCollection('posts', (p) => !p.data.draft)).sort(
+    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+  );
 
   // 标签计数
   const tagCounts: Record<string, number> = {};
@@ -33,9 +34,7 @@ export async function getSiteStats() {
     totalBodyChars += p.body.length;
   }
 
-  const allTags = Object.keys(tagCounts).sort(
-    (a, b) => tagCounts[b]! - tagCounts[a]!,
-  );
+  const allTags = Object.keys(tagCounts).sort((a, b) => tagCounts[b]! - tagCounts[a]!);
 
   return {
     allPosts,
@@ -50,5 +49,4 @@ export async function getSiteStats() {
 }
 
 /** 数字缩写：1234 → "1.2k" */
-export const kilo = (n: number): string =>
-  n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n);
+export const kilo = (n: number): string => (n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n));

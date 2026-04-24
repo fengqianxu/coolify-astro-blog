@@ -9,10 +9,11 @@ const year = new Date().getFullYear();
 ---
 
 <footer class="relative z-10 mt-16 border-t border-white/6">
-  <div class="max-w-5xl mx-auto px-6 py-10
+  <div
+    class="max-w-5xl mx-auto px-6 py-10
               flex flex-col sm:flex-row items-center justify-between
-              gap-4 text-sm text-lavender-600">
-
+              gap-4 text-sm text-lavender-600"
+  >
     <div class="flex items-center gap-2">
       <span aria-hidden="true">🌸</span>
       <span>© {year} <span class="text-gradient font-semibold">{SITE.name}</span></span>
@@ -25,7 +26,7 @@ const year = new Date().getFullYear();
     </div>
 
     <nav aria-label="页脚链接" class="flex gap-4">
-      <a href="/rss.xml"           class="hover:text-sakura-400 transition-colors">RSS</a>
+      <a href="/rss.xml" class="hover:text-sakura-400 transition-colors">RSS</a>
       <a href="/sitemap-index.xml" class="hover:text-sakura-400 transition-colors">Sitemap</a>
     </nav>
   </div>

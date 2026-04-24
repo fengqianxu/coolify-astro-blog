@@ -9,11 +9,7 @@ export default defineConfig({
   // 全站绝对 URL —— canonical / sitemap / og:url 都会基于这个生成
   site: 'https://blog.helingtao.com',
 
-  integrations: [
-    tailwind({ applyBaseStyles: false }),
-    mdx(),
-    sitemap(),
-  ],
+  integrations: [tailwind({ applyBaseStyles: false }), mdx(), sitemap()],
 
   markdown: {
     syntaxHighlight: 'shiki',

@@ -13,39 +13,39 @@
  */
 ---
 
-<canvas
-  id="starfield"
-  class="fixed inset-0 pointer-events-none z-0"
-  aria-hidden="true"
-></canvas>
+<canvas id="starfield" class="fixed inset-0 pointer-events-none z-0" aria-hidden="true"></canvas>
 
 <script>
   // ── 类型定义 ──────────────────────────────────────────────────────
   type ParticleType = 'ring' | 'square' | 'line' | 'dot';
 
   interface Particle {
-    x: number; y: number;
-    vx: number; vy: number;
+    x: number;
+    y: number;
+    vx: number;
+    vy: number;
     size: number;
-    life: number;         // 用作渐入：alpha 随 life 饱和到 1
+    life: number; // 用作渐入：alpha 随 life 饱和到 1
     type: ParticleType;
-    rot: number; vr: number;
-    depth: number;        // 0.4–1.0，用作景深 alpha/速度调制
+    rot: number;
+    vr: number;
+    depth: number; // 0.4–1.0，用作景深 alpha/速度调制
   }
 
   // ── Canvas 初始化 ─────────────────────────────────────────────────
   const canvas = document.getElementById('starfield') as HTMLCanvasElement;
-  const ctx    = canvas.getContext('2d')!;
+  const ctx = canvas.getContext('2d')!;
 
-  let W = 0, H = 0;
+  let W = 0,
+    H = 0;
   let particles: Particle[] = [];
   let frameId = 0;
   const dpr = Math.min(2, window.devicePixelRatio || 1); // 手机高 DPR 时压到 2，控制 GPU 负担
 
   function resize() {
-    W = canvas.width  = window.innerWidth  * dpr;
+    W = canvas.width = window.innerWidth * dpr;
     H = canvas.height = window.innerHeight * dpr;
-    canvas.style.width  = window.innerWidth  + 'px';
+    canvas.style.width = window.innerWidth + 'px';
     canvas.style.height = window.innerHeight + 'px';
   }
 
@@ -55,25 +55,22 @@
   function makeParticle(seedY = false): Particle {
     const type = SHAPES[Math.floor(Math.random() * SHAPES.length)]!;
     return {
-      x:     Math.random() * W,
-      y:     seedY ? Math.random() * H : -40,
-      vx:    (Math.random() - 0.5) * 0.08 * dpr,
-      vy:    (0.05 + Math.random() * 0.12) * dpr,
-      size:  (18 + Math.random() * 42) * dpr,
-      life:  seedY ? Math.random() : 0,
+      x: Math.random() * W,
+      y: seedY ? Math.random() * H : -40,
+      vx: (Math.random() - 0.5) * 0.08 * dpr,
+      vy: (0.05 + Math.random() * 0.12) * dpr,
+      size: (18 + Math.random() * 42) * dpr,
+      life: seedY ? Math.random() : 0,
       type,
-      rot:   Math.random() * Math.PI * 2,
-      vr:    (Math.random() - 0.5) * 0.0015,
+      rot: Math.random() * Math.PI * 2,
+      vr: (Math.random() - 0.5) * 0.0015,
       depth: 0.4 + Math.random() * 0.6,
     };
   }
 
   function initParticles() {
     // HANDOFF 规定：Math.min(22, (w*h)/70000)
-    const count = Math.min(
-      22,
-      Math.floor((window.innerWidth * window.innerHeight) / 70000),
-    );
+    const count = Math.min(22, Math.floor((window.innerWidth * window.innerHeight) / 70000));
     particles = Array.from({ length: count }, () => makeParticle(true));
   }
 
@@ -83,7 +80,7 @@
     const cs = getComputedStyle(document.documentElement);
     const norm = (v: string) => v.trim().split(/\s+/).join(',');
     return {
-      main:   norm(cs.getPropertyValue('--particle-color'))   || '236,72,153',
+      main: norm(cs.getPropertyValue('--particle-color')) || '236,72,153',
       accent: norm(cs.getPropertyValue('--particle-accent')) || '217,147,33',
     };
   }
@@ -95,8 +92,8 @@
     const { main, accent } = getColors();
 
     for (const p of particles) {
-      p.x   += p.vx;
-      p.y   += p.vy;
+      p.x += p.vx;
+      p.y += p.vy;
       p.rot += p.vr;
       p.life = Math.min(1, p.life + 0.002);
 
@@ -106,13 +103,13 @@
       }
 
       const alpha = p.life * 0.22 * p.depth;
-      const rgb   = (p.type === 'line' || p.type === 'square') ? accent : main;
+      const rgb = p.type === 'line' || p.type === 'square' ? accent : main;
 
       ctx.save();
       ctx.translate(p.x, p.y);
       ctx.rotate(p.rot);
       ctx.strokeStyle = `rgba(${rgb}, ${alpha})`;
-      ctx.lineWidth   = Math.max(1, 0.9 * dpr);
+      ctx.lineWidth = Math.max(1, 0.9 * dpr);
 
       if (p.type === 'ring') {
         ctx.beginPath();
@@ -124,7 +121,7 @@
       } else if (p.type === 'line') {
         ctx.beginPath();
         ctx.moveTo(-p.size * 0.6, 0);
-        ctx.lineTo( p.size * 0.6, 0);
+        ctx.lineTo(p.size * 0.6, 0);
         ctx.stroke();
       } else {
         // dot：微小实心，亮度略高让点更有存在感
@@ -173,10 +170,14 @@
 
   // 主题切换时：下一帧 getColors() 会自动取到新的 CSS 变量值，不用做额外处理。
   // 只在尺寸变化时重建粒子，保持密度正确。
-  window.addEventListener('resize', () => {
-    stop();
-    resize();
-    initParticles();
-    start();
-  }, { passive: true });
+  window.addEventListener(
+    'resize',
+    () => {
+      stop();
+      resize();
+      initParticles();
+      start();
+    },
+    { passive: true },
+  );
 </script>

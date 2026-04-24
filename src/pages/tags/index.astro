@@ -13,7 +13,6 @@ const { allTags, tagCounts } = await getSiteStats();
 
 <Layout title="标签" description="所有标签">
   <div class="relative z-10 max-w-3xl mx-auto px-6 pb-20">
-
     <!-- 页头：reveal 让标题随滚动浮现，和其它列表页同节奏 -->
     <div class="mb-8 reveal">
       <h1 class="font-heading text-3xl font-bold text-gradient mb-2">标签</h1>
@@ -22,16 +21,18 @@ const { allTags, tagCounts } = await getSiteStats();
     </div>
 
     <div class="glass-card p-6 flex flex-wrap gap-3 reveal" data-delay="80">
-      {allTags.map(tag => (
-        <a
-          href={`/tags/${encodeURIComponent(tag)}`}
-          class="tag-pill text-sm"
-          style={`font-size: ${tagFontSizePx(tagCounts[tag] ?? 1, { min: 12, max: 18, unit: 2 })}`}
-        >
-          {tag}
-          <span class="ml-1 text-sakura-500/60">{tagCounts[tag]}</span>
-        </a>
-      ))}
+      {
+        allTags.map((tag) => (
+          <a
+            href={`/tags/${encodeURIComponent(tag)}`}
+            class="tag-pill text-sm"
+            style={`font-size: ${tagFontSizePx(tagCounts[tag] ?? 1, { min: 12, max: 18, unit: 2 })}`}
+          >
+            {tag}
+            <span class="ml-1 text-sakura-500/60">{tagCounts[tag]}</span>
+          </a>
+        ))
+      }
     </div>
   </div>
 </Layout>

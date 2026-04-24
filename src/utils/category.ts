@@ -13,8 +13,7 @@ import type { CategoryData } from '../types';
 export const catPath = (data: CategoryData): string[] => data.category;
 
 /** 根分类名（顶层），空数组时回退到「随笔」。 */
-export const catRoot = (data: CategoryData): string =>
-  data.category[0] ?? '随笔';
+export const catRoot = (data: CategoryData): string => data.category[0] ?? '随笔';
 
 /** 叶子分类名（用于卡片/胶囊上显示最具体的那一项） */
 export const catLeaf = (data: CategoryData): string => {
@@ -23,8 +22,7 @@ export const catLeaf = (data: CategoryData): string => {
 };
 
 /** 字符串化路径，默认用 " / " 连接，用于面包屑显示 */
-export const catPathStr = (data: CategoryData, sep = ' / '): string =>
-  data.category.join(sep);
+export const catPathStr = (data: CategoryData, sep = ' / '): string => data.category.join(sep);
 
 /** 用作 Map key 的紧凑字符串（"考试/申论/大作文"） */
 export const catKey = (data: CategoryData): string => data.category.join('/');

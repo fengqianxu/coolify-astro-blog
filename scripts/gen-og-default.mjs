@@ -21,7 +21,8 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUT = resolve(__dirname, '..', 'public', 'og-default.png');
 
-const W = 1200, H = 630;
+const W = 1200,
+  H = 630;
 
 // ── 像素数据（RGB） ────────────────────────────────────────────────
 // 渐变：左上 #0f0f12 → 右下 #ff2d6b，叠加右下 radial 光晕。
@@ -32,7 +33,8 @@ const [r0, g0, b0] = [0x0f, 0x0f, 0x12];
 const [r1, g1, b1] = [0xff, 0x2d, 0x6b];
 
 // 右下光晕中心（相对坐标 0-1）
-const glowCx = 0.78, glowCy = 0.62;
+const glowCx = 0.78,
+  glowCy = 0.62;
 const [gr, gg, gb] = [0xff, 0xaa, 0x00]; // 琥珀金
 
 for (let y = 0; y < H; y++) {
@@ -53,7 +55,7 @@ for (let y = 0; y < H; y++) {
     b = b + (gb - b) * glow;
 
     const o = (y * W + x) * 3;
-    pixels[o    ] = Math.max(0, Math.min(255, r | 0));
+    pixels[o] = Math.max(0, Math.min(255, r | 0));
     pixels[o + 1] = Math.max(0, Math.min(255, g | 0));
     pixels[o + 2] = Math.max(0, Math.min(255, b | 0));
   }
@@ -72,7 +74,7 @@ const CRC_TABLE = (() => {
   const t = new Uint32Array(256);
   for (let n = 0; n < 256; n++) {
     let c = n;
-    for (let k = 0; k < 8; k++) c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
+    for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
     t[n] = c >>> 0;
   }
   return t;
@@ -84,9 +86,11 @@ function crc32(buf) {
 }
 
 function chunk(type, data) {
-  const len = Buffer.alloc(4); len.writeUInt32BE(data.length, 0);
+  const len = Buffer.alloc(4);
+  len.writeUInt32BE(data.length, 0);
   const t = Buffer.from(type, 'ascii');
-  const crc = Buffer.alloc(4); crc.writeUInt32BE(crc32(Buffer.concat([t, data])), 0);
+  const crc = Buffer.alloc(4);
+  crc.writeUInt32BE(crc32(Buffer.concat([t, data])), 0);
   return Buffer.concat([len, t, data, crc]);
 }
 
@@ -94,11 +98,11 @@ function chunk(type, data) {
 const ihdr = Buffer.alloc(13);
 ihdr.writeUInt32BE(W, 0);
 ihdr.writeUInt32BE(H, 4);
-ihdr[8]  = 8;   // 8-bit depth
-ihdr[9]  = 2;   // truecolor RGB
-ihdr[10] = 0;   // compression: deflate
-ihdr[11] = 0;   // filter: adaptive (PNG 唯一合法值)
-ihdr[12] = 0;   // interlace: none
+ihdr[8] = 8; // 8-bit depth
+ihdr[9] = 2; // truecolor RGB
+ihdr[10] = 0; // compression: deflate
+ihdr[11] = 0; // filter: adaptive (PNG 唯一合法值)
+ihdr[12] = 0; // interlace: none
 
 const png = Buffer.concat([
   Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), // PNG 签名

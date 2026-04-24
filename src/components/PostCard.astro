@@ -31,8 +31,9 @@ const dateStr = fmtLong(pubDate);
 const leaf = category[category.length - 1] ?? '随笔';
 const root = category[0] ?? '随笔';
 
-const emoji    = CATEGORY_EMOJI[leaf]    ?? CATEGORY_EMOJI[root]    ?? '✨';
-const gradient = CATEGORY_GRADIENT[leaf] ?? CATEGORY_GRADIENT[root] ?? 'from-void-800/80 to-void-700/60';
+const emoji = CATEGORY_EMOJI[leaf] ?? CATEGORY_EMOJI[root] ?? '✨';
+const gradient =
+  CATEGORY_GRADIENT[leaf] ?? CATEGORY_GRADIENT[root] ?? 'from-void-800/80 to-void-700/60';
 ---
 
 <article
@@ -43,8 +44,8 @@ const gradient = CATEGORY_GRADIENT[leaf] ?? CATEGORY_GRADIENT[root] ?? 'from-voi
 >
   <!-- ── 封面区域 ─────────────────────────────────────── -->
   <div class:list={['relative aspect-video overflow-hidden bg-gradient-to-br', gradient]}>
-    {heroImage
-      ? (
+    {
+      heroImage ? (
         <img
           src={heroImage}
           alt={`${title} 封面图`}
@@ -54,8 +55,7 @@ const gradient = CATEGORY_GRADIENT[leaf] ?? CATEGORY_GRADIENT[root] ?? 'from-voi
           height="900"
           class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
-      )
-      : (
+      ) : (
         <div class="absolute inset-0 flex items-center justify-center">
           <span
             class="text-5xl opacity-30 select-none transition-transform duration-300 group-hover:scale-110"
@@ -68,8 +68,10 @@ const gradient = CATEGORY_GRADIENT[leaf] ?? CATEGORY_GRADIENT[root] ?? 'from-voi
     }
 
     <!-- 分类徽章（只显示叶子分类） -->
-    <span class="absolute top-3 left-3 rounded-full px-2.5 py-0.5 text-xs font-medium
-                 bg-void-900/70 backdrop-blur-sm text-sakura-300 border border-sakura-700/40">
+    <span
+      class="absolute top-3 left-3 rounded-full px-2.5 py-0.5 text-xs font-medium
+                 bg-void-900/70 backdrop-blur-sm text-sakura-300 border border-sakura-700/40"
+    >
       {leaf}
     </span>
   </div>
@@ -80,8 +82,10 @@ const gradient = CATEGORY_GRADIENT[leaf] ?? CATEGORY_GRADIENT[root] ?? 'from-voi
     文字会「稍微飘出卡片平面」，是让 3D 感觉真实的点睛之笔。
   -->
   <div class="p-5 flex flex-col gap-2.5 tilt-deep">
-    <h2 class="font-heading font-semibold text-base text-lavender-100 line-clamp-2
-               group-hover:text-sakura-300 transition-colors duration-200 leading-snug">
+    <h2
+      class="font-heading font-semibold text-base text-lavender-100 line-clamp-2
+               group-hover:text-sakura-300 transition-colors duration-200 leading-snug"
+    >
       <!--
         after:absolute after:inset-0 让整个卡片区域都是链接的点击热区，
         同时 <a> 的文字仍是无障碍的可读标题。
@@ -94,10 +98,7 @@ const gradient = CATEGORY_GRADIENT[leaf] ?? CATEGORY_GRADIENT[root] ?? 'from-voi
     <p class="text-lavender-400 text-sm line-clamp-2 leading-relaxed">{description}</p>
 
     <div class="flex items-center justify-between mt-auto pt-2.5 border-t border-white/6">
-      <time
-        datetime={pubDate.toISOString()}
-        class="text-xs text-lavender-600"
-      >
+      <time datetime={pubDate.toISOString()} class="text-xs text-lavender-600">
         {dateStr}
       </time>
 
@@ -109,9 +110,13 @@ const gradient = CATEGORY_GRADIENT[leaf] ?? CATEGORY_GRADIENT[root] ?? 'from-voi
          - cursor-pointer 在 .tag-pill 里原本就有，现在终于名副其实。
       -->
       <div class="relative z-10 flex flex-wrap gap-1" aria-label="文章标签">
-        {tags.slice(0, LIMITS.postCardTags).map((tag) => (
-          <a href={`/tags/${encodeURIComponent(tag)}`} class="tag-pill">{tag}</a>
-        ))}
+        {
+          tags.slice(0, LIMITS.postCardTags).map((tag) => (
+            <a href={`/tags/${encodeURIComponent(tag)}`} class="tag-pill">
+              {tag}
+            </a>
+          ))
+        }
       </div>
     </div>
   </div>

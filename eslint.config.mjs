@@ -48,7 +48,7 @@ export default [
       ],
       '@typescript-eslint/no-explicit-any': 'warn',
       'prefer-const': 'warn',
-      'eqeqeq': ['warn', 'smart'],
+      eqeqeq: ['warn', 'smart'],
     },
   },
 

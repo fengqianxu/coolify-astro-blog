@@ -18,26 +18,26 @@
 
 import '../styles/global.css';
 import { SITE } from '../config/site';
-import NavBar      from '../components/NavBar.astro';
-import Footer      from '../components/Footer.astro';
-import StarField   from '../components/StarField.astro';
+import NavBar from '../components/NavBar.astro';
+import Footer from '../components/Footer.astro';
+import StarField from '../components/StarField.astro';
 import SearchModal from '../components/SearchModal.astro';
 
 interface Props {
-  title:        string;
+  title: string;
   description?: string;
-  ogImage?:     string;
-  heroVideo?:   boolean;
+  ogImage?: string;
+  heroVideo?: boolean;
   /** 指定页面类型，用于 OG 区分 website / article */
-  ogType?:      'website' | 'article';
+  ogType?: 'website' | 'article';
 }
 
 const {
   title,
   description = SITE.description,
-  ogImage     = '/og-default.png',
-  heroVideo   = false,
-  ogType      = 'website',
+  ogImage = '/og-default.png',
+  heroVideo = false,
+  ogType = 'website',
 } = Astro.props;
 
 // 页面 <title>：首页直接使用站名，其他页面加后缀
@@ -45,7 +45,7 @@ const fullTitle = title === SITE.name ? SITE.name : `${title} · ${SITE.name}`;
 
 // canonical & 绝对 URL（site 未配置时退化为相对 URL）
 const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? `${SITE.url}/`).toString();
-const absOgImage   = new URL(ogImage, Astro.site ?? `${SITE.url}/`).toString();
+const absOgImage = new URL(ogImage, Astro.site ?? `${SITE.url}/`).toString();
 ---
 
 <!doctype html>
@@ -58,19 +58,19 @@ const absOgImage   = new URL(ogImage, Astro.site ?? `${SITE.url}/`).toString();
     <link rel="canonical" href={canonicalURL} />
 
     <!-- Open Graph -->
-    <meta property="og:title"       content={fullTitle} />
+    <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
-    <meta property="og:image"       content={absOgImage} />
-    <meta property="og:type"        content={ogType} />
-    <meta property="og:url"         content={canonicalURL} />
-    <meta property="og:site_name"   content={SITE.name} />
-    <meta property="og:locale"      content={SITE.locale} />
+    <meta property="og:image" content={absOgImage} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:locale" content={SITE.locale} />
 
     <!-- Twitter Card -->
-    <meta name="twitter:card"        content="summary_large_image" />
-    <meta name="twitter:title"       content={fullTitle} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image"       content={absOgImage} />
+    <meta name="twitter:image" content={absOgImage} />
 
     <!-- PWA / Browser Chrome -->
     <meta name="theme-color" content={SITE.themeColor} />
@@ -88,8 +88,14 @@ const absOgImage   = new URL(ogImage, Astro.site ?? `${SITE.url}/`).toString();
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont@1.7.0/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont@1.7.0/style.css"
+    />
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=JetBrains+Mono:wght@400;500&display=swap"
@@ -120,9 +126,11 @@ const absOgImage   = new URL(ogImage, Astro.site ?? `${SITE.url}/`).toString();
 
   <body class="min-h-dvh flex flex-col">
     {/* 阅读进度条：仅文章页挂载，列表/归档/关于这些页面完全不渲染元素 + 不绑定 scroll */}
-    {ogType === 'article' && (
-      <div class="reading-progress" id="reading-progress" aria-hidden="true"></div>
-    )}
+    {
+      ogType === 'article' && (
+        <div class="reading-progress" id="reading-progress" aria-hidden="true" />
+      )
+    }
 
     <!-- 粒子背景（花瓣 + 闪光） -->
     <StarField />
@@ -137,7 +145,7 @@ const absOgImage   = new URL(ogImage, Astro.site ?? `${SITE.url}/`).toString();
       非视频首屏：推开导航栏高度（var(--nav-height)）
       视频首屏：HeroVideo 自身占满视口，不需要额外间距
     -->
-    {!heroVideo && <div class="h-16" aria-hidden="true"></div>}
+    {!heroVideo && <div class="h-16" aria-hidden="true" />}
 
     <main class="flex-1">
       <slot />
@@ -151,17 +159,12 @@ const absOgImage   = new URL(ogImage, Astro.site ?? `${SITE.url}/`).toString();
       SVG 里 linearGradient 的两个色标写死成日间主色（236,72,153 → 217,147,33）；
       夜间仍是同样渐变（蓝钢色的渐变在圆环那么细线条上看不清层次，日间粉金更显眼）。
     -->
-    <button
-      id="progress-ring"
-      class="progress-ring"
-      type="button"
-      aria-label="回到顶部"
-    >
+    <button id="progress-ring" class="progress-ring" type="button" aria-label="回到顶部">
       <svg viewBox="0 0 56 56" aria-hidden="true">
         <defs>
           <linearGradient id="progressGrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%"   stop-color="rgb(236,72,153)" />
-            <stop offset="100%" stop-color="rgb(217,147,33)" />
+            <stop offset="0%" stop-color="rgb(236,72,153)"></stop>
+            <stop offset="100%" stop-color="rgb(217,147,33)"></stop>
           </linearGradient>
         </defs>
         <circle class="track" cx="28" cy="28" r="25"></circle>
@@ -183,11 +186,15 @@ const absOgImage   = new URL(ogImage, Astro.site ?? `${SITE.url}/`).toString();
           progressBar.style.setProperty('--reading-progress', `${Math.min(pct, 100)}%`);
           pending = false;
         };
-        window.addEventListener('scroll', () => {
-          if (pending) return;
-          pending = true;
-          requestAnimationFrame(updateProgress);
-        }, { passive: true });
+        window.addEventListener(
+          'scroll',
+          () => {
+            if (pending) return;
+            pending = true;
+            requestAnimationFrame(updateProgress);
+          },
+          { passive: true },
+        );
       }
     </script>
 

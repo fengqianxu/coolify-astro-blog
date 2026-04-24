@@ -69,62 +69,64 @@ export default {
       //   sans     —— 英文 UI / 标签 DM Sans（干净几何）
       //   mono     —— 代码 JetBrains Mono
       fontFamily: {
-        heading: ['"LXGW WenKai"',        'Georgia', 'serif'],
-        body:    ['"LXGW WenKai Screen"',  '"LXGW WenKai"', 'system-ui', 'sans-serif'],
-        display: ['Fraunces',              '"LXGW WenKai"', 'Georgia', 'serif'],
-        sans:    ['"DM Sans"',             '"LXGW WenKai Screen"', 'system-ui', 'sans-serif'],
-        mono:    ['"JetBrains Mono"', 'monospace'],
+        heading: ['"LXGW WenKai"', 'Georgia', 'serif'],
+        body: ['"LXGW WenKai Screen"', '"LXGW WenKai"', 'system-ui', 'sans-serif'],
+        display: ['Fraunces', '"LXGW WenKai"', 'Georgia', 'serif'],
+        sans: ['"DM Sans"', '"LXGW WenKai Screen"', 'system-ui', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'monospace'],
       },
 
       // ── Gradients（使用 CSS 变量，模式自适应） ───────────────
       backgroundImage: {
-        'gradient-brand': 'linear-gradient(135deg, var(--brand-g1) 0%, var(--brand-g2) 50%, var(--brand-g3) 100%)',
-        'gradient-fade':  'linear-gradient(180deg, transparent 0%, rgb(var(--c-void-900)) 100%)',
-        'gradient-card':  'linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)',
+        'gradient-brand':
+          'linear-gradient(135deg, var(--brand-g1) 0%, var(--brand-g2) 50%, var(--brand-g3) 100%)',
+        'gradient-fade': 'linear-gradient(180deg, transparent 0%, rgb(var(--c-void-900)) 100%)',
+        'gradient-card':
+          'linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)',
       },
 
       // ── Shadows ────────────────────────────────────────────
       boxShadow: {
-        'glow-pink':  'var(--shadow-glow-pink)',
+        'glow-pink': 'var(--shadow-glow-pink)',
         'glow-amber': 'var(--shadow-glow-amber)',
-        'card':       'var(--shadow-card)',
+        card: 'var(--shadow-card)',
         'card-hover': 'var(--shadow-card-hover)',
-        'nav':        '0 2px 16px rgba(0,0,0,0.4)',
+        nav: '0 2px 16px rgba(0,0,0,0.4)',
       },
 
       // ── Animations ─────────────────────────────────────────
       animation: {
-        'float':         'float 6s ease-in-out infinite',
-        'twinkle':       'twinkle 2.5s ease-in-out infinite',
-        'slide-up':      'slideUp 0.45s ease-out both',
-        'fade-in':       'fadeIn 0.6s ease-out both',
+        float: 'float 6s ease-in-out infinite',
+        twinkle: 'twinkle 2.5s ease-in-out infinite',
+        'slide-up': 'slideUp 0.45s ease-out both',
+        'fade-in': 'fadeIn 0.6s ease-out both',
         'bounce-gentle': 'bounceGentle 3s ease-in-out infinite',
-        'scale-in':      'scaleIn 0.2s ease-out both',
+        'scale-in': 'scaleIn 0.2s ease-out both',
       },
       keyframes: {
         float: {
           '0%, 100%': { transform: 'translateY(0)' },
-          '50%':      { transform: 'translateY(-10px)' },
+          '50%': { transform: 'translateY(-10px)' },
         },
         twinkle: {
-          '0%, 100%': { opacity: '1',   transform: 'scale(1)' },
-          '50%':      { opacity: '0.3', transform: 'scale(0.7)' },
+          '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+          '50%': { opacity: '0.3', transform: 'scale(0.7)' },
         },
         slideUp: {
           from: { opacity: '0', transform: 'translateY(16px)' },
-          to:   { opacity: '1', transform: 'translateY(0)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
         },
         fadeIn: {
           from: { opacity: '0' },
-          to:   { opacity: '1' },
+          to: { opacity: '1' },
         },
         bounceGentle: {
           '0%, 100%': { transform: 'translateY(0) rotate(-2deg)' },
-          '50%':      { transform: 'translateY(-7px) rotate(2deg)' },
+          '50%': { transform: 'translateY(-7px) rotate(2deg)' },
         },
         scaleIn: {
           from: { opacity: '0', transform: 'scale(0.96) translateY(-8px)' },
-          to:   { opacity: '1', transform: 'scale(1) translateY(0)' },
+          to: { opacity: '1', transform: 'scale(1) translateY(0)' },
         },
       },
 
@@ -132,19 +134,19 @@ export default {
       typography: () => ({
         twilight: {
           css: {
-            '--tw-prose-body':           'rgb(var(--c-lavender-300))',
-            '--tw-prose-headings':       'rgb(var(--c-lavender-100))',
-            '--tw-prose-links':          'rgb(var(--c-sakura-500))',
-            '--tw-prose-bold':           'rgb(var(--c-lavender-100))',
-            '--tw-prose-code':           'rgb(var(--c-sakura-500))',
-            '--tw-prose-pre-bg':         'rgb(var(--c-void-800))',
-            '--tw-prose-quotes':         'rgb(var(--c-lavender-400))',
-            '--tw-prose-quote-borders':  'rgb(var(--c-sakura-500))',
-            '--tw-prose-hr':             'var(--divider-color)',
-            '--tw-prose-bullets':        'rgb(var(--c-gold-400))',
-            '--tw-prose-counters':       'rgb(var(--c-gold-400))',
-            '--tw-prose-th-borders':     'var(--divider-color)',
-            '--tw-prose-td-borders':     'var(--divider-color)',
+            '--tw-prose-body': 'rgb(var(--c-lavender-300))',
+            '--tw-prose-headings': 'rgb(var(--c-lavender-100))',
+            '--tw-prose-links': 'rgb(var(--c-sakura-500))',
+            '--tw-prose-bold': 'rgb(var(--c-lavender-100))',
+            '--tw-prose-code': 'rgb(var(--c-sakura-500))',
+            '--tw-prose-pre-bg': 'rgb(var(--c-void-800))',
+            '--tw-prose-quotes': 'rgb(var(--c-lavender-400))',
+            '--tw-prose-quote-borders': 'rgb(var(--c-sakura-500))',
+            '--tw-prose-hr': 'var(--divider-color)',
+            '--tw-prose-bullets': 'rgb(var(--c-gold-400))',
+            '--tw-prose-counters': 'rgb(var(--c-gold-400))',
+            '--tw-prose-th-borders': 'var(--divider-color)',
+            '--tw-prose-td-borders': 'var(--divider-color)',
           },
         },
       }),

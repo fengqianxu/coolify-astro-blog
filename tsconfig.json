@@ -1,9 +1,4 @@
 {
   "extends": "astro/tsconfigs/strict",
-  "exclude": [
-    "node_modules",
-    "dist",
-    "assets",
-    "博客源代码参考"
-  ]
+  "exclude": ["node_modules", "dist", "assets", "博客源代码参考"]
 }

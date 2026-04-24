@@ -32,7 +32,6 @@
    1. BASE —— 颜色变量（RGB 三元组，供 Tailwind `rgb(var() / <alpha-value>)` 消费）
    ───────────────────────────────────────────────────── */
 @layer base {
-
   /* ═══ 日间（默认）—— Saber 圣光金 ══════════════════════ */
   :root {
     color-scheme: light;
@@ -42,14 +41,14 @@
     --c-sakura-200: 252 204 224;
     --c-sakura-300: 249 168 199;
     --c-sakura-400: 244 114 169;
-    --c-sakura-500: 236  72 153;   /* #EC4899 */
-    --c-sakura-600: 219  39 122;
-    --c-sakura-700: 190  24 100;
+    --c-sakura-500: 236 72 153; /* #EC4899 */
+    --c-sakura-600: 219 39 122;
+    --c-sakura-700: 190 24 100;
 
     /* gold：副色（圣光金，取代原 amber） */
-    --c-gold-300:   245 188  80;
-    --c-gold-400:   217 147  33;   /* 圣光金 */
-    --c-gold-500:   180 115  20;
+    --c-gold-300: 245 188 80;
+    --c-gold-400: 217 147 33; /* 圣光金 */
+    --c-gold-500: 180 115 20;
 
     /* lavender：文字层次（日间 = 深色）
      * 100 最深（主要标题），400 最浅（辅助小字）。
@@ -57,74 +56,76 @@
      * 现有 `text-lavender-500` / `text-lavender-600` 全部继续可读（≈ 4.8:1）。
      * 700 保留为 decorative（分隔线/边框的浅色）。
      */
-    --c-lavender-100:  30  14  25;
-    --c-lavender-200:  58  28  44;
-    --c-lavender-300: 100  60  80;
-    --c-lavender-400: 140  96 120;
-    --c-lavender-500: 140  96 120;   /* = 400；扁平 4 级层次 */
-    --c-lavender-600: 140  96 120;   /* = 400 */
+    --c-lavender-100: 30 14 25;
+    --c-lavender-200: 58 28 44;
+    --c-lavender-300: 100 60 80;
+    --c-lavender-400: 140 96 120;
+    --c-lavender-500: 140 96 120; /* = 400；扁平 4 级层次 */
+    --c-lavender-600: 140 96 120; /* = 400 */
     --c-lavender-700: 232 215 225;
 
     /* void：背景层次（日间 = 暖米白） */
-    --c-void-950:   250 240 232;   /* 滚动条轨道 */
-    --c-void-900:   252 244 240;   /* 页面底 */
-    --c-void-800:   255 248 244;
-    --c-void-700:   255 252 250;   /* 卡内 */
-    --c-void-600:   247 236 224;
-    --c-void-500:   240 228 214;
+    --c-void-950: 250 240 232; /* 滚动条轨道 */
+    --c-void-900: 252 244 240; /* 页面底 */
+    --c-void-800: 255 248 244;
+    --c-void-700: 255 252 250; /* 卡内 */
+    --c-void-600: 247 236 224;
+    --c-void-500: 240 228 214;
 
     /* mint：成功/在线 */
-    --c-mint-400:    52 211 153;
-    --c-mint-500:    16 185 129;
+    --c-mint-400: 52 211 153;
+    --c-mint-500: 16 185 129;
 
     /* 复合变量 —— 颜色 */
-    --brand-g1:   rgb(236,  72, 153);
-    --brand-g2:   rgb(244, 114, 169);
-    --brand-g3:   rgb(217, 147,  33);
+    --brand-g1: rgb(236, 72, 153);
+    --brand-g2: rgb(244, 114, 169);
+    --brand-g3: rgb(217, 147, 33);
     --brand-grad: linear-gradient(135deg, rgb(var(--c-sakura-500)) 0%, rgb(var(--c-gold-400)) 100%);
 
     /* 粒子背景用（Canvas 从这里 getComputedStyle 读） */
-    --particle-color:  236  72 153;
-    --particle-accent: 217 147  33;
+    --particle-color: 236 72 153;
+    --particle-accent: 217 147 33;
 
     /* 页面装饰径向渐变 */
     --body-radial:
-      radial-gradient(ellipse 80% 50% at 20% -5%,  rgba(236, 72,153,0.10) 0%, transparent 55%),
-      radial-gradient(ellipse 60% 40% at 85%  10%, rgba(217,147, 33,0.08) 0%, transparent 55%),
-      radial-gradient(ellipse 50% 40% at 50% 100%, rgba(236, 72,153,0.05) 0%, transparent 55%);
+      radial-gradient(ellipse 80% 50% at 20% -5%, rgba(236, 72, 153, 0.1) 0%, transparent 55%),
+      radial-gradient(ellipse 60% 40% at 85% 10%, rgba(217, 147, 33, 0.08) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 40% at 50% 100%, rgba(236, 72, 153, 0.05) 0%, transparent 55%);
 
     --scrollbar-track: rgb(250, 240, 232);
-    --selection-bg:    rgba(236, 72, 153, 0.25);
-    --selection-fg:    rgb(30, 14, 25);
+    --selection-bg: rgba(236, 72, 153, 0.25);
+    --selection-fg: rgb(30, 14, 25);
 
     /* 导航 */
-    --nav-over-video-bg:
-      linear-gradient(180deg, rgba(0,0,0,0.38) 0%, rgba(0,0,0,0.12) 45%, transparent 100%);
-    --nav-solid-bg:     rgba(252, 244, 240, 0.88);
-    --nav-solid-border: rgba(236,  72, 153, 0.12);
+    --nav-over-video-bg: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.38) 0%,
+      rgba(0, 0, 0, 0.12) 45%,
+      transparent 100%
+    );
+    --nav-solid-bg: rgba(252, 244, 240, 0.88);
+    --nav-solid-border: rgba(236, 72, 153, 0.12);
 
     /* 玻璃 */
-    --glass-bg:           linear-gradient(145deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.65) 100%);
-    --glass-border:       rgba(236,  72, 153, 0.15);
-    --glass-hover-border: rgba(236,  72, 153, 0.40);
-    --glass-shine:        rgba(255, 255, 255, 0.55);  /* 卡片扫光 */
-    --divider-color:      rgba(236,  72, 153, 0.12);
+    --glass-bg: linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.85) 0%,
+      rgba(255, 255, 255, 0.65) 100%
+    );
+    --glass-border: rgba(236, 72, 153, 0.15);
+    --glass-hover-border: rgba(236, 72, 153, 0.4);
+    --glass-shine: rgba(255, 255, 255, 0.55); /* 卡片扫光 */
+    --divider-color: rgba(236, 72, 153, 0.12);
 
     /* 阴影（复合） */
     --shadow-card:
-      0 6px 28px rgba(236, 72,153, 0.10),
-      0 1px 2px  rgba(30,  14, 25, 0.06),
+      0 6px 28px rgba(236, 72, 153, 0.1), 0 1px 2px rgba(30, 14, 25, 0.06),
       inset 0 1px 0 rgba(255, 255, 255, 0.8);
     --shadow-card-hover:
-      0 14px 44px rgba(236, 72,153, 0.18),
-      0 2px 8px   rgba(30,  14, 25, 0.08),
+      0 14px 44px rgba(236, 72, 153, 0.18), 0 2px 8px rgba(30, 14, 25, 0.08),
       inset 0 1px 0 rgba(255, 255, 255, 0.9);
-    --shadow-glow-pink:
-      0 0 20px rgba(236,  72, 153, 0.35),
-      0 0 60px rgba(236,  72, 153, 0.12);
-    --shadow-glow-amber:
-      0 0 20px rgba(217, 147, 33, 0.32),
-      0 0 60px rgba(217, 147, 33, 0.10);
+    --shadow-glow-pink: 0 0 20px rgba(236, 72, 153, 0.35), 0 0 60px rgba(236, 72, 153, 0.12);
+    --shadow-glow-amber: 0 0 20px rgba(217, 147, 33, 0.32), 0 0 60px rgba(217, 147, 33, 0.1);
   }
 
   /* ═══ 夜间 —— Saber 蓝装夜战（钢蓝调） ═════════════════ */
@@ -135,15 +136,15 @@
     --c-sakura-100: 255 228 239;
     --c-sakura-200: 255 194 216;
     --c-sakura-300: 255 145 184;
-    --c-sakura-400: 255  91 148;
-    --c-sakura-500: 255  45 107;   /* #FF2D6B */
-    --c-sakura-600: 224  25  90;
-    --c-sakura-700: 184   0  73;
+    --c-sakura-400: 255 91 148;
+    --c-sakura-500: 255 45 107; /* #FF2D6B */
+    --c-sakura-600: 224 25 90;
+    --c-sakura-700: 184 0 73;
 
     /* gold：副色从「金」换为「冷钢蓝」（保留 gold 变量名） */
     --c-gold-300: 160 210 255;
-    --c-gold-400: 110 180 255;     /* Saber 蓝装钢蓝 */
-    --c-gold-500:  75 150 220;
+    --c-gold-400: 110 180 255; /* Saber 蓝装钢蓝 */
+    --c-gold-500: 75 150 220;
 
     /* lavender：文字（夜间 = 浅色）
      * 100 最亮（主要标题），400 最暗（辅助小字，在 void-900 上 ≈ 6.2:1 ✓ AA）。
@@ -154,64 +155,65 @@
     --c-lavender-200: 225 225 235;
     --c-lavender-300: 175 175 195;
     --c-lavender-400: 130 130 150;
-    --c-lavender-500: 130 130 150;   /* = 400 */
-    --c-lavender-600: 130 130 150;   /* = 400 */
-    --c-lavender-700:  60  60  80;
+    --c-lavender-500: 130 130 150; /* = 400 */
+    --c-lavender-600: 130 130 150; /* = 400 */
+    --c-lavender-700: 60 60 80;
 
     /* void：深墨蓝 */
-    --c-void-950:    5   6  12;
-    --c-void-900:   10  12  20;
-    --c-void-800:   14  16  26;
-    --c-void-700:   20  22  34;
-    --c-void-600:   28  30  42;
-    --c-void-500:   38  40  54;
+    --c-void-950: 5 6 12;
+    --c-void-900: 10 12 20;
+    --c-void-800: 14 16 26;
+    --c-void-700: 20 22 34;
+    --c-void-600: 28 30 42;
+    --c-void-500: 38 40 54;
 
     /* mint */
-    --c-mint-400:    52 211 153;
-    --c-mint-500:    16 185 129;
+    --c-mint-400: 52 211 153;
+    --c-mint-500: 16 185 129;
 
     /* 复合变量 */
-    --brand-g1:   rgb(255,  45, 107);
-    --brand-g2:   rgb(255, 120, 180);
-    --brand-g3:   rgb(110, 180, 255);
+    --brand-g1: rgb(255, 45, 107);
+    --brand-g2: rgb(255, 120, 180);
+    --brand-g3: rgb(110, 180, 255);
     --brand-grad: linear-gradient(135deg, rgb(var(--c-sakura-500)) 0%, rgb(var(--c-gold-400)) 100%);
 
-    --particle-color:  255  45 107;
+    --particle-color: 255 45 107;
     --particle-accent: 110 180 255;
 
     --body-radial:
-      radial-gradient(ellipse 80% 50% at 20% -5%,  rgba(255, 45,107, 0.06) 0%, transparent 55%),
-      radial-gradient(ellipse 60% 40% at 85%  10%, rgba(110,180,255, 0.05) 0%, transparent 55%),
-      radial-gradient(ellipse 50% 40% at 50% 100%, rgba(255, 45,107, 0.03) 0%, transparent 55%);
+      radial-gradient(ellipse 80% 50% at 20% -5%, rgba(255, 45, 107, 0.06) 0%, transparent 55%),
+      radial-gradient(ellipse 60% 40% at 85% 10%, rgba(110, 180, 255, 0.05) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 40% at 50% 100%, rgba(255, 45, 107, 0.03) 0%, transparent 55%);
 
     --scrollbar-track: rgb(5, 6, 12);
-    --selection-bg:    rgba(255, 45, 107, 0.25);
-    --selection-fg:    rgb(250, 250, 252);
+    --selection-bg: rgba(255, 45, 107, 0.25);
+    --selection-fg: rgb(250, 250, 252);
 
-    --nav-over-video-bg:
-      linear-gradient(180deg, rgba(0,0,0,0.42) 0%, rgba(0,0,0,0.18) 45%, transparent 100%);
-    --nav-solid-bg:     rgba(10, 12, 20, 0.88);
+    --nav-over-video-bg: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.42) 0%,
+      rgba(0, 0, 0, 0.18) 45%,
+      transparent 100%
+    );
+    --nav-solid-bg: rgba(10, 12, 20, 0.88);
     --nav-solid-border: rgba(255, 255, 255, 0.07);
 
-    --glass-bg:           linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
-    --glass-border:       rgba(255, 255, 255, 0.08);
-    --glass-hover-border: rgba(255,  45, 107, 0.28);
-    --glass-shine:        rgba(255, 255, 255, 0.12);
-    --divider-color:      rgba(255, 255, 255, 0.08);
+    --glass-bg: linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.06) 0%,
+      rgba(255, 255, 255, 0.02) 100%
+    );
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-hover-border: rgba(255, 45, 107, 0.28);
+    --glass-shine: rgba(255, 255, 255, 0.12);
+    --divider-color: rgba(255, 255, 255, 0.08);
 
-    --shadow-card:
-      0 6px 28px rgba(0, 0, 0, 0.5),
-      inset 0 1px 0 rgba(255, 255, 255, 0.07);
+    --shadow-card: 0 6px 28px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.07);
     --shadow-card-hover:
-      0 14px 44px rgba(0, 0, 0, 0.6),
-      0 0 24px    rgba(255, 45, 107, 0.12),
-      inset 0 1px 0 rgba(255, 255, 255, 0.10);
-    --shadow-glow-pink:
-      0 0 20px rgba(255,  45, 107, 0.35),
-      0 0 60px rgba(255,  45, 107, 0.12);
-    --shadow-glow-amber:
-      0 0 20px rgba(110, 180, 255, 0.28),
-      0 0 60px rgba(110, 180, 255, 0.10);
+      0 14px 44px rgba(0, 0, 0, 0.6), 0 0 24px rgba(255, 45, 107, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    --shadow-glow-pink: 0 0 20px rgba(255, 45, 107, 0.35), 0 0 60px rgba(255, 45, 107, 0.12);
+    --shadow-glow-amber: 0 0 20px rgba(110, 180, 255, 0.28), 0 0 60px rgba(110, 180, 255, 0.1);
   }
 
   /* 通用基础 */
@@ -230,12 +232,18 @@
   body {
     @apply bg-void-900 text-lavender-200 font-body antialiased;
     background-image: var(--body-radial);
-    transition: color 0.35s ease, background-color 0.35s ease;
+    transition:
+      color 0.35s ease,
+      background-color 0.35s ease;
   }
 
   /* 滚动条 */
-  ::-webkit-scrollbar       { width: 5px; }
-  ::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+  ::-webkit-scrollbar {
+    width: 5px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+  }
   ::-webkit-scrollbar-thumb {
     background: linear-gradient(180deg, var(--brand-g1), var(--brand-g3));
     border-radius: 3px;
@@ -284,7 +292,6 @@
    2. COMPONENTS
    ───────────────────────────────────────────────────── */
 @layer components {
-
   /* ── 玻璃态卡片 ────────────────────────────────────── */
   .glass-card {
     @apply rounded-2xl border;
@@ -292,7 +299,11 @@
     border-color: var(--glass-border);
     box-shadow: var(--shadow-card);
     backdrop-filter: blur(16px);
-    transition: box-shadow 0.25s ease, transform 0.25s ease, border-color 0.25s ease, background 0.35s ease;
+    transition:
+      box-shadow 0.25s ease,
+      transform 0.25s ease,
+      border-color 0.25s ease,
+      background 0.35s ease;
   }
   .glass-card:hover {
     border-color: var(--glass-hover-border);
@@ -333,7 +344,7 @@
     backdrop-filter: blur(20px) saturate(160%);
     -webkit-backdrop-filter: blur(20px) saturate(160%);
     border-bottom: 1px solid var(--nav-solid-border);
-    box-shadow: 0 1px 20px rgba(0,0,0,0.18);
+    box-shadow: 0 1px 20px rgba(0, 0, 0, 0.18);
   }
 
   /* ── 导航菜单里的线性图标 ──────────────────────────── */
@@ -387,7 +398,7 @@
   }
   .nav-icon-btn:hover {
     color: rgb(var(--c-sakura-500));
-    background: rgba(var(--c-sakura-500) / 0.10);
+    background: rgba(var(--c-sakura-500) / 0.1);
   }
   :root:not(.dark) .nav-icon-btn {
     color: rgb(var(--c-lavender-100));
@@ -406,9 +417,9 @@
     color: #fff !important;
     font-weight: 700;
     text-shadow:
-      0 1px 4px  rgba(0, 0, 0, 0.75),
-      0 0 12px   rgba(0, 0, 0, 0.50),
-      0 0 24px   rgba(0, 0, 0, 0.35);
+      0 1px 4px rgba(0, 0, 0, 0.75),
+      0 0 12px rgba(0, 0, 0, 0.5),
+      0 0 24px rgba(0, 0, 0, 0.35);
   }
   .nav-over-video .nav-link:hover,
   .nav-over-video .nav-icon-btn:hover,
@@ -416,16 +427,16 @@
   :root:not(.dark) .nav-over-video .nav-icon-btn:hover {
     color: rgb(var(--c-sakura-300)) !important;
     text-shadow:
-      0 1px 6px  rgba(0, 0, 0, 0.85),
-      0 0 14px   rgba(0, 0, 0, 0.55),
-      0 0 28px   rgba(0, 0, 0, 0.40);
+      0 1px 6px rgba(0, 0, 0, 0.85),
+      0 0 14px rgba(0, 0, 0, 0.55),
+      0 0 28px rgba(0, 0, 0, 0.4);
   }
   .nav-over-video .nav-link-active,
   :root:not(.dark) .nav-over-video .nav-link-active {
     color: #fff !important;
     text-shadow:
-      0 1px 8px  rgba(0, 0, 0, 0.80),
-      0 0 20px   rgba(0, 0, 0, 0.50);
+      0 1px 8px rgba(0, 0, 0, 0.8),
+      0 0 20px rgba(0, 0, 0, 0.5);
   }
 
   /* ── Logo 占位（等用户替换为 PNG/SVG） ─────────────────
@@ -441,13 +452,15 @@
       0 4px 16px rgba(236, 72, 153, 0.35),
       inset 0 1px 0 rgba(255, 255, 255, 0.35);
     overflow: hidden;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
   }
   .logo-mark:hover {
     transform: rotate(-4deg) scale(1.04);
     box-shadow:
-      0 6px 22px rgba(236, 72, 153, 0.50),
-      inset 0 1px 0 rgba(255, 255, 255, 0.40);
+      0 6px 22px rgba(236, 72, 153, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.4);
   }
   .logo-mark img {
     width: 100%;
@@ -458,7 +471,7 @@
   .dark .logo-mark {
     box-shadow:
       0 4px 16px rgba(255, 45, 107, 0.45),
-      0 0 24px   rgba(110, 180, 255, 0.20),
+      0 0 24px rgba(110, 180, 255, 0.2),
       inset 0 1px 0 rgba(255, 255, 255, 0.18);
   }
 
@@ -468,7 +481,9 @@
     background-image: linear-gradient(90deg, var(--brand-g1) 0%, var(--brand-g3) 100%);
     background-size: 0% 100%;
     background-repeat: no-repeat;
-    transition: background-size 0.3s ease, color 0.2s ease;
+    transition:
+      background-size 0.3s ease,
+      color 0.2s ease;
   }
   :root:not(.dark) .dropdown-item {
     color: rgb(var(--c-lavender-200));
@@ -507,17 +522,24 @@
     font-size: clamp(72px, 11vw, 160px);
     line-height: 0.95;
     letter-spacing: -0.03em;
-    font-variation-settings: "opsz" 144, "SOFT" 100;
+    font-variation-settings:
+      'opsz' 144,
+      'SOFT' 100;
     background: var(--brand-grad);
     -webkit-background-clip: text;
-            background-clip: text;
+    background-clip: text;
     color: transparent;
     animation: heroTitleFloat 7s ease-in-out infinite;
     will-change: transform;
   }
   @keyframes heroTitleFloat {
-    0%, 100% { transform: translateY(0); }
-    50%      { transform: translateY(-8px); }
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
   }
 
   /* ── Hero 视频容器呼吸光晕 ───────────────────────────
@@ -532,15 +554,16 @@
     animation: heroVideoBreathe 6s ease-in-out infinite;
   }
   @keyframes heroVideoBreathe {
-    0%, 100% {
+    0%,
+    100% {
       box-shadow:
         inset 0 0 120px rgb(var(--c-sakura-500) / 0.28),
-        inset 0 0 60px  rgb(var(--c-sakura-500) / 0.14);
+        inset 0 0 60px rgb(var(--c-sakura-500) / 0.14);
     }
     50% {
       box-shadow:
         inset 0 0 180px rgb(var(--c-sakura-500) / 0.45),
-        inset 0 0 90px  rgb(var(--c-sakura-500) / 0.22);
+        inset 0 0 90px rgb(var(--c-sakura-500) / 0.22);
     }
   }
 
@@ -559,8 +582,12 @@
   .tilt > * {
     transform: translateZ(0);
   }
-  .tilt .tilt-deep  { transform: translateZ(20px); }
-  .tilt .tilt-deeper{ transform: translateZ(30px); }
+  .tilt .tilt-deep {
+    transform: translateZ(20px);
+  }
+  .tilt .tilt-deeper {
+    transform: translateZ(30px);
+  }
 
   /* ── 卡片 ::before 扫光（斜向光带 left:-100% → 140%） ── */
   .shine {
@@ -574,12 +601,7 @@
     inset: 0;
     z-index: 2;
     pointer-events: none;
-    background: linear-gradient(
-      110deg,
-      transparent 40%,
-      var(--glass-shine) 50%,
-      transparent 60%
-    );
+    background: linear-gradient(110deg, transparent 40%, var(--glass-shine) 50%, transparent 60%);
     transform: translateX(-100%);
     transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
@@ -592,22 +614,26 @@
     background: conic-gradient(
       from 0deg,
       rgb(var(--c-sakura-500)) 0%,
-      rgb(var(--c-gold-400))  50%,
+      rgb(var(--c-gold-400)) 50%,
       rgb(var(--c-sakura-500)) 100%
     );
     animation: ringSpin 30s linear infinite;
     will-change: transform;
   }
   @keyframes ringSpin {
-    from { transform: rotate(0deg); }
-    to   { transform: rotate(360deg); }
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
   }
 
   /* ── 侧边栏/统计数字（Fraunces 500） ──────────────── */
   .stat-num {
     font-family: 'Fraunces', 'LXGW WenKai', Georgia, serif;
     font-weight: 500;
-    font-variation-settings: "opsz" 72;
+    font-variation-settings: 'opsz' 72;
     letter-spacing: -0.01em;
   }
 
@@ -623,7 +649,9 @@
     opacity: 0;
     transform: translateY(8px) scale(0.9);
     pointer-events: none;
-    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition:
+      opacity 0.3s ease,
+      transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
   .progress-ring.visible {
     opacity: 1;
@@ -692,16 +720,28 @@
    3. UTILITIES
    ───────────────────────────────────────────────────── */
 @layer utilities {
-  .delay-100 { animation-delay: 100ms; }
-  .delay-200 { animation-delay: 200ms; }
-  .delay-300 { animation-delay: 300ms; }
-  .delay-400 { animation-delay: 400ms; }
-  .delay-500 { animation-delay: 500ms; }
+  .delay-100 {
+    animation-delay: 100ms;
+  }
+  .delay-200 {
+    animation-delay: 200ms;
+  }
+  .delay-300 {
+    animation-delay: 300ms;
+  }
+  .delay-400 {
+    animation-delay: 400ms;
+  }
+  .delay-500 {
+    animation-delay: 500ms;
+  }
 
   /* Fraunces 字体族（display）快捷类 */
   .font-display {
     font-family: 'Fraunces', 'LXGW WenKai', Georgia, serif;
-    font-variation-settings: "opsz" 144, "SOFT" 100;
+    font-variation-settings:
+      'opsz' 144,
+      'SOFT' 100;
   }
 }
 

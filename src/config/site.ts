@@ -39,27 +39,27 @@ export const SITE = {
 
 /** 顶部导航链接列表 */
 export const NAV_LINKS = [
-  { href: '/',      label: '首页' },
-  { href: '/blog',  label: '文章' },
-  { href: '/tags',  label: '标签' },
+  { href: '/', label: '首页' },
+  { href: '/blog', label: '文章' },
+  { href: '/tags', label: '标签' },
   { href: '/about', label: '关于' },
 ] as const;
 
 /** 文章分类对应的 emoji */
 export const CATEGORY_EMOJI: Record<string, string> = {
-  '技术':  '⚙️',
-  '考试':  '📚',
-  '申论':  '✒️',
-  '行测':  '🔢',
-  '读书':  '📖',
-  '随笔':  '✏️',
+  技术: '⚙️',
+  考试: '📚',
+  申论: '✒️',
+  行测: '🔢',
+  读书: '📖',
+  随笔: '✏️',
 };
 
 /** 默认封面渐变（分类 → Tailwind gradient 类名） */
 export const CATEGORY_GRADIENT: Record<string, string> = {
-  '技术':   'from-gray-950/80   to-zinc-900/60',
-  '二次元': 'from-rose-950/80   to-pink-900/60',
-  '随笔':   'from-stone-900/80  to-zinc-950/60',
+  技术: 'from-gray-950/80   to-zinc-900/60',
+  二次元: 'from-rose-950/80   to-pink-900/60',
+  随笔: 'from-stone-900/80  to-zinc-950/60',
 };
 
 /**
@@ -68,21 +68,21 @@ export const CATEGORY_GRADIENT: Record<string, string> = {
  */
 export const LIMITS = {
   /** 首页精选卡片数量 */
-  homeFeatured:  8,
+  homeFeatured: 8,
   /** 搜索结果展示条数 */
   searchResults: 8,
   /** 侧边栏「最近文章」条数 */
   sidebarRecent: 5,
   /** 文章卡片上最多展示的 tag 数 */
-  postCardTags:  3,
+  postCardTags: 3,
   /** 标签云里最多展示多少标签（0 = 不限制） */
-  tagCloudMax:   0,
+  tagCloudMax: 0,
 } as const;
 
 /** 「此刻」小卡片列表 —— 在 /about 页展示 */
 export const NOW_LIST = [
-  { icon: 'tv',   label: '在追', title: '春季番巡礼',            sub: '详情见 /blog 里的追番指南' },
-  { icon: 'book', label: '在读', title: '《程序员修炼之道》',     sub: '查漏补缺' },
+  { icon: 'tv', label: '在追', title: '春季番巡礼', sub: '详情见 /blog 里的追番指南' },
+  { icon: 'book', label: '在读', title: '《程序员修炼之道》', sub: '查漏补缺' },
   { icon: 'game', label: '在玩', title: '独立游戏 Hollow Knight', sub: '白宫通关中' },
 ] as const;
 
@@ -92,9 +92,9 @@ export const NOW_LIST = [
  * 层通过 `href === '#'` 决定渲染方式（避免放弃式 mailto:hello@example.com）。
  */
 export const SOCIALS = [
-  { name: 'GitHub', href: 'https://github.com/coderhelt',        icon: 'github' },
-  { name: 'RSS',    href: '/rss.xml',                            icon: 'rss'    },
-  { name: 'Email',  href: 'mailto:hello@helingtao.com',          icon: 'mail'   },
+  { name: 'GitHub', href: 'https://github.com/coderhelt', icon: 'github' },
+  { name: 'RSS', href: '/rss.xml', icon: 'rss' },
+  { name: 'Email', href: 'mailto:hello@helingtao.com', icon: 'mail' },
 ] as const;
 
 /**
@@ -106,26 +106,26 @@ export const ABOUT_STACKS = [
   {
     group: '语言',
     items: [
-      { name: 'Java',       accent: 'sakura', note: '主力' },
-      { name: 'Python',     accent: 'mint',   note: '略懂' },
-      { name: 'SQL',        accent: 'gold' },
+      { name: 'Java', accent: 'sakura', note: '主力' },
+      { name: 'Python', accent: 'mint', note: '略懂' },
+      { name: 'SQL', accent: 'gold' },
     ],
   },
   {
     group: '后端 & 存储',
     items: [
       { name: 'Spring Boot', accent: 'sakura' },
-      { name: 'MySQL',       accent: 'gold'   },
-      { name: 'Redis',       accent: 'sakura' },
-      { name: 'MyBatis',     accent: 'mint'   },
+      { name: 'MySQL', accent: 'gold' },
+      { name: 'Redis', accent: 'sakura' },
+      { name: 'MyBatis', accent: 'mint' },
     ],
   },
   {
     group: '工具',
     items: [
-      { name: 'Git',    accent: 'gold'   },
+      { name: 'Git', accent: 'gold' },
       { name: 'Docker', accent: 'sakura' },
-      { name: 'Linux',  accent: 'mint'   },
+      { name: 'Linux', accent: 'mint' },
     ],
   },
 ] as const;
